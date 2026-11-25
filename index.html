@@ -2,14 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Idle Eden Prototype</title>
+<title>Idle Eden v2</title>
 
 <style>
 body{
     background:#1b1b1b;
     color:white;
     font-family:Arial;
-    max-width:900px;
+    max-width:1200px;
     margin:auto;
     padding:20px;
 }
@@ -22,235 +22,495 @@ body{
 }
 
 button{
-    padding:10px;
-    margin:5px;
-    cursor:pointer;
+    padding:8px;
+    margin:3px;
 }
 
-h1{
-    color:#88ff88;
+.character-card{
+    background:#3a3a3a;
+    padding:10px;
+    margin:5px;
 }
 
 .log{
-    height:250px;
-    overflow-y:auto;
     background:black;
+    height:220px;
+    overflow-y:auto;
     padding:10px;
 }
 
-.stat{
-    color:#ffd966;
+.inventory-item{
+    padding:4px;
+    border-bottom:1px solid #555;
 }
+
+.legendary{color:orange;}
+.epic{color:violet;}
+.rare{color:#63b3ff;}
+.uncommon{color:#5eff5e;}
+.common{color:white;}
 </style>
 </head>
 
 <body>
 
-<h1>Idle Eden</h1>
+<h1>Idle Eden V2</h1>
 
 <div class="panel">
-    <input id="name" placeholder="Character Name" value="Warhymn">
 
-    <select id="realm">
-        <option>Hibernia</option>
-        <option>Midgard</option>
-        <option>Albion</option>
-    </select>
+<h2>Create Character</h2>
 
-    <select id="class">
-        <option>Chanter</option>
-        <option>Druid</option>
-        <option>Hero</option>
-        <option>Berserker</option>
-        <option>Healer</option>
-        <option>Mercenary</option>
-    </select>
+<input id="charName" placeholder="Character Name">
 
-    <button onclick="createCharacter()">Create Character</button>
+<select id="realm">
+<option>Hibernia</option>
+<option>Albion</option>
+<option>Midgard</option>
+</select>
+
+<select id="clazz">
+<option>Chanter</option>
+<option>Hero</option>
+<option>Druid</option>
+<option>Berserker</option>
+<option>Healer</option>
+<option>Mercenary</option>
+</select>
+
+<button onclick="createCharacter()">
+Create
+</button>
+
 </div>
 
 <div class="panel">
-    <h2 id="charInfo">No character</h2>
 
-    <div class="stat">Level: <span id="level">1</span></div>
-    <div class="stat">XP: <span id="xp">0</span></div>
+<h2>Characters</h2>
 
-    <div class="stat">Gold: <span id="gold">0</span></div>
+<div id="characterList"></div>
 
-    <div class="stat">Realm Rank: RR<span id="rr">1</span></div>
+</div>
 
-    <div class="stat">Realm Points: <span id="rp">0</span></div>
+<div id="gamePanel" style="display:none">
 
-    <div class="stat">Loot Found: <span id="loot">0</span></div>
+<div class="panel">
+<h2 id="playerHeader"></h2>
+
+Level: <span id="level"></span><br>
+XP: <span id="xp"></span><br>
+Gold: <span id="gold"></span><br>
+RP: <span id="rp"></span><br>
+RR: <span id="rr"></span><br>
+
 </div>
 
 <div class="panel">
-    <h2>Battle Log</h2>
-    <div class="log" id="log"></div>
+
+<h3>Equipment</h3>
+
+Weapon:
+<span id="weapon"></span>
+
+</div>
+
+<div class="panel">
+
+<h3>Inventory</h3>
+
+<div id="inventory"></div>
+
+</div>
+
+<div class="panel">
+
+<h3>Battle Log</h3>
+
+<div class="log" id="log"></div>
+
+</div>
+
 </div>
 
 <script>
 
-let player = {
-    name:"",
-    realm:"",
-    cls:"",
-    level:1,
-    xp:0,
-    gold:0,
-    rp:0,
-    loot:0
-};
+let characters =
+JSON.parse(
+localStorage.getItem("idleEdenCharacters")
+) || [];
 
-function addLog(text){
+let currentCharacter = null;
 
-    const log=document.getElementById("log");
+function saveCharacters() {
 
-    log.innerHTML =
-        "["+new Date().toLocaleTimeString()+"] "
-        + text + "<br>" + log.innerHTML;
+localStorage.setItem(
+"idleEdenCharacters",
+JSON.stringify(characters)
+);
+
 }
 
 function createCharacter(){
 
-    player.name=document.getElementById("name").value;
+const name =
+document.getElementById("charName").value;
 
-    player.realm=document.getElementById("realm").value;
+if(!name) return;
 
-    player.cls=document.getElementById("class").value;
+const c = {
 
-    addLog(
-      player.name +
-      " entered " +
-      player.realm +
-      " as a " +
-      player.cls
-    );
+id: Date.now(),
 
-    updateUI();
+name:name,
+
+realm:
+document.getElementById("realm").value,
+
+clazz:
+document.getElementById("clazz").value,
+
+level:1,
+xp:0,
+gold:0,
+rp:0,
+
+inventory:[],
+
+equipment:{
+weapon:null
+},
+
+lastLogin:Date.now()
+
+};
+
+characters.push(c);
+
+saveCharacters();
+
+renderCharacters();
+
+}
+
+function renderCharacters(){
+
+const container =
+document.getElementById("characterList");
+
+container.innerHTML="";
+
+characters.forEach(c=>{
+
+const div =
+document.createElement("div");
+
+div.className="character-card";
+
+div.innerHTML=`
+
+<b>${c.name}</b>
+(${c.realm} ${c.clazz})
+
+Level ${c.level}
+RR ${Math.floor(c.rp/1000)+1}
+
+<br>
+
+<button onclick="selectCharacter(${c.id})">
+Play
+</button>
+
+<button onclick="deleteCharacter(${c.id})">
+Delete
+</button>
+`;
+
+container.appendChild(div);
+
+});
+
+}
+
+function deleteCharacter(id){
+
+characters =
+characters.filter(x=>x.id!==id);
+
+saveCharacters();
+
+renderCharacters();
+
+}
+
+function selectCharacter(id){
+
+currentCharacter =
+characters.find(x=>x.id===id);
+
+processOfflineRewards();
+
+document.getElementById(
+"gamePanel"
+).style.display="block";
+
+updateUI();
+
+}
+
+function processOfflineRewards(){
+
+let now = Date.now();
+
+let diff =
+(now-currentCharacter.lastLogin)
+/ 1000;
+
+let xp = Math.floor(diff/5);
+
+let gold = Math.floor(diff/10);
+
+let rp = Math.floor(diff/20);
+
+currentCharacter.xp += xp;
+currentCharacter.gold += gold;
+currentCharacter.rp += rp;
+
+if(xp > 0){
+
+addLog(
+`Offline rewards:
++${xp} XP
++${gold} Gold
++${rp} RP`
+);
+
+}
+
+currentCharacter.lastLogin = now;
+
+saveCharacters();
+
+}
+
+function addLog(msg){
+
+const log =
+document.getElementById("log");
+
+log.innerHTML =
+new Date().toLocaleTimeString()
++" - "+msg+"<br>"
++log.innerHTML;
+
 }
 
 function levelRequirement(){
-    return player.level * 100;
+
+return currentCharacter.level * 100;
+
 }
 
 function updateUI(){
 
-    document.getElementById("charInfo").innerText =
-    player.name +
-    " - " +
-    player.realm +
-    " " +
-    player.cls;
+if(!currentCharacter) return;
 
-    document.getElementById("level").innerText =
-    player.level;
+document.getElementById(
+"playerHeader"
+).innerText =
+`${currentCharacter.name}
+(${currentCharacter.clazz})`;
 
-    document.getElementById("xp").innerText =
-    player.xp + "/" + levelRequirement();
+document.getElementById("level")
+.innerText=currentCharacter.level;
 
-    document.getElementById("gold").innerText =
-    player.gold;
+document.getElementById("xp")
+.innerText=
+currentCharacter.xp;
 
-    document.getElementById("rp").innerText =
-    player.rp;
+document.getElementById("gold")
+.innerText=
+currentCharacter.gold;
 
-    document.getElementById("loot").innerText =
-    player.loot;
+document.getElementById("rp")
+.innerText=
+currentCharacter.rp;
 
-    document.getElementById("rr").innerText =
-    Math.floor(player.rp / 1000) + 1;
+document.getElementById("rr")
+.innerText=
+Math.floor(
+currentCharacter.rp/1000
+)+1;
+
+document.getElementById("weapon")
+.innerText=
+currentCharacter
+.equipment.weapon
+|| "None";
+
+renderInventory();
+
+saveCharacters();
+
 }
 
-function xpTick(){
+function renderInventory(){
 
-    if(!player.name) return;
+const inv =
+document.getElementById(
+"inventory"
+);
 
-    player.xp += 5;
-    player.gold += 2;
+inv.innerHTML="";
 
-    if(player.xp >= levelRequirement()){
+currentCharacter.inventory
+.forEach(item=>{
 
-        player.xp=0;
-        player.level++;
+const div=
+document.createElement("div");
 
-        addLog(
-          player.name +
-          " reached level " +
-          player.level
-        );
-    }
+div.className=
+"inventory-item "
++ item.rarity;
 
-    updateUI();
+div.innerText =
+item.rarity.toUpperCase()+
+" "+
+item.name;
+
+inv.appendChild(div);
+
+});
+
 }
 
-function rvrBattle(){
+function rollLoot(){
 
-    if(!player.name) return;
+const roll =
+Math.random()*100;
 
-    let win = Math.random() > 0.4;
+let rarity="common";
 
-    if(win){
+if(roll>99)
+rarity="legendary";
 
-        let rpGain =
-            Math.floor(Math.random()*50)+25;
+else if(roll>95)
+rarity="epic";
 
-        player.rp += rpGain;
+else if(roll>85)
+rarity="rare";
 
-        addLog(
-          "Victory! +" +
-          rpGain +
-          " Realm Points"
-        );
+else if(roll>60)
+rarity="uncommon";
 
-    }else{
+const item={
 
-        addLog(
-          "Defeat in frontier skirmish."
-        );
-    }
+name:"Frontier Weapon",
 
-    if(Math.random() > 0.7){
+rarity:rarity
 
-        player.loot++;
+};
 
-        addLog(
-          "Loot Found: Frontier Token"
-        );
-    }
+currentCharacter.inventory
+.push(item);
 
-    updateUI();
+if(
+!currentCharacter
+.equipment.weapon
+||
+rarity==="legendary"
+){
+
+currentCharacter
+.equipment.weapon=
+rarity.toUpperCase()+
+" Frontier Weapon";
+
 }
 
-function saveGame(){
+addLog(
+"Loot Found: "
++ rarity.toUpperCase()
+);
 
-    localStorage.setItem(
-      "idleEdenSave",
-      JSON.stringify(player)
-    );
 }
 
-function loadGame(){
+function gameTick(){
 
-    let save=
-    localStorage.getItem("idleEdenSave");
+if(!currentCharacter)
+return;
 
-    if(save){
+currentCharacter.xp += 5;
 
-        player=
-        JSON.parse(save);
+currentCharacter.gold += 2;
 
-        updateUI();
+if(
+currentCharacter.xp
+>= levelRequirement()
+){
 
-        addLog("Game loaded.");
-    }
+currentCharacter.xp=0;
+
+currentCharacter.level++;
+
+addLog(
+"Level Up! "
++currentCharacter.level
+);
+
 }
 
-setInterval(xpTick,1000);
-setInterval(rvrBattle,10000);
-setInterval(saveGame,5000);
+if(Math.random()>0.5){
 
-loadGame();
+let rp=
+Math.floor(
+Math.random()*50
+)+20;
+
+currentCharacter.rp += rp;
+
+addLog(
+"Victory! +"
++rp+" RP"
+);
+
+}
+
+if(Math.random()>0.92){
+
+rollLoot();
+
+}
+
+updateUI();
+
+}
+
+renderCharacters();
+
+setInterval(
+gameTick,
+5000
+);
+
+setInterval(
+saveCharacters,
+5000
+);
+
+window.addEventListener(
+"beforeunload",
+()=>{
+
+if(currentCharacter){
+
+currentCharacter.lastLogin=
+Date.now();
+
+saveCharacters();
+
+}
+
+}
+);
 
 </script>
 
