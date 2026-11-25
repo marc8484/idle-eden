@@ -14,6 +14,14 @@
     --gold:#dcc486;
     --ivory:#e7dfcd;
     --text-muted:#aaa18c;
+    --jade:#65d9c1;
+    --jade-deep:#286e65;
+}
+
+#panel-combat{
+    background:
+        radial-gradient(ellipse at 50% 0%,rgba(52,125,113,.14),transparent 58%),
+        linear-gradient(145deg,var(--stone),var(--stone-deep));
 }
 
 body{
@@ -21,18 +29,64 @@ body{
     background-attachment:fixed;
     color:var(--ivory);
     font-family:Georgia,"Times New Roman",serif;
-    max-width:1240px;
+    max-width:1400px;
     margin:auto;
-    padding:20px;
+    padding:16px;
+    isolation:isolate;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:.5;
+    background:
+        radial-gradient(ellipse at 12% 18%,rgba(51,164,143,.2),transparent 38%),
+        radial-gradient(ellipse at 88% 12%,rgba(174,132,62,.13),transparent 34%),
+        radial-gradient(ellipse at 62% 92%,rgba(63,110,142,.12),transparent 42%);
+    animation:ambient-drift 24s ease-in-out infinite alternate;
+}
+
+@media (max-width:900px){
+    body{
+        padding:6px 12px;
+    }
+
+    .game-layout{
+        gap:6px;
+    }
 }
 
 .panel{
+    position:relative;
     background:linear-gradient(145deg,var(--stone),var(--stone-deep));
-    padding:15px;
-    margin-bottom:15px;
+    padding:12px;
+    margin-bottom:12px;
     border:1px solid var(--bronze);
     border-radius:4px;
-    box-shadow:inset 0 0 0 1px rgba(220,196,134,.06),0 6px 18px rgba(0,0,0,.38);
+    box-shadow:inset 0 0 0 1px rgba(220,196,134,.07),0 6px 18px rgba(0,0,0,.38);
+    transition:border-color .25s ease,box-shadow .25s ease;
+}
+
+.panel::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:12px;
+    right:12px;
+    height:1px;
+    pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(220,196,134,.7),rgba(101,217,193,.7),rgba(220,196,134,.7),transparent);
+    background-size:220% 100%;
+    opacity:.65;
+    animation:panel-glint 8s linear infinite;
+}
+
+.panel:hover{
+    border-color:rgba(181,154,96,.9);
+    box-shadow:inset 0 0 0 1px rgba(220,196,134,.1),0 8px 24px rgba(0,0,0,.44),0 0 16px rgba(101,217,193,.06);
 }
 
 h2,h3{
@@ -65,6 +119,38 @@ input,select{
     min-width:0;
 }
 
+.game-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    position:relative;
+    z-index:1;
+    padding:2px 2px 8px;
+    border-bottom:1px solid rgba(101,217,193,.22);
+}
+
+.game-header h1{
+    margin:0;
+    position:relative;
+}
+
+.header-character-selector{
+    flex:0 1 420px;
+}
+
+.visually-hidden{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+}
+
 .cloud-controls{
     display:flex;
     flex-wrap:wrap;
@@ -79,9 +165,13 @@ input,select{
 input:focus,select:focus,button:focus-visible{
     outline:2px solid var(--gold);
     outline-offset:2px;
+    box-shadow:0 0 12px rgba(101,217,193,.22);
 }
 
 button{
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
     padding:10px;
     margin:5px;
     cursor:pointer;
@@ -92,21 +182,77 @@ button{
     border:1px solid #ddc987;
     border-radius:3px;
     box-shadow:inset 0 1px rgba(255,255,255,.25),0 2px 4px rgba(0,0,0,.35);
+    transition:background .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+
+button::after{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    top:-40%;
+    bottom:-40%;
+    left:-45%;
+    width:32%;
+    pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+    transform:skewX(-20deg) translateX(-160%);
 }
 
 button:hover{
     background:linear-gradient(#e2cd91,#b28e4b);
+    box-shadow:inset 0 1px rgba(255,255,255,.4),0 3px 10px rgba(220,196,134,.22);
+    transform:translateY(-1px);
+}
+
+button:hover:not(:disabled)::after{
+    animation:button-shine .65s ease-out;
+}
+
+button:disabled{
+    cursor:not-allowed;
+    opacity:.58;
+    transform:none;
+}
+
+.game-tabs button{
+    margin:0;
+    min-width:110px;
+}
+
+.game-tabs{
+    display:flex;
+    gap:8px;
+}
+
+.game-tabs button[aria-current="page"]{
+    color:#e4fff7;
+    background:linear-gradient(145deg,#347d71,#244b48);
+    border-color:var(--jade);
+    box-shadow:inset 0 0 0 1px rgba(180,255,238,.18),0 0 14px rgba(101,217,193,.2),0 2px 6px rgba(0,0,0,.4);
 }
 
 h1{
-    color:#e0c77f;
+    color:#e7d18f;
     font-family:Georgia,"Times New Roman",serif;
     letter-spacing:2px;
-    text-shadow:0 2px 4px #000,0 0 14px rgba(188,151,73,.25);
+    text-shadow:0 2px 4px #000,0 0 12px rgba(188,151,73,.32),0 0 26px rgba(101,217,193,.16);
+}
+
+.game-header h1::after{
+    content:"";
+    position:absolute;
+    left:1px;
+    right:12px;
+    bottom:-5px;
+    height:1px;
+    background:linear-gradient(90deg,var(--jade),var(--gold),transparent);
+    box-shadow:0 0 8px rgba(101,217,193,.45);
 }
 
 .log{
-    height:250px;
+    height:160px;
+    min-height:90px;
+    max-height:22vh;
     overflow-y:auto;
     background:#111510;
     padding:10px;
@@ -129,9 +275,22 @@ h1{
     flex:1;
     min-width:0;
     background:linear-gradient(145deg,#20251f,#151915);
-    padding:12px;
+    padding:8px;
     border:1px solid #5e5137;
     border-radius:3px;
+    box-shadow:inset 0 0 18px rgba(101,217,193,.025);
+    transition:border-color .25s ease,box-shadow .25s ease;
+}
+
+.combatant:hover{
+    border-color:rgba(101,217,193,.5);
+    box-shadow:inset 0 0 20px rgba(101,217,193,.07),0 0 14px rgba(101,217,193,.07);
+}
+
+.combatant h3{
+    margin:4px 0 8px;
+    font-size:1.1em;
+    line-height:1.2;
 }
 
 .health-track{
@@ -144,10 +303,21 @@ h1{
 }
 
 .health-fill{
+    position:relative;
+    overflow:hidden;
     height:100%;
     width:100%;
     background:linear-gradient(#75bd72,#397448);
     transition:width .25s ease;
+}
+
+.health-fill::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.25) 48%,transparent 76%);
+    transform:translateX(-110%);
+    animation:bar-shimmer 4s ease-in-out infinite;
 }
 
 .enemy-health{
@@ -156,46 +326,77 @@ h1{
 
 .versus{
     align-self:center;
-    color:var(--gold);
+    color:#f0d98f;
     font-weight:bold;
+    text-shadow:0 0 10px rgba(220,196,134,.52),0 0 22px rgba(101,217,193,.2);
 }
 
 .damage-readout{
     min-height:24px;
     color:#e8b96e;
     font-weight:bold;
+    text-shadow:0 0 10px rgba(232,185,110,.25);
 }
 
 .game-layout{
     display:grid;
-    grid-template-columns:minmax(0,1fr) 290px;
-    grid-template-rows:auto 1fr;
-    gap:16px;
+    gap:8px;
     align-items:start;
+    position:relative;
+    z-index:1;
 }
 
-.game-layout>h1{
-    grid-column:1;
-    grid-row:1;
-    margin-bottom:0;
+.character-overview{
+    display:grid;
+    grid-template-columns:minmax(180px,auto) minmax(0,1fr);
+    align-items:center;
+    gap:12px;
+    padding:10px 12px;
+    margin-bottom:2px;
 }
 
-.game-main{
-    min-width:0;
-    grid-column:1;
-    grid-row:2;
+.character-overview h2{
+    margin:0;
+    padding:0;
+    border:0;
+    overflow-wrap:anywhere;
+}
+
+.stat-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+}
+
+.stat-chip{
+    padding:5px 8px;
+    background:rgba(12,15,12,.55);
+    border:1px solid #554a32;
+    border-radius:3px;
+    color:var(--text-muted);
+    font-size:13px;
+    white-space:nowrap;
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+
+.stat-chip:hover{
+    border-color:rgba(101,217,193,.55);
+    box-shadow:0 0 12px rgba(101,217,193,.12);
+    transform:translateY(-1px);
+}
+
+.stat-chip strong{
+    color:var(--gold);
+}
+
+.game-content{
+    position:relative;
+    z-index:1;
 }
 
 .character-window{
-    grid-column:2;
-    grid-row:1/3;
-    position:sticky;
-    top:12px;
-    max-height:calc(100vh - 24px);
-    overflow-y:auto;
     border:1px solid var(--bronze-light);
     box-shadow:inset 0 0 0 1px rgba(220,196,134,.1),0 6px 24px rgba(0,0,0,.55);
-    z-index:2;
 }
 
 .character-window h2{
@@ -208,8 +409,8 @@ h1{
 
 .paperdoll-layout{
     display:grid;
-    grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);
-    grid-template-rows:52px 68px 68px 52px;
+    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);
+    grid-template-rows:minmax(58px,auto) minmax(90px,auto) minmax(90px,auto) minmax(58px,auto);
     gap:5px;
     margin:12px 0;
 }
@@ -223,12 +424,21 @@ h1{
     padding:6px 4px;
     border:1px solid #5d5036;
     border-radius:3px;
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+
+.inventory-item:hover,.gear-slot:hover{
+    border-color:rgba(101,217,193,.5);
+    box-shadow:0 0 12px rgba(101,217,193,.09);
+    transform:translateY(-1px);
 }
 
 .gear-slot{
+    box-sizing:border-box;
     min-width:0;
     text-align:center;
     font-size:11px;
+    line-height:1.2;
     overflow-wrap:anywhere;
 }
 
@@ -246,6 +456,7 @@ h1{
 .slot-boots{grid-column:2;grid-row:4;}
 
 .paperdoll-figure{
+    position:relative;
     grid-column:2;
     grid-row:2/4;
     display:flex;
@@ -257,7 +468,22 @@ h1{
     pointer-events:none;
 }
 
+.paperdoll-figure::before{
+    content:"";
+    position:absolute;
+    width:82px;
+    height:82px;
+    border:1px solid rgba(101,217,193,.2);
+    border-top-color:rgba(101,217,193,.85);
+    border-bottom-color:rgba(220,196,134,.7);
+    border-radius:50%;
+    box-shadow:0 0 18px rgba(101,217,193,.12),inset 0 0 16px rgba(220,196,134,.08);
+    animation:sigil-turn 30s linear infinite;
+}
+
 .doll-head{
+    position:relative;
+    z-index:1;
     width:20px;
     height:20px;
     border-radius:50%;
@@ -265,6 +491,8 @@ h1{
 }
 
 .doll-body{
+    position:relative;
+    z-index:1;
     width:38px;
     height:48px;
     background:#88764e;
@@ -281,15 +509,21 @@ h1{
 }
 
 .rarity-common{color:#d0c8b7;}
-.rarity-uncommon{color:#82c785;}
-.rarity-rare{color:#82b2ea;}
-.rarity-epic{color:#c998e6;}
-.rarity-legendary{color:#e9ad58;}
-.rarity-artifact{color:#ef786a;font-weight:bold;}
+.rarity-uncommon{color:#82c785;text-shadow:0 0 8px rgba(130,199,133,.18);}
+.rarity-rare{color:#82b2ea;text-shadow:0 0 9px rgba(130,178,234,.3);}
+.rarity-epic{color:#c998e6;text-shadow:0 0 10px rgba(201,152,230,.38);}
+.rarity-legendary{color:#e9ad58;text-shadow:0 0 10px rgba(233,173,88,.42);}
+.rarity-artifact{
+    color:#ffd887;
+    font-weight:bold;
+    text-shadow:0 0 8px rgba(239,120,106,.8),0 0 18px rgba(255,192,87,.48);
+    animation:artifact-glow 2.4s ease-in-out infinite alternate;
+}
 
 .inventory-panel{
     box-sizing:border-box;
-    width:min(100%,360px);
+    width:100%;
+    max-width:380px;
     aspect-ratio:1;
     display:flex;
     flex-direction:column;
@@ -311,9 +545,116 @@ h1{
 
 .battle-layout{
     display:grid;
-    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
     gap:14px;
     align-items:start;
+}
+
+.tab-panel{
+    min-width:0;
+}
+
+.tab-panel[hidden]{
+    display:none;
+}
+
+.character-dashboard,.character-tools,.character-assets,.world-layout,.bestiary-realms,.bestiary-foes,.bestiary-champions{
+    display:grid;
+    gap:12px;
+    align-items:start;
+}
+
+.character-dashboard{
+    grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+}
+
+.character-tools{
+    grid-template-columns:1fr;
+}
+
+.character-form{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+}
+
+.character-form input{
+    flex:1 1 170px;
+    min-width:0;
+}
+
+.character-form select{
+    flex:1 1 130px;
+    min-width:0;
+}
+
+.character-assets{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.world-layout{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.bestiary-panel{
+    margin-top:12px;
+}
+
+.bestiary-controls{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.bestiary-realms{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    margin-top:10px;
+}
+
+.bestiary-realm{
+    min-width:0;
+    padding:10px;
+    background:rgba(12,15,12,.35);
+    border:1px solid #574a32;
+    border-radius:3px;
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+
+.bestiary-entry:hover{
+    border-color:rgba(101,217,193,.5);
+    box-shadow:0 0 14px rgba(101,217,193,.09);
+    transform:translateY(-1px);
+}
+
+.bestiary-realm h3,.bestiary-panel h3{
+    margin-top:4px;
+}
+
+.bestiary-foes{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.bestiary-entry{
+    min-width:0;
+    padding:9px;
+    background:linear-gradient(145deg,#20241f,#151815);
+    border:1px solid #574a32;
+    border-radius:3px;
+}
+
+.bestiary-entry button{
+    margin:8px 0 0;
+}
+
+.bestiary-champions{
+    grid-template-columns:repeat(5,minmax(0,1fr));
+}
+
+.hunt-locked{
+    color:#a9c58d;
+    font-weight:bold;
 }
 
 .battle-log-section h3{
@@ -330,10 +671,17 @@ h1{
     padding:10px;
     border:1px solid #574a32;
     border-radius:3px;
+    transition:border-color .2s ease,box-shadow .2s ease;
+}
+
+.zone-entry:hover,.keep-entry:hover,.realm-count:hover{
+    border-color:rgba(101,217,193,.4);
+    box-shadow:0 0 12px rgba(101,217,193,.07);
 }
 
 .zone-current{
     border-left:4px solid #c8a95f;
+    box-shadow:inset 0 0 16px rgba(220,196,134,.07),0 0 10px rgba(220,196,134,.08);
 }
 
 .zone-locked{
@@ -350,39 +698,103 @@ h1{
 .realm-dominant{
     color:#a9c58d;
     font-weight:bold;
+    text-shadow:0 0 10px rgba(169,197,141,.35);
 }
 
-@media (max-width:1000px){
+@keyframes ambient-drift{
+    from{transform:translate3d(-1.5%,0,0) scale(1);}
+    to{transform:translate3d(1.5%,-1%,0) scale(1.04);}
+}
+
+@keyframes panel-glint{
+    to{background-position:220% 0;}
+}
+
+@keyframes button-shine{
+    to{transform:skewX(-20deg) translateX(560%);}
+}
+
+@keyframes bar-shimmer{
+    0%,35%{transform:translateX(-110%);}
+    75%,100%{transform:translateX(110%);}
+}
+
+@keyframes sigil-turn{
+    to{transform:rotate(360deg);}
+}
+
+@keyframes artifact-glow{
+    from{filter:brightness(1);text-shadow:0 0 7px rgba(239,120,106,.62),0 0 15px rgba(255,192,87,.34);}
+    to{filter:brightness(1.2);text-shadow:0 0 11px rgba(239,120,106,.9),0 0 22px rgba(255,192,87,.58);}
+}
+
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+        transition-duration:.01ms !important;
+    }
+}
+
+@media (max-width:760px){
     .battle-layout{
         grid-template-columns:1fr;
     }
 }
 
-@media (max-width:600px){
+@media (max-width:900px){
+    .character-overview{
+        grid-template-columns:minmax(150px,auto) minmax(0,1fr);
+        gap:8px;
+    }
+
+    .character-dashboard{
+        grid-template-columns:1fr;
+    }
+
+    .character-tools{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .character-assets{
+        grid-template-columns:repeat(2,minmax(0,380px));
+    }
+}
+
+@media (max-width:700px){
     body{
         padding:12px;
     }
 
-    .game-layout{
+    .game-header{
+        align-items:stretch;
+        flex-direction:column;
+        gap:8px;
+    }
+
+    .header-character-selector{
+        flex:1 1 auto;
+    }
+
+    .character-tools,.character-assets,.world-layout,.bestiary-realms{
         grid-template-columns:1fr;
-        grid-template-rows:auto auto 1fr;
     }
 
-    .game-layout>h1{
-        grid-column:1;
-        grid-row:1;
+    .bestiary-foes{
+        grid-template-columns:repeat(2,minmax(0,1fr));
     }
 
-    .character-window{
-        grid-column:1;
-        grid-row:2;
-        position:static;
-        max-height:none;
+    .bestiary-champions{
+        grid-template-columns:repeat(2,minmax(0,1fr));
     }
 
-    .game-main{
-        grid-column:1;
-        grid-row:3;
+    .character-overview{
+        grid-template-columns:1fr;
+    }
+
+    .inventory-panel{
+        max-width:none;
     }
 
     .combatants{
@@ -393,6 +805,16 @@ h1{
         text-align:center;
     }
 
+    .game-tabs{
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .game-tabs button{
+        min-width:0;
+        padding:9px 5px;
+    }
+
 }
 </style>
 </head>
@@ -400,138 +822,181 @@ h1{
 <body>
 
 <div class="game-layout">
-<h1>Idle Eden</h1>
-<aside class="panel character-window" aria-label="Character equipment">
-    <h2>Character</h2>
-    <h3 class="paperdoll-name" id="paperdollName">No character</h3>
-    <div class="stat" id="paperdollMeta">Create a character to begin.</div>
-    <div class="paperdoll-layout">
-        <div class="paperdoll-slots" id="equipment"></div>
-        <div class="paperdoll-figure" aria-hidden="true">
-            <div class="doll-head"></div>
-            <div class="doll-body"></div>
+    <header class="game-header">
+        <h1>Idle Eden</h1>
+        <div class="character-selector header-character-selector">
+            <label class="visually-hidden" for="characterSelect">Saved characters</label>
+            <select id="characterSelect" aria-label="Saved characters">
+                <option value="">No saved characters</option>
+            </select>
+            <button type="button" onclick="loadSelectedCharacter()">Load Character</button>
         </div>
-    </div>
-    <div class="paperdoll-summary">
-        <span>Level <strong id="paperdollLevel">1</strong></span>
-        <span>Power <strong id="paperdollPower">10</strong></span>
-        <span>HP <strong id="paperdollHp">--</strong></span>
-    </div>
-</aside>
+    </header>
 
-<main class="game-main">
+    <section class="panel character-overview" aria-label="Character progress">
+        <h2 id="charInfo">No character</h2>
+        <div class="stat-chips">
+            <span class="stat-chip">Level <strong id="level">1</strong></span>
+            <span class="stat-chip">XP <strong id="xp">0</strong></span>
+            <span class="stat-chip">Gold <strong id="gold">0</strong></span>
+            <span class="stat-chip">Realm Rank RR<strong id="rr">1</strong></span>
+            <span class="stat-chip">Realm Points <strong id="rp">0</strong></span>
+            <span class="stat-chip">Loot <strong id="loot">0</strong></span>
+            <span class="stat-chip">Power <strong id="power">10</strong></span>
+            <span class="stat-chip">Kills <strong id="kills">0</strong></span>
+        </div>
+    </section>
 
-<div class="panel">
-    <h2>Characters</h2>
-    <div class="character-selector">
-        <select id="characterSelect" aria-label="Saved characters">
-            <option value="">No saved characters</option>
-        </select>
-        <button onclick="loadSelectedCharacter()">Load Character</button>
-    </div>
-    <h3>Create a New Character</h3>
-    <input id="name" placeholder="Character Name" value="Warhymn">
+    <nav class="game-tabs" aria-label="Game sections">
+        <button type="button" id="tab-combat" aria-controls="panel-combat" aria-current="page" onclick="showGamePanel('combat')">Combat</button>
+        <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
+        <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
+    </nav>
 
-    <select id="realm">
-        <option>Hibernia</option>
-        <option>Midgard</option>
-        <option>Albion</option>
-    </select>
+    <main class="game-content">
+        <section class="panel tab-panel" id="panel-combat" aria-labelledby="tab-combat">
+            <div class="battle-layout">
+                <section class="combat-section" aria-label="Combat">
+                    <div class="combatants">
+                        <div class="combatant">
+                            <h3 id="combatPlayerName">No character</h3>
+                            <div class="stat">HP: <span id="playerHp">--</span></div>
+                            <div class="health-track"><div class="health-fill" id="playerHpBar"></div></div>
+                        </div>
+                        <div class="versus">VS</div>
+                        <div class="combatant">
+                            <h3 id="targetName">Waiting for a character</h3>
+                            <div class="stat" id="targetDetails">Create a character to enter combat.</div>
+                            <div class="stat">HP: <span id="targetHp">--</span></div>
+                            <div class="health-track"><div class="health-fill enemy-health" id="targetHpBar"></div></div>
+                        </div>
+                    </div>
+                    <p class="damage-readout" id="damageReadout" aria-live="polite"></p>
+                </section>
+                <section class="battle-log-section" aria-label="Battle log">
+                    <h3>Battle Log</h3>
+                    <div class="log" id="log"></div>
+                </section>
+            </div>
+        </section>
 
-    <select id="class">
-        <option>Chanter</option>
-        <option>Druid</option>
-        <option>Hero</option>
-        <option>Berserker</option>
-        <option>Healer</option>
-        <option>Mercenary</option>
-    </select>
-
-    <button onclick="createCharacter()">Create New Character</button>
-</div>
-
-<div class="panel">
-    <h2>Cloud Save</h2>
-    <p class="stat" id="cloudStatus" role="status" aria-live="polite">
-        Local saves are active. Sign in to back up characters to Firebase.
-    </p>
-    <div class="cloud-controls">
-        <button id="googleSignInButton" disabled>Sign in with Google</button>
-        <button id="cloudSaveButton" disabled>Save to Cloud</button>
-        <button id="cloudRestoreButton" disabled>Restore Cloud Save</button>
-        <button id="googleSignOutButton" hidden>Sign Out</button>
-    </div>
-</div>
-
-<div class="panel">
-    <h2 id="charInfo">No character</h2>
-
-    <div class="stat">Level: <span id="level">1</span></div>
-    <div class="stat">XP: <span id="xp">0</span></div>
-
-    <div class="stat">Gold: <span id="gold">0</span></div>
-
-    <div class="stat">Realm Rank: RR<span id="rr">1</span></div>
-
-    <div class="stat">Realm Points: <span id="rp">0</span></div>
-
-    <div class="stat">Loot Found: <span id="loot">0</span></div>
-    <div class="stat">Power: <span id="power">10</span></div>
-</div>
-
-<div class="panel">
-    <h2>Frontier Zones</h2>
-    <div class="stat">Current zone: <span id="currentZone">Connla</span></div>
-    <div class="zone-list" id="zoneList"></div>
-</div>
-
-<div class="panel">
-    <h2>Realm War Map</h2>
-    <div class="stat">Keep control shifts every 5 kills.</div>
-    <div class="realm-counts" id="realmCounts"></div>
-    <div class="keep-list" id="keepList"></div>
-    <div class="stat" id="realmBonus"></div>
-</div>
-
-<div class="panel inventory-panel">
-    <h2>Inventory</h2>
-    <div class="inventory-list" id="inventory">
-        <div class="stat">Defeat enemies to find equipment.</div>
-    </div>
-</div>
-
-<div class="panel battle-panel">
-    <h2>Combat</h2>
-    <div class="battle-layout">
-        <section class="combat-section" aria-label="Combat">
-            <div class="combatants">
-                <div class="combatant">
-                    <h3 id="combatPlayerName">No character</h3>
-                    <div class="stat">HP: <span id="playerHp">--</span></div>
-                    <div class="health-track"><div class="health-fill" id="playerHpBar"></div></div>
+        <section class="tab-panel" id="panel-character" aria-labelledby="tab-character" hidden>
+            <div class="character-dashboard">
+                <div class="character-tools">
+                <section class="panel">
+                    <h2>Characters</h2>
+                    <h3>Create a New Character</h3>
+                    <div class="character-form">
+                        <input id="name" placeholder="Character Name" value="Warhymn" aria-label="Character name">
+                        <select id="realm" aria-label="Realm">
+                            <option>Hibernia</option>
+                            <option>Midgard</option>
+                            <option>Albion</option>
+                        </select>
+                        <select id="class" aria-label="Class">
+                            <option>Chanter</option>
+                            <option>Druid</option>
+                            <option>Hero</option>
+                            <option>Berserker</option>
+                            <option>Healer</option>
+                            <option>Mercenary</option>
+                        </select>
+                        <button type="button" onclick="createCharacter()">Create New Character</button>
+                    </div>
+                </section>
+                <section class="panel">
+                    <h2>Cloud Save</h2>
+                    <p class="stat" id="cloudStatus" role="status" aria-live="polite">
+                        Local saves are active. Sign in to back up characters to Firebase.
+                    </p>
+                    <div class="cloud-controls">
+                        <button id="googleSignInButton" disabled>Sign in with Google</button>
+                        <button id="cloudSaveButton" disabled>Save to Cloud</button>
+                        <button id="cloudRestoreButton" disabled>Restore Cloud Save</button>
+                        <button id="googleSignOutButton" hidden>Sign Out</button>
+                    </div>
+                </section>
                 </div>
-                <div class="versus">VS</div>
-                <div class="combatant">
-                    <h3 id="targetName">Waiting for a character</h3>
-                    <div class="stat" id="targetDetails">Create a character to enter combat.</div>
-                    <div class="stat">HP: <span id="targetHp">--</span></div>
-                    <div class="health-track"><div class="health-fill enemy-health" id="targetHpBar"></div></div>
+
+                <div class="character-assets">
+                    <aside class="panel character-window" aria-label="Character equipment">
+                        <h2>Equipment</h2>
+                        <h3 class="paperdoll-name" id="paperdollName">No character</h3>
+                        <div class="stat" id="paperdollMeta">Create a character to begin.</div>
+                        <div class="paperdoll-layout">
+                            <div class="paperdoll-slots" id="equipment"></div>
+                            <div class="paperdoll-figure" aria-hidden="true">
+                                <div class="doll-head"></div>
+                                <div class="doll-body"></div>
+                            </div>
+                        </div>
+                        <div class="paperdoll-summary">
+                            <span>Level <strong id="paperdollLevel">1</strong></span>
+                            <span>Power <strong id="paperdollPower">10</strong></span>
+                            <span>HP <strong id="paperdollHp">--</strong></span>
+                        </div>
+                    </aside>
+
+                    <section class="panel inventory-panel">
+                        <h2>Inventory</h2>
+                        <div class="inventory-list" id="inventory">
+                            <div class="stat">Defeat enemies to find equipment.</div>
+                        </div>
+                    </section>
                 </div>
             </div>
-            <p class="damage-readout" id="damageReadout" aria-live="polite"></p>
-            <div class="stat">Kills: <span id="kills">0</span></div>
         </section>
-        <section class="battle-log-section" aria-label="Battle log">
-            <h3>Battle Log</h3>
-            <div class="log" id="log"></div>
-        </section>
-    </div>
-</div>
 
-</main>
+        <section class="tab-panel world-layout" id="panel-world" aria-labelledby="tab-world" hidden>
+            <section class="panel">
+                <h2>Frontier Zones</h2>
+                <div class="stat">Current zone: <span id="currentZone">Connla</span></div>
+                <div class="zone-list" id="zoneList"></div>
+            </section>
+
+            <section class="panel">
+                <h2>Realm War Map</h2>
+                <div class="stat">Keep control shifts every 5 kills.</div>
+                <div class="realm-counts" id="realmCounts"></div>
+                <div class="keep-list" id="keepList"></div>
+                <div class="stat" id="realmBonus"></div>
+            </section>
+        </section>
+
+        <section class="panel bestiary-panel" id="bestiaryPanel" hidden aria-labelledby="bestiaryTitle">
+            <h2 id="bestiaryTitle">Bestiary &amp; Hunt Board</h2>
+            <p class="stat">Choose an opposing realm and foe to keep your auto-battles focused. Your hunt order is saved with this character.</p>
+            <div class="bestiary-controls">
+                <span class="stat" id="huntStatus" role="status" aria-live="polite">Create a character to browse the bestiary.</span>
+                <label for="championRealm">Champion realm</label>
+                <select id="championRealm" aria-label="Champion realm"></select>
+                <button type="button" id="releaseHuntButton" onclick="releaseHuntOrder()">Return to roaming</button>
+            </div>
+            <div class="bestiary-realms" id="bestiaryRealms"></div>
+            <h3>Realm Champions</h3>
+            <div class="bestiary-champions" id="bestiaryChampions"></div>
+        </section>
+    </main>
 </div>
 
 <script>
+
+function showGamePanel(panelName){
+
+    ["combat","character","world"].forEach(function(name){
+        const isActive=name===panelName;
+        const button=document.getElementById("tab-"+name);
+        const panel=document.getElementById("panel-"+name);
+
+        panel.hidden=!isActive;
+        if(isActive){
+            button.setAttribute("aria-current","page");
+        }else{
+            button.removeAttribute("aria-current");
+        }
+    });
+    document.getElementById("bestiaryPanel").hidden=panelName!=="world";
+}
 
 function createDefaultPlayer(){
     return {
@@ -547,6 +1012,7 @@ function createDefaultPlayer(){
         hp:100,
         kills:0,
         target:null,
+        huntOrder:null,
         keeps:{
             "Dun Crauchon":"Hibernia",
             "Dun Bolg":"Midgard",
@@ -610,6 +1076,7 @@ const itemBaseStats={
     Boots:{power:[1,2],hp:[5,12]}
 };
 let lastDamageText="Create a character to enter combat.";
+let bestiaryRenderKey="";
 
 function getZoneForLevel(level){
     return zones.find(function(zone){
@@ -686,6 +1153,21 @@ function normalizePlayer(savedPlayer){
     });
     if(player.target && !player.target.zone){
         player.target.zone=getZoneForLevel(player.target.level).name;
+    }
+    if(player.huntOrder && typeof player.huntOrder==="object"){
+        const order=player.huntOrder;
+        player.huntOrder=realms.indexOf(order.realm)!==-1
+            && order.realm!==player.realm
+            && enemyClasses.indexOf(order.cls)!==-1
+            && (!order.champion || enemyNames.indexOf(order.champion)!==-1)
+            ? {
+                realm:order.realm,
+                cls:order.cls,
+                champion:enemyNames.indexOf(order.champion)!==-1 ? order.champion : ""
+            }
+            : null;
+    }else{
+        player.huntOrder=null;
     }
     player.equipment=Object.assign(emptyEquipment(),player.equipment || {});
     equipmentSlots.forEach(function(slot){
@@ -865,17 +1347,27 @@ function createTarget(){
         return realm!==player.realm;
     });
     const zone=getZoneForLevel(player.level);
-    const champion=Math.random()<0.12;
+    const huntOrder=player.huntOrder;
+    const champion=huntOrder
+        ? Boolean(huntOrder.champion)
+        : Math.random()<0.12;
     const level=Math.max(zone.minLevel,Math.min(zone.maxLevel,player.level+Math.floor(Math.random()*3)-1));
     const maxHp=60+level*15+zones.indexOf(zone)*15;
-    const realm=enemyRealms[Math.floor(Math.random()*enemyRealms.length)];
+    const realm=huntOrder && enemyRealms.indexOf(huntOrder.realm)!==-1
+        ? huntOrder.realm
+        : enemyRealms[Math.floor(Math.random()*enemyRealms.length)];
+    const cls=huntOrder
+        ? huntOrder.cls
+        : enemyClasses[Math.floor(Math.random()*enemyClasses.length)];
 
     player.target={
-        name:champion
-            ? enemyNames[Math.floor(Math.random()*enemyNames.length)]
-            : realm+" Scout",
+        name:huntOrder
+            ? (huntOrder.champion || realm+" "+cls)
+            : champion
+                ? enemyNames[Math.floor(Math.random()*enemyNames.length)]
+                : realm+" Scout",
         realm:realm,
-        cls:enemyClasses[Math.floor(Math.random()*enemyClasses.length)],
+        cls:cls,
         level:level,
         zone:getZoneForLevel(level).name,
         hp:maxHp,
@@ -888,6 +1380,42 @@ function createTarget(){
     }else{
         addLog("Target acquired: "+player.target.name+", "+player.target.realm+" "+player.target.cls+" in "+player.target.zone+".");
     }
+}
+
+function setHuntOrder(realm,cls,championName){
+
+    if(!player.name){
+        addLog("Create or load a character before choosing a hunt target.");
+        return;
+    }
+
+    if(realms.indexOf(realm)===-1 || realm===player.realm
+        || enemyClasses.indexOf(cls)===-1
+        || (championName && enemyNames.indexOf(championName)===-1)){
+        addLog("That hunt target is not available for this character.");
+        return;
+    }
+
+    player.huntOrder={
+        realm:realm,
+        cls:cls,
+        champion:championName || ""
+    };
+    addLog("Hunt order set: "+(championName || realm+" "+cls)+".");
+    createTarget();
+    updateUI();
+    saveGame();
+}
+
+function releaseHuntOrder(){
+
+    if(!player.name) return;
+
+    player.huntOrder=null;
+    addLog("Hunt order cleared. Roaming for an enemy target.");
+    createTarget();
+    updateUI();
+    saveGame();
 }
 
 function advanceRealmWar(){
@@ -974,6 +1502,148 @@ function levelRequirement(){
     return player.level * 100;
 }
 
+function renderBestiary(){
+
+    const hasCharacter=Boolean(player.name);
+    const enemyRealms=hasCharacter
+        ? realms.filter(function(realm){
+            return realm!==player.realm;
+        })
+        : [];
+    const championRealm=document.getElementById("championRealm");
+    const selectedRealm=championRealm.value;
+    const optionsMatch=championRealm.options.length===enemyRealms.length
+        && Array.from(championRealm.options).every(function(option,index){
+            return option.value===enemyRealms[index];
+        });
+    if(!optionsMatch){
+        championRealm.textContent="";
+        enemyRealms.forEach(function(realm){
+            const option=document.createElement("option");
+            option.value=realm;
+            option.textContent=realm;
+            championRealm.appendChild(option);
+        });
+    }
+    championRealm.value=enemyRealms.indexOf(selectedRealm)!==-1
+        ? selectedRealm
+        : (enemyRealms[0] || "");
+    championRealm.disabled=!hasCharacter;
+
+    const renderKey=JSON.stringify([
+        player.name,
+        player.realm,
+        player.level,
+        player.huntOrder,
+        championRealm.value
+    ]);
+    if(renderKey===bestiaryRenderKey) return;
+    bestiaryRenderKey=renderKey;
+
+    const huntStatus=document.getElementById("huntStatus");
+    const releaseButton=document.getElementById("releaseHuntButton");
+    releaseButton.disabled=!hasCharacter || !player.huntOrder;
+    document.getElementById("bestiaryChampions").previousElementSibling.hidden=!hasCharacter;
+
+    if(!hasCharacter){
+        huntStatus.className="stat";
+        huntStatus.textContent="Create a character to browse the bestiary.";
+    }else if(player.huntOrder){
+        huntStatus.className="hunt-locked";
+        huntStatus.textContent="Hunt locked: "+(player.huntOrder.champion
+            ? player.huntOrder.champion+" ("+player.huntOrder.realm+" "+player.huntOrder.cls+")"
+            : player.huntOrder.realm+" "+player.huntOrder.cls)
+            +" in "+getZoneForLevel(player.level).name+".";
+    }else{
+        huntStatus.className="stat";
+        huntStatus.textContent="Roaming freely in "+getZoneForLevel(player.level).name+".";
+    }
+
+    const foesElement=document.getElementById("bestiaryRealms");
+    foesElement.textContent="";
+    const championsElement=document.getElementById("bestiaryChampions");
+    championsElement.textContent="";
+    if(!hasCharacter){
+        const message=document.createElement("div");
+        message.className="stat";
+        message.textContent="Your character's realm determines which enemies appear here.";
+        foesElement.appendChild(message);
+        return;
+    }
+
+    enemyRealms.forEach(function(realm){
+        const realmSection=document.createElement("section");
+        realmSection.className="bestiary-realm";
+
+        const heading=document.createElement("h3");
+        heading.textContent=realm+" Foes";
+        realmSection.appendChild(heading);
+
+        const foes=document.createElement("div");
+        foes.className="bestiary-foes";
+        enemyClasses.forEach(function(cls){
+            const card=document.createElement("div");
+            card.className="bestiary-entry";
+
+            const name=document.createElement("strong");
+            name.textContent=realm+" "+cls;
+            card.appendChild(name);
+
+            const details=document.createElement("div");
+            details.className="stat";
+            details.textContent="Level "+player.level+" · "+getZoneForLevel(player.level).name;
+            card.appendChild(details);
+
+            const button=document.createElement("button");
+            const isLocked=player.huntOrder
+                && player.huntOrder.realm===realm
+                && player.huntOrder.cls===cls
+                && !player.huntOrder.champion;
+            button.type="button";
+            button.textContent=isLocked ? "Target Locked" : "Hunt This Foe";
+            button.disabled=!hasCharacter;
+            button.addEventListener("click",function(){
+                setHuntOrder(realm,cls,"");
+            });
+            card.appendChild(button);
+            foes.appendChild(card);
+        });
+
+        realmSection.appendChild(foes);
+        foesElement.appendChild(realmSection);
+    });
+
+    const selectedChampionRealm=championRealm.value;
+    enemyNames.forEach(function(championName,index){
+        const cls=enemyClasses[index%enemyClasses.length];
+        const card=document.createElement("div");
+        card.className="bestiary-entry";
+
+        const name=document.createElement("strong");
+        name.className="rarity-epic";
+        name.textContent=championName;
+        card.appendChild(name);
+
+        const details=document.createElement("div");
+        details.className="stat";
+        details.textContent="Champion · "+selectedChampionRealm+" "+cls+" · Level "+player.level;
+        card.appendChild(details);
+
+        const button=document.createElement("button");
+        const isLocked=player.huntOrder
+            && player.huntOrder.champion===championName
+            && player.huntOrder.realm===selectedChampionRealm;
+        button.type="button";
+        button.textContent=isLocked ? "Target Locked" : "Hunt Champion";
+        button.disabled=!hasCharacter || !selectedChampionRealm;
+        button.addEventListener("click",function(){
+            setHuntOrder(selectedChampionRealm,cls,championName);
+        });
+        card.appendChild(button);
+        championsElement.appendChild(card);
+    });
+}
+
 function updateUI(){
 
     const maxHp=playerMaxHp();
@@ -1032,6 +1702,7 @@ function updateUI(){
         ? Math.max(0,Math.min(100,(player.target.hp/player.target.maxHp)*100))+"%"
         : "0%";
     document.getElementById("damageReadout").innerText=lastDamageText;
+    renderBestiary();
 
     const currentZone=getZoneForLevel(player.level);
     document.getElementById("currentZone").innerText=currentZone.name+" (Level "+zoneLevelLabel(currentZone)+")";
@@ -1290,6 +1961,7 @@ function setCloudStatus(message,isError){
 
 function updateCloudControls(){
 
+    document.getElementById("googleSignInButton").hidden=!!firebaseUser;
     document.getElementById("googleSignInButton").disabled=!firebaseAuth || !!firebaseUser || cloudBusy;
     document.getElementById("googleSignOutButton").hidden=!firebaseUser;
     document.getElementById("googleSignOutButton").disabled=cloudBusy;
@@ -1487,6 +2159,7 @@ document.getElementById("googleSignInButton").addEventListener("click",signInWit
 document.getElementById("googleSignOutButton").addEventListener("click",signOutFromGoogle);
 document.getElementById("cloudSaveButton").addEventListener("click",saveToCloud);
 document.getElementById("cloudRestoreButton").addEventListener("click",restoreFromCloud);
+document.getElementById("championRealm").addEventListener("change",renderBestiary);
 
 setInterval(xpTick,1000);
 setInterval(rvrBattle,1000);
