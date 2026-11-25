@@ -5,50 +5,431 @@
 <title>Idle Eden Prototype</title>
 
 <style>
+:root{
+    color-scheme:dark;
+    --stone:#242923;
+    --stone-deep:#171b17;
+    --bronze:#80673e;
+    --bronze-light:#b59a60;
+    --gold:#dcc486;
+    --ivory:#e7dfcd;
+    --text-muted:#aaa18c;
+}
+
 body{
-    background:#1b1b1b;
-    color:white;
-    font-family:Arial;
-    max-width:900px;
+    background:radial-gradient(ellipse at top,#344036 0%,#171a17 48%,#0c0e0c 100%);
+    background-attachment:fixed;
+    color:var(--ivory);
+    font-family:Georgia,"Times New Roman",serif;
+    max-width:1240px;
     margin:auto;
     padding:20px;
 }
 
 .panel{
-    background:#2d2d2d;
+    background:linear-gradient(145deg,var(--stone),var(--stone-deep));
     padding:15px;
     margin-bottom:15px;
-    border-radius:8px;
+    border:1px solid var(--bronze);
+    border-radius:4px;
+    box-shadow:inset 0 0 0 1px rgba(220,196,134,.06),0 6px 18px rgba(0,0,0,.38);
+}
+
+h2,h3{
+    color:var(--gold);
+    text-shadow:0 1px 2px #000;
+}
+
+.panel h2{
+    padding-bottom:7px;
+    border-bottom:1px solid rgba(181,154,96,.45);
+}
+
+input,select{
+    padding:9px;
+    background:#171b17;
+    color:var(--ivory);
+    border:1px solid var(--bronze);
+    border-radius:3px;
+}
+
+.character-selector{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.character-selector select{
+    flex:1 1 220px;
+    min-width:0;
+}
+
+.cloud-controls{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+}
+
+.cloud-status-error{
+    color:#e58a76;
+}
+
+input:focus,select:focus,button:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
 }
 
 button{
     padding:10px;
     margin:5px;
     cursor:pointer;
+    color:#211d14;
+    font-family:inherit;
+    font-weight:bold;
+    background:linear-gradient(#d5bd7f,#9e8047);
+    border:1px solid #ddc987;
+    border-radius:3px;
+    box-shadow:inset 0 1px rgba(255,255,255,.25),0 2px 4px rgba(0,0,0,.35);
+}
+
+button:hover{
+    background:linear-gradient(#e2cd91,#b28e4b);
 }
 
 h1{
-    color:#88ff88;
+    color:#e0c77f;
+    font-family:Georgia,"Times New Roman",serif;
+    letter-spacing:2px;
+    text-shadow:0 2px 4px #000,0 0 14px rgba(188,151,73,.25);
 }
 
 .log{
     height:250px;
     overflow-y:auto;
-    background:black;
+    background:#111510;
     padding:10px;
+    border:1px solid #51472f;
+    color:#d5cdbb;
+    font-family:Georgia,"Times New Roman",serif;
 }
 
 .stat{
-    color:#ffd966;
+    color:#d8c486;
+}
+
+.combatants{
+    display:flex;
+    gap:20px;
+    align-items:stretch;
+}
+
+.combatant{
+    flex:1;
+    min-width:0;
+    background:linear-gradient(145deg,#20251f,#151915);
+    padding:12px;
+    border:1px solid #5e5137;
+    border-radius:3px;
+}
+
+.health-track{
+    height:18px;
+    overflow:hidden;
+    background:#090c09;
+    border:1px solid #554a32;
+    border-radius:2px;
+    margin:8px 0;
+}
+
+.health-fill{
+    height:100%;
+    width:100%;
+    background:linear-gradient(#75bd72,#397448);
+    transition:width .25s ease;
+}
+
+.enemy-health{
+    background:linear-gradient(#d97463,#8d3430);
+}
+
+.versus{
+    align-self:center;
+    color:var(--gold);
+    font-weight:bold;
+}
+
+.damage-readout{
+    min-height:24px;
+    color:#e8b96e;
+    font-weight:bold;
+}
+
+.game-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 290px;
+    grid-template-rows:auto 1fr;
+    gap:16px;
+    align-items:start;
+}
+
+.game-layout>h1{
+    grid-column:1;
+    grid-row:1;
+    margin-bottom:0;
+}
+
+.game-main{
+    min-width:0;
+    grid-column:1;
+    grid-row:2;
+}
+
+.character-window{
+    grid-column:2;
+    grid-row:1/3;
+    position:sticky;
+    top:12px;
+    max-height:calc(100vh - 24px);
+    overflow-y:auto;
+    border:1px solid var(--bronze-light);
+    box-shadow:inset 0 0 0 1px rgba(220,196,134,.1),0 6px 24px rgba(0,0,0,.55);
+    z-index:2;
+}
+
+.character-window h2{
+    margin-top:0;
+}
+
+.paperdoll-name{
+    margin:0 0 3px;
+}
+
+.paperdoll-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);
+    grid-template-rows:52px 68px 68px 52px;
+    gap:5px;
+    margin:12px 0;
+}
+
+.paperdoll-slots{
+    display:contents;
+}
+
+.gear-slot,.inventory-item{
+    background:linear-gradient(145deg,#20241f,#151815);
+    padding:6px 4px;
+    border:1px solid #5d5036;
+    border-radius:3px;
+}
+
+.gear-slot{
+    min-width:0;
+    text-align:center;
+    font-size:11px;
+    overflow-wrap:anywhere;
+}
+
+.gear-slot-name{
+    color:var(--gold);
+    font-weight:bold;
+    margin-bottom:3px;
+}
+
+.slot-helm{grid-column:2;grid-row:1;}
+.slot-weapon{grid-column:1;grid-row:2;}
+.slot-ring{grid-column:3;grid-row:2;}
+.slot-chest{grid-column:1;grid-row:3;}
+.slot-cloak{grid-column:3;grid-row:3;}
+.slot-boots{grid-column:2;grid-row:4;}
+
+.paperdoll-figure{
+    grid-column:2;
+    grid-row:2/4;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    opacity:.8;
+    pointer-events:none;
+}
+
+.doll-head{
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:#c3ad78;
+}
+
+.doll-body{
+    width:38px;
+    height:48px;
+    background:#88764e;
+    clip-path:polygon(25% 0,75% 0,100% 30%,82% 45%,75% 100%,25% 100%,18% 45%,0 30%);
+}
+
+.paperdoll-summary{
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+    padding-top:8px;
+    border-top:1px solid #695638;
+    font-size:12px;
+}
+
+.rarity-common{color:#d0c8b7;}
+.rarity-uncommon{color:#82c785;}
+.rarity-rare{color:#82b2ea;}
+.rarity-epic{color:#c998e6;}
+.rarity-legendary{color:#e9ad58;}
+.rarity-artifact{color:#ef786a;font-weight:bold;}
+
+.inventory-panel{
+    box-sizing:border-box;
+    width:min(100%,360px);
+    aspect-ratio:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.inventory-panel h2{
+    margin-top:0;
+}
+
+.inventory-list{
+    display:grid;
+    gap:8px;
+    align-content:start;
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    padding-right:5px;
+}
+
+.battle-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    gap:14px;
+    align-items:start;
+}
+
+.battle-log-section h3{
+    margin-top:0;
+}
+
+.zone-list,.keep-list{
+    display:grid;
+    gap:8px;
+}
+
+.zone-entry,.keep-entry,.realm-count{
+    background:linear-gradient(145deg,#20241f,#151815);
+    padding:10px;
+    border:1px solid #574a32;
+    border-radius:3px;
+}
+
+.zone-current{
+    border-left:4px solid #c8a95f;
+}
+
+.zone-locked{
+    color:var(--text-muted);
+}
+
+.realm-counts{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+}
+
+.realm-dominant{
+    color:#a9c58d;
+    font-weight:bold;
+}
+
+@media (max-width:1000px){
+    .battle-layout{
+        grid-template-columns:1fr;
+    }
+}
+
+@media (max-width:600px){
+    body{
+        padding:12px;
+    }
+
+    .game-layout{
+        grid-template-columns:1fr;
+        grid-template-rows:auto auto 1fr;
+    }
+
+    .game-layout>h1{
+        grid-column:1;
+        grid-row:1;
+    }
+
+    .character-window{
+        grid-column:1;
+        grid-row:2;
+        position:static;
+        max-height:none;
+    }
+
+    .game-main{
+        grid-column:1;
+        grid-row:3;
+    }
+
+    .combatants{
+        flex-direction:column;
+    }
+
+    .versus{
+        text-align:center;
+    }
+
 }
 </style>
 </head>
 
 <body>
 
+<div class="game-layout">
 <h1>Idle Eden</h1>
+<aside class="panel character-window" aria-label="Character equipment">
+    <h2>Character</h2>
+    <h3 class="paperdoll-name" id="paperdollName">No character</h3>
+    <div class="stat" id="paperdollMeta">Create a character to begin.</div>
+    <div class="paperdoll-layout">
+        <div class="paperdoll-slots" id="equipment"></div>
+        <div class="paperdoll-figure" aria-hidden="true">
+            <div class="doll-head"></div>
+            <div class="doll-body"></div>
+        </div>
+    </div>
+    <div class="paperdoll-summary">
+        <span>Level <strong id="paperdollLevel">1</strong></span>
+        <span>Power <strong id="paperdollPower">10</strong></span>
+        <span>HP <strong id="paperdollHp">--</strong></span>
+    </div>
+</aside>
+
+<main class="game-main">
 
 <div class="panel">
+    <h2>Characters</h2>
+    <div class="character-selector">
+        <select id="characterSelect" aria-label="Saved characters">
+            <option value="">No saved characters</option>
+        </select>
+        <button onclick="loadSelectedCharacter()">Load Character</button>
+    </div>
+    <h3>Create a New Character</h3>
     <input id="name" placeholder="Character Name" value="Warhymn">
 
     <select id="realm">
@@ -66,7 +447,20 @@ h1{
         <option>Mercenary</option>
     </select>
 
-    <button onclick="createCharacter()">Create Character</button>
+    <button onclick="createCharacter()">Create New Character</button>
+</div>
+
+<div class="panel">
+    <h2>Cloud Save</h2>
+    <p class="stat" id="cloudStatus" role="status" aria-live="polite">
+        Local saves are active. Sign in to back up characters to Firebase.
+    </p>
+    <div class="cloud-controls">
+        <button id="googleSignInButton" disabled>Sign in with Google</button>
+        <button id="cloudSaveButton" disabled>Save to Cloud</button>
+        <button id="cloudRestoreButton" disabled>Restore Cloud Save</button>
+        <button id="googleSignOutButton" hidden>Sign Out</button>
+    </div>
 </div>
 
 <div class="panel">
@@ -82,52 +476,498 @@ h1{
     <div class="stat">Realm Points: <span id="rp">0</span></div>
 
     <div class="stat">Loot Found: <span id="loot">0</span></div>
+    <div class="stat">Power: <span id="power">10</span></div>
 </div>
 
 <div class="panel">
-    <h2>Battle Log</h2>
-    <div class="log" id="log"></div>
+    <h2>Frontier Zones</h2>
+    <div class="stat">Current zone: <span id="currentZone">Connla</span></div>
+    <div class="zone-list" id="zoneList"></div>
+</div>
+
+<div class="panel">
+    <h2>Realm War Map</h2>
+    <div class="stat">Keep control shifts every 5 kills.</div>
+    <div class="realm-counts" id="realmCounts"></div>
+    <div class="keep-list" id="keepList"></div>
+    <div class="stat" id="realmBonus"></div>
+</div>
+
+<div class="panel inventory-panel">
+    <h2>Inventory</h2>
+    <div class="inventory-list" id="inventory">
+        <div class="stat">Defeat enemies to find equipment.</div>
+    </div>
+</div>
+
+<div class="panel battle-panel">
+    <h2>Combat</h2>
+    <div class="battle-layout">
+        <section class="combat-section" aria-label="Combat">
+            <div class="combatants">
+                <div class="combatant">
+                    <h3 id="combatPlayerName">No character</h3>
+                    <div class="stat">HP: <span id="playerHp">--</span></div>
+                    <div class="health-track"><div class="health-fill" id="playerHpBar"></div></div>
+                </div>
+                <div class="versus">VS</div>
+                <div class="combatant">
+                    <h3 id="targetName">Waiting for a character</h3>
+                    <div class="stat" id="targetDetails">Create a character to enter combat.</div>
+                    <div class="stat">HP: <span id="targetHp">--</span></div>
+                    <div class="health-track"><div class="health-fill enemy-health" id="targetHpBar"></div></div>
+                </div>
+            </div>
+            <p class="damage-readout" id="damageReadout" aria-live="polite"></p>
+            <div class="stat">Kills: <span id="kills">0</span></div>
+        </section>
+        <section class="battle-log-section" aria-label="Battle log">
+            <h3>Battle Log</h3>
+            <div class="log" id="log"></div>
+        </section>
+    </div>
+</div>
+
+</main>
 </div>
 
 <script>
 
-let player = {
-    name:"",
-    realm:"",
-    cls:"",
-    level:1,
-    xp:0,
-    gold:0,
-    rp:0,
-    loot:0
+function createDefaultPlayer(){
+    return {
+        characterId:"",
+        name:"",
+        realm:"",
+        cls:"",
+        level:1,
+        xp:0,
+        gold:0,
+        rp:0,
+        loot:0,
+        hp:100,
+        kills:0,
+        target:null,
+        keeps:{
+            "Dun Crauchon":"Hibernia",
+            "Dun Bolg":"Midgard",
+            "Dun Scathaig":"Albion"
+        },
+        inventory:[],
+        equipment:{
+            Weapon:null,
+            Helm:null,
+            Chest:null,
+            Ring:null,
+            Cloak:null,
+            Boots:null
+        }
+    };
+}
+
+let player=createDefaultPlayer();
+let characterRoster=[];
+let activeCharacterId="";
+let characterIdSequence=1;
+let firebaseAuth=null;
+let firebaseDatabase=null;
+let firebaseModules=null;
+let firebaseUser=null;
+let cloudBusy=false;
+
+const enemyNames=["Pilzpower","Boogie","Yates","Prack","Sylence"];
+const enemyClasses=["Berserker","Hero","Mercenary","Healer","Chanter"];
+const realms=["Hibernia","Midgard","Albion"];
+const keepNames=["Dun Crauchon","Dun Bolg","Dun Scathaig"];
+const zones=[
+    {name:"Connla",minLevel:1,maxLevel:10},
+    {name:"Cruachan Gorge",minLevel:11,maxLevel:20},
+    {name:"Emain Macha",minLevel:21,maxLevel:30},
+    {name:"Frontier Keeps",minLevel:31,maxLevel:Infinity}
+];
+const equipmentSlots=["Weapon","Helm","Chest","Ring","Cloak","Boots"];
+const itemBases={
+    Weapon:["Celtic Spear","Frontier Blade","Oak Staff"],
+    Helm:["Warden's Helm","Reinforced Coif"],
+    Chest:["Hibernian Cuirass","Frontier Hauberk"],
+    Ring:["Celtic Ring","Emerald Band"],
+    Cloak:["Cloak of the Frontier","Woven Mantle"],
+    Boots:["Warden's Boots","Reinforced Greaves"]
 };
+const rarityMultipliers={
+    Common:1,
+    Uncommon:1.25,
+    Rare:1.6,
+    Epic:2.1,
+    Legendary:2.8,
+    Artifact:4
+};
+const itemBaseStats={
+    Weapon:{power:[5,9],hp:[0,5]},
+    Helm:{power:[0,2],hp:[8,18]},
+    Chest:{power:[0,3],hp:[12,24]},
+    Ring:{power:[2,5],hp:[5,12]},
+    Cloak:{power:[1,3],hp:[8,16]},
+    Boots:{power:[1,2],hp:[5,12]}
+};
+let lastDamageText="Create a character to enter combat.";
+
+function getZoneForLevel(level){
+    return zones.find(function(zone){
+        return level>=zone.minLevel && level<=zone.maxLevel;
+    }) || zones[0];
+}
+
+function zoneLevelLabel(zone){
+    return zone.maxLevel===Infinity
+        ? zone.minLevel+"+"
+        : zone.minLevel+"–"+zone.maxLevel;
+}
+
+function keepCounts(){
+
+    const counts=realms.reduce(function(counts,realm){
+        counts[realm]=0;
+        return counts;
+    },{});
+
+    keepNames.forEach(function(keep){
+        const owner=player.keeps && player.keeps[keep];
+        if(counts[owner]!==undefined) counts[owner]++;
+    });
+
+    return counts;
+}
+
+function dominantRealm(){
+
+    const counts=keepCounts();
+    const highest=Math.max(counts.Hibernia,counts.Midgard,counts.Albion);
+    const leaders=realms.filter(function(realm){
+        return counts[realm]===highest;
+    });
+    return leaders.length===1 ? leaders[0] : null;
+}
+
+function emptyEquipment(){
+    return {
+        Weapon:null,
+        Helm:null,
+        Chest:null,
+        Ring:null,
+        Cloak:null,
+        Boots:null
+    };
+}
+
+function createCharacterId(){
+    return "character-"+Date.now().toString(36)+"-"+characterIdSequence++;
+}
+
+function cloneCharacter(character){
+    return JSON.parse(JSON.stringify(character));
+}
+
+function normalizePlayer(savedPlayer){
+
+    player=Object.assign(createDefaultPlayer(),savedPlayer || {});
+    player.keeps=Object.assign({
+        "Dun Crauchon":"Hibernia",
+        "Dun Bolg":"Midgard",
+        "Dun Scathaig":"Albion"
+    },player.keeps && typeof player.keeps==="object" ? player.keeps : {});
+    keepNames.forEach(function(keep){
+        if(realms.indexOf(player.keeps[keep])===-1){
+            player.keeps[keep]={
+                "Dun Crauchon":"Hibernia",
+                "Dun Bolg":"Midgard",
+                "Dun Scathaig":"Albion"
+            }[keep];
+        }
+    });
+    if(player.target && !player.target.zone){
+        player.target.zone=getZoneForLevel(player.target.level).name;
+    }
+    player.equipment=Object.assign(emptyEquipment(),player.equipment || {});
+    equipmentSlots.forEach(function(slot){
+        if(!player.equipment[slot] || typeof player.equipment[slot]!=="object"){
+            player.equipment[slot]=null;
+        }
+    });
+    player.inventory=Array.isArray(player.inventory) ? player.inventory : [];
+    player.kills=Number.isFinite(player.kills) ? player.kills : 0;
+    player.hp=Number.isFinite(player.hp) ? player.hp : playerMaxHp();
+    if(player.name && !player.characterId){
+        player.characterId=createCharacterId();
+    }
+}
+
+function characterOptionLabel(character,index,isActive){
+    return (index+1)+". "+character.name+" — "+character.realm+" "+character.cls
+        +" (Level "+character.level+")"+(isActive ? " (Active)" : "");
+}
+
+function renderCharacterSelect(selectedId){
+
+    const select=document.getElementById("characterSelect");
+    select.textContent="";
+
+    if(characterRoster.length===0){
+        const emptyOption=document.createElement("option");
+        emptyOption.value="";
+        emptyOption.textContent="No saved characters";
+        select.appendChild(emptyOption);
+        return;
+    }
+
+    characterRoster.forEach(function(character,index){
+        const option=document.createElement("option");
+        option.value=character.characterId;
+        option.textContent=characterOptionLabel(
+            character,
+            index,
+            character.characterId===activeCharacterId
+        );
+        select.appendChild(option);
+    });
+
+    select.value=selectedId || activeCharacterId;
+}
+
+function updateActiveCharacterOption(){
+
+    if(!activeCharacterId || !player.name) return;
+
+    const select=document.getElementById("characterSelect");
+    const activeOption=Array.from(select.options).find(function(option){
+        return option.value===activeCharacterId;
+    });
+    if(!activeOption) return;
+
+    const index=characterRoster.findIndex(function(character){
+        return character.characterId===activeCharacterId;
+    });
+    activeOption.textContent=characterOptionLabel(player,index,true);
+}
+
+function equipmentBonuses(){
+
+    return equipmentSlots.reduce(function(bonuses,slot){
+        const item=player.equipment && player.equipment[slot];
+        if(item){
+            bonuses.power+=Number.isFinite(item.power) ? item.power : 0;
+            bonuses.hp+=Number.isFinite(item.hp) ? item.hp : 0;
+        }
+        return bonuses;
+    },{power:0,hp:0});
+}
+
+function playerPower(){
+    return 8+player.level*2+equipmentBonuses().power;
+}
 
 function addLog(text){
 
     const log=document.getElementById("log");
+    const entry=document.createElement("div");
+    entry.textContent="["+new Date().toLocaleTimeString()+"] "+text;
+    log.prepend(entry);
+}
 
-    log.innerHTML =
-        "["+new Date().toLocaleTimeString()+"] "
-        + text + "<br>" + log.innerHTML;
+function playerMaxHp(){
+    return 100+(player.level-1)*10+equipmentBonuses().hp;
+}
+
+function rollRarity(){
+
+    const roll=Math.random()*100;
+    if(roll<0.2) return "Artifact";
+    if(roll<2) return "Legendary";
+    if(roll<8) return "Epic";
+    if(roll<20) return "Rare";
+    if(roll<45) return "Uncommon";
+    return "Common";
+}
+
+function randomBetween(min,max){
+    return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function generateItem(){
+
+    const rarity=rollRarity();
+    const slot=rarity==="Artifact"
+        ? "Weapon"
+        : equipmentSlots[Math.floor(Math.random()*equipmentSlots.length)];
+    const baseName=rarity==="Artifact"
+        ? "Spear of Kings"
+        : itemBases[slot][Math.floor(Math.random()*itemBases[slot].length)];
+    const multiplier=rarityMultipliers[rarity];
+    const baseStats=itemBaseStats[slot];
+    const levelBonus=Math.floor((player.level-1)/10);
+
+    return {
+        name:rarity==="Artifact" ? baseName : rarity+" "+baseName,
+        slot:slot,
+        rarity:rarity,
+        power:Math.floor(randomBetween(baseStats.power[0],baseStats.power[1])*multiplier)+levelBonus,
+        hp:Math.floor(randomBetween(baseStats.hp[0],baseStats.hp[1])*multiplier)+levelBonus*2
+    };
+}
+
+function formatItemStats(item){
+    const stats=[];
+    if(item.power>0) stats.push("+"+item.power+" Power");
+    if(item.hp>0) stats.push("+"+item.hp+" HP");
+    return stats.join(" · ");
+}
+
+function equipItem(index){
+
+    if(!player.name || !Array.isArray(player.inventory)) return;
+    if(!Number.isInteger(index) || index<0 || index>=player.inventory.length) return;
+
+    const item=player.inventory[index];
+    if(!item || equipmentSlots.indexOf(item.slot)===-1) return;
+
+    const oldMaxHp=playerMaxHp();
+    const replaced=player.equipment[item.slot];
+    if(replaced) player.inventory.push(replaced);
+    player.equipment[item.slot]=item;
+    player.inventory.splice(index,1);
+
+    const newMaxHp=playerMaxHp();
+    player.hp=Math.max(0,Math.min(newMaxHp,player.hp+newMaxHp-oldMaxHp));
+    addLog("Equipped "+item.name+" in the "+item.slot+" slot.");
+    updateUI();
+}
+
+function grantItem(item){
+
+    player.loot=(player.loot || 0)+1;
+    player.inventory.push(item);
+
+    if(item.rarity==="Artifact"){
+        addLog("ARTIFACT FOUND: Spear of Kings!");
+    }else{
+        addLog(item.rarity+" loot found: "+item.name+".");
+    }
+
+    if(!player.equipment[item.slot]){
+        equipItem(player.inventory.length-1);
+    }else{
+        updateUI();
+    }
+}
+
+function createTarget(){
+
+    const enemyRealms=realms.filter(function(realm){
+        return realm!==player.realm;
+    });
+    const zone=getZoneForLevel(player.level);
+    const champion=Math.random()<0.12;
+    const level=Math.max(zone.minLevel,Math.min(zone.maxLevel,player.level+Math.floor(Math.random()*3)-1));
+    const maxHp=60+level*15+zones.indexOf(zone)*15;
+    const realm=enemyRealms[Math.floor(Math.random()*enemyRealms.length)];
+
+    player.target={
+        name:champion
+            ? enemyNames[Math.floor(Math.random()*enemyNames.length)]
+            : realm+" Scout",
+        realm:realm,
+        cls:enemyClasses[Math.floor(Math.random()*enemyClasses.length)],
+        level:level,
+        zone:getZoneForLevel(level).name,
+        hp:maxHp,
+        maxHp:maxHp,
+        champion:champion
+    };
+
+    if(champion){
+        addLog("Realm Champion Encounter! "+player.target.name+" appears!");
+    }else{
+        addLog("Target acquired: "+player.target.name+", "+player.target.realm+" "+player.target.cls+" in "+player.target.zone+".");
+    }
+}
+
+function advanceRealmWar(){
+
+    const keep=keepNames[Math.floor(Math.random()*keepNames.length)];
+    const previousOwner=player.keeps[keep];
+    let newOwner;
+
+    if(previousOwner!==player.realm && Math.random()<0.7){
+        newOwner=player.realm;
+    }else{
+        const possibleOwners=realms.filter(function(realm){
+            return realm!==previousOwner;
+        });
+        newOwner=possibleOwners[Math.floor(Math.random()*possibleOwners.length)];
+    }
+
+    player.keeps[keep]=newOwner;
+    addLog("Realm War: "+newOwner+" captured "+keep+" from "+previousOwner+".");
 }
 
 function createCharacter(){
 
-    player.name=document.getElementById("name").value;
+    const name=document.getElementById("name").value.trim();
+    const realm=document.getElementById("realm").value;
+    const cls=document.getElementById("class").value;
 
-    player.realm=document.getElementById("realm").value;
+    if(!name){
+        document.getElementById("name").value="Warhymn";
+    }
 
-    player.cls=document.getElementById("class").value;
+    saveGame();
+    player=createDefaultPlayer();
+    player.characterId=createCharacterId();
+    player.name=name || "Warhymn";
+    player.realm=realm;
+    player.cls=cls;
+    activeCharacterId=player.characterId;
+    player.hp=playerMaxHp();
+    lastDamageText="Create a character to enter combat.";
+    document.getElementById("log").textContent="";
+    createTarget();
 
-    addLog(
-      player.name +
-      " entered " +
-      player.realm +
-      " as a " +
-      player.cls
-    );
+    addLog(player.name+" entered "+player.realm+" as a "+player.cls);
 
+    saveGame();
+    renderCharacterSelect(activeCharacterId);
     updateUI();
+}
+
+function loadSelectedCharacter(){
+
+    const selectedId=document.getElementById("characterSelect").value;
+    const character=characterRoster.find(function(entry){
+        return entry.characterId===selectedId;
+    });
+
+    if(!character){
+        addLog("Select a saved character to load.");
+        return;
+    }
+
+    saveGame();
+    const savedCharacter=characterRoster.find(function(entry){
+        return entry.characterId===selectedId;
+    });
+    activeCharacterId=character.characterId;
+    normalizePlayer(cloneCharacter(savedCharacter));
+    lastDamageText="Create a character to enter combat.";
+    document.getElementById("log").textContent="";
+
+    if(player.name && !player.target){
+        player.hp=Math.min(player.hp,playerMaxHp());
+        createTarget();
+    }
+
+    renderCharacterSelect(activeCharacterId);
+    updateUI();
+    addLog("Loaded "+player.name+".");
+    saveGame();
 }
 
 function levelRequirement(){
@@ -135,6 +975,9 @@ function levelRequirement(){
 }
 
 function updateUI(){
+
+    const maxHp=playerMaxHp();
+    if(player.hp>maxHp) player.hp=maxHp;
 
     document.getElementById("charInfo").innerText =
     player.name +
@@ -158,8 +1001,137 @@ function updateUI(){
     document.getElementById("loot").innerText =
     player.loot;
 
+    document.getElementById("power").innerText=playerPower();
+    document.getElementById("paperdollName").innerText=player.name || "No character";
+    document.getElementById("paperdollMeta").innerText=player.name
+        ? player.realm+" "+player.cls
+        : "Create a character to begin.";
+    document.getElementById("paperdollLevel").innerText=player.level;
+    document.getElementById("paperdollPower").innerText=playerPower();
+    document.getElementById("paperdollHp").innerText=player.name ? player.hp+"/"+maxHp : "--";
+    updateActiveCharacterOption();
     document.getElementById("rr").innerText =
     Math.floor(player.rp / 1000) + 1;
+
+    document.getElementById("kills").innerText=player.kills || 0;
+    document.getElementById("combatPlayerName").innerText=player.name || "No character";
+    document.getElementById("playerHp").innerText=player.name ? player.hp+"/"+maxHp : "--";
+    document.getElementById("playerHpBar").style.width=player.name
+        ? Math.max(0,Math.min(100,(player.hp/maxHp)*100))+"%"
+        : "0%";
+    document.getElementById("targetName").innerText=player.target
+        ? player.target.name
+        : "Waiting for a character";
+    document.getElementById("targetDetails").innerText=player.target
+        ? "Level "+player.target.level+" "+player.target.realm+" "+player.target.cls+" — "+player.target.zone
+        : "Create a character to enter combat.";
+    document.getElementById("targetHp").innerText=player.target
+        ? player.target.hp+"/"+player.target.maxHp
+        : "--";
+    document.getElementById("targetHpBar").style.width=player.target
+        ? Math.max(0,Math.min(100,(player.target.hp/player.target.maxHp)*100))+"%"
+        : "0%";
+    document.getElementById("damageReadout").innerText=lastDamageText;
+
+    const currentZone=getZoneForLevel(player.level);
+    document.getElementById("currentZone").innerText=currentZone.name+" (Level "+zoneLevelLabel(currentZone)+")";
+
+    const zoneList=document.getElementById("zoneList");
+    zoneList.textContent="";
+    zones.forEach(function(zone){
+        const entry=document.createElement("div");
+        const current=zone===currentZone;
+        const unlocked=player.level>=zone.minLevel;
+        entry.className="zone-entry"+(current ? " zone-current" : "")+(!unlocked ? " zone-locked" : "");
+        entry.textContent=zone.name+" — Levels "+zoneLevelLabel(zone)+(current ? " (Current)" : !unlocked ? " (Locked)" : " (Unlocked)");
+        zoneList.appendChild(entry);
+    });
+
+    const counts=keepCounts();
+    const leadingRealm=dominantRealm();
+    const realmCountsElement=document.getElementById("realmCounts");
+    realmCountsElement.textContent="";
+    realms.forEach(function(realm){
+        const count=document.createElement("div");
+        count.className="realm-count"+(realm===leadingRealm ? " realm-dominant" : "");
+        count.textContent=realm+" controls "+counts[realm]+"/"+keepNames.length;
+        realmCountsElement.appendChild(count);
+    });
+
+    const keepListElement=document.getElementById("keepList");
+    keepListElement.textContent="";
+    keepNames.forEach(function(keep){
+        const entry=document.createElement("div");
+        entry.className="keep-entry";
+        entry.textContent=keep+" — "+player.keeps[keep];
+        keepListElement.appendChild(entry);
+    });
+    document.getElementById("realmBonus").innerText=leadingRealm
+        ? "Dominant realm: "+leadingRealm+" — +10% Realm Points"
+        : "No realm currently dominates.";
+
+    const equipmentElement=document.getElementById("equipment");
+    equipmentElement.textContent="";
+    equipmentSlots.forEach(function(slot){
+        const item=player.equipment && player.equipment[slot];
+        const slotElement=document.createElement("div");
+        slotElement.className="gear-slot slot-"+slot.toLowerCase();
+
+        const slotName=document.createElement("div");
+        slotName.className="gear-slot-name";
+        slotName.textContent=slot;
+        slotElement.appendChild(slotName);
+
+        const itemName=document.createElement("div");
+        if(item){
+            itemName.className="rarity-"+item.rarity.toLowerCase();
+            itemName.textContent=item.name;
+        }else{
+            itemName.className="stat";
+            itemName.textContent="Empty";
+        }
+        slotElement.appendChild(itemName);
+
+        if(item){
+            const itemStats=document.createElement("div");
+            itemStats.className="stat";
+            itemStats.textContent=formatItemStats(item);
+            slotElement.appendChild(itemStats);
+        }
+        equipmentElement.appendChild(slotElement);
+    });
+
+    const inventoryElement=document.getElementById("inventory");
+    inventoryElement.textContent="";
+    if(!player.inventory || player.inventory.length===0){
+        const emptyMessage=document.createElement("div");
+        emptyMessage.className="stat";
+        emptyMessage.textContent="Defeat enemies to find equipment.";
+        inventoryElement.appendChild(emptyMessage);
+    }else{
+        player.inventory.forEach(function(item,index){
+            const itemElement=document.createElement("div");
+            itemElement.className="inventory-item";
+
+            const itemName=document.createElement("div");
+            itemName.className="rarity-"+item.rarity.toLowerCase();
+            itemName.textContent=item.name+" — "+item.slot;
+            itemElement.appendChild(itemName);
+
+            const itemStats=document.createElement("div");
+            itemStats.className="stat";
+            itemStats.textContent=formatItemStats(item);
+            itemElement.appendChild(itemStats);
+
+            const equipButton=document.createElement("button");
+            equipButton.textContent="Equip";
+            equipButton.addEventListener("click",function(){
+                equipItem(index);
+            });
+            itemElement.appendChild(equipButton);
+            inventoryElement.appendChild(itemElement);
+        });
+    }
 }
 
 function xpTick(){
@@ -186,37 +1158,40 @@ function xpTick(){
 
 function rvrBattle(){
 
-    if(!player.name) return;
+    if(!player.name || !player.target) return;
 
-    let win = Math.random() > 0.4;
+    const target=player.target;
+    const damage=Math.floor(playerPower()+Math.random()*6);
+    target.hp=Math.max(0,target.hp-damage);
+    lastDamageText="You hit "+target.name+" for "+damage+" damage!";
 
-    if(win){
+    if(target.hp<=0){
 
-        let rpGain =
-            Math.floor(Math.random()*50)+25;
+        player.kills=(player.kills || 0)+1;
+        if(player.kills%5===0){
+            advanceRealmWar();
+        }
+        const baseRpGain=Math.floor(Math.random()*50)+25;
+        const hasRealmBonus=dominantRealm()===player.realm;
+        const rpGain=Math.floor(baseRpGain*(hasRealmBonus ? 1.1 : 1));
+        player.rp+=rpGain;
+        addLog("Defeated "+target.name+"! +"+rpGain+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
 
-        player.rp += rpGain;
+        if(Math.random()>0.7){
+            grantItem(generateItem());
+        }
 
-        addLog(
-          "Victory! +" +
-          rpGain +
-          " Realm Points"
-        );
-
+        createTarget();
     }else{
 
-        addLog(
-          "Defeat in frontier skirmish."
-        );
-    }
+        const enemyDamage=Math.floor(4+target.level*1.5+Math.random()*4);
+        player.hp=Math.max(0,player.hp-enemyDamage);
+        lastDamageText+=" "+target.name+" hits you for "+enemyDamage+".";
 
-    if(Math.random() > 0.7){
-
-        player.loot++;
-
-        addLog(
-          "Loot Found: Frontier Token"
-        );
+        if(player.hp<=0){
+            player.hp=playerMaxHp();
+            addLog(player.name+" was defeated and recovers at full health.");
+        }
     }
 
     updateUI();
@@ -224,33 +1199,301 @@ function rvrBattle(){
 
 function saveGame(){
 
+    if(player.name){
+        if(!activeCharacterId){
+            activeCharacterId=player.characterId || createCharacterId();
+        }
+        player.characterId=activeCharacterId;
+
+        const savedPlayer=cloneCharacter(player);
+        const existingIndex=characterRoster.findIndex(function(character){
+            return character.characterId===activeCharacterId;
+        });
+        if(existingIndex===-1){
+            characterRoster.push(savedPlayer);
+        }else{
+            characterRoster[existingIndex]=savedPlayer;
+        }
+    }
+
     localStorage.setItem(
       "idleEdenSave",
-      JSON.stringify(player)
+      JSON.stringify({
+          characters:characterRoster,
+          activeCharacterId:activeCharacterId
+      })
     );
 }
 
 function loadGame(){
 
-    let save=
-    localStorage.getItem("idleEdenSave");
+    const save=localStorage.getItem("idleEdenSave");
+    player=createDefaultPlayer();
+    characterRoster=[];
+    activeCharacterId="";
 
     if(save){
 
-        player=
-        JSON.parse(save);
+        const savedData=JSON.parse(save);
+        if(Array.isArray(savedData.characters)){
+            characterRoster=savedData.characters.filter(function(character){
+                return character && typeof character==="object";
+            });
+            characterRoster.forEach(function(character){
+                if(!character.characterId){
+                    character.characterId=createCharacterId();
+                }
+            });
 
+            activeCharacterId=savedData.activeCharacterId || "";
+            let activeCharacter=characterRoster.find(function(character){
+                return character.characterId===activeCharacterId;
+            });
+            if(!activeCharacter && characterRoster.length>0){
+                activeCharacter=characterRoster[0];
+                activeCharacterId=activeCharacter.characterId;
+            }
+            if(activeCharacter){
+                normalizePlayer(cloneCharacter(activeCharacter));
+            }
+        }else{
+            normalizePlayer(savedData);
+            if(player.name){
+                activeCharacterId=player.characterId;
+                characterRoster.push(cloneCharacter(player));
+            }
+        }
+
+        if(player.name && !player.target){
+            player.hp=Math.min(player.hp,playerMaxHp());
+            createTarget();
+        }
+
+        renderCharacterSelect(activeCharacterId);
         updateUI();
-
-        addLog("Game loaded.");
+        if(player.name){
+            addLog("Game loaded.");
+            saveGame();
+        }
+    }else{
+        renderCharacterSelect();
+        updateUI();
     }
 }
 
+function setCloudStatus(message,isError){
+
+    const status=document.getElementById("cloudStatus");
+    status.textContent=message;
+    status.classList.toggle("cloud-status-error",!!isError);
+}
+
+function updateCloudControls(){
+
+    document.getElementById("googleSignInButton").disabled=!firebaseAuth || !!firebaseUser || cloudBusy;
+    document.getElementById("googleSignOutButton").hidden=!firebaseUser;
+    document.getElementById("googleSignOutButton").disabled=cloudBusy;
+    document.getElementById("cloudSaveButton").disabled=!firebaseUser || cloudBusy;
+    document.getElementById("cloudRestoreButton").disabled=!firebaseUser || cloudBusy;
+}
+
+function cloudSaveReference(){
+    return firebaseModules.ref(firebaseDatabase,"users/"+firebaseUser.uid+"/save");
+}
+
+async function signInWithGoogle(){
+
+    if(!firebaseAuth || !firebaseModules) return;
+
+    try{
+        setCloudStatus("Opening Google sign-in...");
+        await firebaseModules.signInWithPopup(
+            firebaseAuth,
+            new firebaseModules.GoogleAuthProvider()
+        );
+    }catch(error){
+        setCloudStatus("Google sign-in failed: "+error.message,true);
+        console.error("Google sign-in failed.",error);
+    }
+}
+
+async function signOutFromGoogle(){
+
+    if(!firebaseAuth) return;
+
+    try{
+        await firebaseModules.signOut(firebaseAuth);
+    }catch(error){
+        setCloudStatus("Sign-out failed: "+error.message,true);
+        console.error("Firebase sign-out failed.",error);
+    }
+}
+
+async function saveToCloud(){
+
+    if(!firebaseUser || !firebaseModules) return;
+
+    cloudBusy=true;
+    updateCloudControls();
+    try{
+        saveGame();
+        const saveReference=cloudSaveReference();
+        const existingSave=await firebaseModules.get(saveReference);
+        if(existingSave.exists() && !window.confirm(
+            "This replaces the existing cloud backup with this device's character roster. Continue?"
+        )){
+            setCloudStatus("Cloud save canceled.");
+            return;
+        }
+        await firebaseModules.set(saveReference,{
+            characters:characterRoster,
+            activeCharacterId:activeCharacterId,
+            savedAt:Date.now()
+        });
+        setCloudStatus("Saved "+characterRoster.length+" character(s) to your cloud account.");
+    }catch(error){
+        setCloudStatus("Cloud save failed: "+error.message,true);
+        console.error("Firebase cloud save failed.",error);
+    }finally{
+        cloudBusy=false;
+        updateCloudControls();
+    }
+}
+
+function cloudCharactersToArray(value){
+
+    if(Array.isArray(value)){
+        return value;
+    }
+    if(value && typeof value==="object"){
+        return Object.keys(value).sort(function(a,b){
+            return Number(a)-Number(b);
+        }).map(function(key){
+            return value[key];
+        });
+    }
+    return [];
+}
+
+async function restoreFromCloud(){
+
+    if(!firebaseUser || !firebaseModules) return;
+
+    cloudBusy=true;
+    updateCloudControls();
+    try{
+        const snapshot=await firebaseModules.get(cloudSaveReference());
+        if(!snapshot.exists()){
+            setCloudStatus("No cloud save exists for this account yet.");
+            return;
+        }
+
+        const savedData=snapshot.val();
+        const cloudCharacters=cloudCharactersToArray(savedData.characters)
+            .filter(function(character){
+                return character && typeof character==="object";
+            });
+        if(cloudCharacters.length===0){
+            throw new Error("The cloud save does not contain any characters.");
+        }
+
+        if(characterRoster.length>0 && !window.confirm(
+            "Restoring replaces the saved characters on this device. Continue?"
+        )){
+            setCloudStatus("Cloud restore canceled.");
+            return;
+        }
+
+        characterRoster=cloudCharacters.map(function(character){
+            const restored=Object.assign(createDefaultPlayer(),character);
+            if(!restored.characterId){
+                restored.characterId=createCharacterId();
+            }
+            return restored;
+        });
+        activeCharacterId=characterRoster.some(function(character){
+            return character.characterId===savedData.activeCharacterId;
+        }) ? savedData.activeCharacterId : characterRoster[0].characterId;
+        const activeCharacter=characterRoster.find(function(character){
+            return character.characterId===activeCharacterId;
+        });
+
+        normalizePlayer(cloneCharacter(activeCharacter));
+        lastDamageText="Create a character to enter combat.";
+        document.getElementById("log").textContent="";
+        if(player.name && !player.target){
+            player.hp=Math.min(player.hp,playerMaxHp());
+            createTarget();
+        }
+        renderCharacterSelect(activeCharacterId);
+        updateUI();
+        addLog("Cloud save restored.");
+        saveGame();
+        setCloudStatus("Restored "+characterRoster.length+" character(s) from your cloud account.");
+    }catch(error){
+        setCloudStatus("Cloud restore failed: "+error.message,true);
+        console.error("Firebase cloud restore failed.",error);
+    }finally{
+        cloudBusy=false;
+        updateCloudControls();
+    }
+}
+
+async function initializeFirebase(){
+
+    const firebaseConfig={
+        apiKey:"AIzaSyD1in7uy0Rz2_vrpBy_wselBSosoep81IQ",
+        authDomain:"idle-eden.firebaseapp.com",
+        databaseURL:"https://idle-eden-default-rtdb.firebaseio.com",
+        projectId:"idle-eden",
+        storageBucket:"idle-eden.firebasestorage.app",
+        messagingSenderId:"653263856436",
+        appId:"1:653263856436:web:c93f23f57c14a74ba9bb61"
+    };
+
+    try{
+        const sdkUrl="https://www.gstatic.com/firebasejs/13.4.0/";
+        const appSdk=await import(sdkUrl+"firebase-app.js");
+        const authSdk=await import(sdkUrl+"firebase-auth.js");
+        const databaseSdk=await import(sdkUrl+"firebase-database.js");
+        const app=appSdk.initializeApp(firebaseConfig);
+
+        firebaseAuth=authSdk.getAuth(app);
+        firebaseDatabase=databaseSdk.getDatabase(app);
+        firebaseModules={
+            GoogleAuthProvider:authSdk.GoogleAuthProvider,
+            signInWithPopup:authSdk.signInWithPopup,
+            signOut:authSdk.signOut,
+            ref:databaseSdk.ref,
+            get:databaseSdk.get,
+            set:databaseSdk.set
+        };
+        updateCloudControls();
+
+        authSdk.onAuthStateChanged(firebaseAuth,function(user){
+            firebaseUser=user;
+            updateCloudControls();
+            setCloudStatus(user
+                ? "Signed in as "+(user.email || user.displayName || "Google user")+". Save or restore your roster on demand."
+                : "Not signed in. Local saves are active; sign in to use cloud backups.");
+        });
+    }catch(error){
+        setCloudStatus("Firebase could not initialize: "+error.message+" Local saves are still available.",true);
+        console.error("Firebase initialization failed.",error);
+    }
+}
+
+document.getElementById("googleSignInButton").addEventListener("click",signInWithGoogle);
+document.getElementById("googleSignOutButton").addEventListener("click",signOutFromGoogle);
+document.getElementById("cloudSaveButton").addEventListener("click",saveToCloud);
+document.getElementById("cloudRestoreButton").addEventListener("click",restoreFromCloud);
+
 setInterval(xpTick,1000);
-setInterval(rvrBattle,10000);
+setInterval(rvrBattle,1000);
 setInterval(saveGame,5000);
 
 loadGame();
+initializeFirebase();
 
 </script>
 
