@@ -1,1 +1,258 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>Idle Eden V3.1</title><style>body{background:#1b1b1b;color:white;font-family:Arial;max-width:1200px;margin:auto;padding:20px}.panel{background:#2d2d2d;padding:12px;border-radius:8px;margin:10px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.keep{padding:6px;background:#444;margin:4px 0}button,input,select{padding:6px;margin:2px}.log{height:180px;overflow:auto;background:black;padding:8px}</style></head><body><h1>Idle Eden V3.1</h1><div class="panel"><input id="charName" placeholder="Character Name"><select id="realm"><option>Hibernia</option><option>Midgard</option><option>Albion</option></select><select id="clazz"><option>Chanter</option><option>Hero</option><option>Druid</option><option>Berserker</option></select><button onclick="createChar()">Create Character</button></div><div class="grid"><div class="panel"><h3>Characters</h3><div id="chars"></div></div><div class="panel"><h3>Realm War</h3><div id="keeps"></div></div></div><div id="game" style="display:none"><div class="grid"><div class="panel"><h2 id="header"></h2><div>Level: <span id="level"></span></div><div>Gold: <span id="gold"></span></div><div>RP: <span id="rp"></span></div><div>Power: <span id="power"></span></div></div><div class="panel"><h3>Equipment</h3><div>Weapon: <span id="weapon"></span></div><div>Helm: <span id="helm"></span></div><div>Chest: <span id="chest"></span></div><div>Ring: <span id="ring"></span></div><div>Cloak: <span id="cloak"></span></div></div></div><div class="panel"><h3>Inventory</h3><div id="inv"></div></div><div class="panel"><h3>Battle Log</h3><div class="log" id="log"></div></div></div><script>let keeps=[{n:'Dun Crauchon',o:'Hibernia'},{n:'Dun Bolg',o:'Hibernia'},{n:'Castle Sauvage',o:'Albion'},{n:'Svasud Faste',o:'Midgard'}];let chars=JSON.parse(localStorage.getItem('idleEden31'))||[];let current=null;function save(){localStorage.setItem('idleEden31',JSON.stringify(chars));}function createChar(){let n=charName.value;if(!n)return;chars.push({id:Date.now(),name:n,realm:realm.value,clazz:clazz.value,level:1,gold:0,rp:0,power:1,inventory:[],equip:{weapon:null,helm:null,chest:null,ring:null,cloak:null}});save();renderChars();}function renderChars(){chars.innerHTML='';document.getElementById('chars').innerHTML='';charsData=chars;charsData.forEach(c=>document.getElementById('chars').innerHTML+=`<div><b>${c.name}</b> <button onclick="play(${c.id})">Play</button></div>`);}function renderKeeps(){document.getElementById('keeps').innerHTML='';keeps.forEach(k=>document.getElementById('keeps').innerHTML+=`<div class="keep">${k.n}: ${k.o}</div>`);}window.play=id=>{current=chars.find(x=>x.id===id);game.style.display='block';update();};function update(){if(!current)return;header.innerText=current.name+' '+current.realm;level.innerText=current.level;gold.innerText=current.gold;rp.innerText=current.rp;power.innerText=current.power;['weapon','helm','chest','ring','cloak'].forEach(s=>document.getElementById(s).innerText=current.equip[s]?.name||'None');inv.innerHTML='';current.inventory.forEach(i=>inv.innerHTML+=`<div>${i.name} +${i.power}</div>`);save();}function logmsg(t){log.innerHTML=t+'<br>'+log.innerHTML;}function loot(){let slots=['weapon','helm','chest','ring','cloak'];let names=['Frontier','Relic','Hero','Celtic'];let item={slot:slots[Math.floor(Math.random()*slots.length)],name:names[Math.floor(Math.random()*names.length)]+' '+slots[Math.floor(Math.random()*slots.length)],power:Math.floor(Math.random()*10)+1};current.inventory.push(item);if(!current.equip[item.slot]||item.power>(current.equip[item.slot].power||0)){current.equip[item.slot]=item;current.power+=1;}logmsg('Loot '+item.name);}function tick(){if(!current)return;current.gold+=5;current.rp+=10;if(Math.random()>.8)loot();if(current.rp>current.level*100){current.level++;logmsg('Level Up');}update();}function warTick(){let realms=['Albion','Midgard','Hibernia'];let k=keeps[Math.floor(Math.random()*keeps.length)];k.o=realms[Math.floor(Math.random()*3)];renderKeeps();if(current&&k.o===current.realm)current.rp+=25;}renderChars();renderKeeps();setInterval(tick,5000);setInterval(warTick,30000);</script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Idle Eden Prototype</title>
+
+<style>
+body{
+    background:#1b1b1b;
+    color:white;
+    font-family:Arial;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.panel{
+    background:#2d2d2d;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:8px;
+}
+
+button{
+    padding:10px;
+    margin:5px;
+    cursor:pointer;
+}
+
+h1{
+    color:#88ff88;
+}
+
+.log{
+    height:250px;
+    overflow-y:auto;
+    background:black;
+    padding:10px;
+}
+
+.stat{
+    color:#ffd966;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Idle Eden</h1>
+
+<div class="panel">
+    <input id="name" placeholder="Character Name" value="Warhymn">
+
+    <select id="realm">
+        <option>Hibernia</option>
+        <option>Midgard</option>
+        <option>Albion</option>
+    </select>
+
+    <select id="class">
+        <option>Chanter</option>
+        <option>Druid</option>
+        <option>Hero</option>
+        <option>Berserker</option>
+        <option>Healer</option>
+        <option>Mercenary</option>
+    </select>
+
+    <button onclick="createCharacter()">Create Character</button>
+</div>
+
+<div class="panel">
+    <h2 id="charInfo">No character</h2>
+
+    <div class="stat">Level: <span id="level">1</span></div>
+    <div class="stat">XP: <span id="xp">0</span></div>
+
+    <div class="stat">Gold: <span id="gold">0</span></div>
+
+    <div class="stat">Realm Rank: RR<span id="rr">1</span></div>
+
+    <div class="stat">Realm Points: <span id="rp">0</span></div>
+
+    <div class="stat">Loot Found: <span id="loot">0</span></div>
+</div>
+
+<div class="panel">
+    <h2>Battle Log</h2>
+    <div class="log" id="log"></div>
+</div>
+
+<script>
+
+let player = {
+    name:"",
+    realm:"",
+    cls:"",
+    level:1,
+    xp:0,
+    gold:0,
+    rp:0,
+    loot:0
+};
+
+function addLog(text){
+
+    const log=document.getElementById("log");
+
+    log.innerHTML =
+        "["+new Date().toLocaleTimeString()+"] "
+        + text + "<br>" + log.innerHTML;
+}
+
+function createCharacter(){
+
+    player.name=document.getElementById("name").value;
+
+    player.realm=document.getElementById("realm").value;
+
+    player.cls=document.getElementById("class").value;
+
+    addLog(
+      player.name +
+      " entered " +
+      player.realm +
+      " as a " +
+      player.cls
+    );
+
+    updateUI();
+}
+
+function levelRequirement(){
+    return player.level * 100;
+}
+
+function updateUI(){
+
+    document.getElementById("charInfo").innerText =
+    player.name +
+    " - " +
+    player.realm +
+    " " +
+    player.cls;
+
+    document.getElementById("level").innerText =
+    player.level;
+
+    document.getElementById("xp").innerText =
+    player.xp + "/" + levelRequirement();
+
+    document.getElementById("gold").innerText =
+    player.gold;
+
+    document.getElementById("rp").innerText =
+    player.rp;
+
+    document.getElementById("loot").innerText =
+    player.loot;
+
+    document.getElementById("rr").innerText =
+    Math.floor(player.rp / 1000) + 1;
+}
+
+function xpTick(){
+
+    if(!player.name) return;
+
+    player.xp += 5;
+    player.gold += 2;
+
+    if(player.xp >= levelRequirement()){
+
+        player.xp=0;
+        player.level++;
+
+        addLog(
+          player.name +
+          " reached level " +
+          player.level
+        );
+    }
+
+    updateUI();
+}
+
+function rvrBattle(){
+
+    if(!player.name) return;
+
+    let win = Math.random() > 0.4;
+
+    if(win){
+
+        let rpGain =
+            Math.floor(Math.random()*50)+25;
+
+        player.rp += rpGain;
+
+        addLog(
+          "Victory! +" +
+          rpGain +
+          " Realm Points"
+        );
+
+    }else{
+
+        addLog(
+          "Defeat in frontier skirmish."
+        );
+    }
+
+    if(Math.random() > 0.7){
+
+        player.loot++;
+
+        addLog(
+          "Loot Found: Frontier Token"
+        );
+    }
+
+    updateUI();
+}
+
+function saveGame(){
+
+    localStorage.setItem(
+      "idleEdenSave",
+      JSON.stringify(player)
+    );
+}
+
+function loadGame(){
+
+    let save=
+    localStorage.getItem("idleEdenSave");
+
+    if(save){
+
+        player=
+        JSON.parse(save);
+
+        updateUI();
+
+        addLog("Game loaded.");
+    }
+}
+
+setInterval(xpTick,1000);
+setInterval(rvrBattle,10000);
+setInterval(saveGame,5000);
+
+loadGame();
+
+</script>
+
+</body>
+</html>
