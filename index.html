@@ -951,6 +951,40 @@ h1{
     padding-right:5px;
 }
 
+.inventory-salvage-controls,.gem-shop-grid{
+    display:grid;
+    gap:10px;
+}
+
+.inventory-salvage-controls{
+    margin-bottom:12px;
+    padding:10px;
+    background:rgba(7,12,10,.62);
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:5px;
+}
+
+.inventory-salvage-setting{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.gem-shop-grid{
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+}
+
+.gem-shop-offer{
+    display:grid;
+    gap:8px;
+    align-content:start;
+    padding:12px;
+    background:linear-gradient(145deg,#1b2823,#0d1412);
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:5px;
+}
+
 .battle-layout{
     display:grid;
     grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
@@ -2294,6 +2328,7 @@ h1{
         <button type="button" id="tab-rvr" aria-controls="panel-rvr" onclick="showGamePanel('rvr')">RvR</button>
         <button type="button" id="tab-observer" aria-controls="panel-observer" onclick="showGamePanel('observer')">War Room</button>
         <button type="button" id="tab-crafting" aria-controls="panel-crafting" onclick="showGamePanel('crafting')">Crafting</button>
+        <button type="button" id="tab-merchant" aria-controls="panel-merchant" onclick="showGamePanel('merchant')">Gem Merchant</button>
         <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
         <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
         <button type="button" id="tab-guilds" aria-controls="panel-guilds" onclick="showGamePanel('guilds')">Guilds</button>
@@ -2473,6 +2508,14 @@ h1{
             </div>
         </section>
 
+        <section class="panel tab-panel" id="panel-merchant" aria-labelledby="tab-merchant" hidden>
+            <h2>Frontier Gem Merchant</h2>
+            <p class="stat">Trade cut gems and salvaged gear for powerful equipment. The merchant's three Rare or Epic offers rotate every 24 hours.</p>
+            <p class="stat">Current Gems: <strong id="gemMerchantBalance">0</strong> · <span id="gemMerchantRefresh">New stock arrives in 24 hours.</span></p>
+            <p class="stat" id="gemMerchantStatus" role="status" aria-live="polite">Create a character to trade with the merchant.</p>
+            <div class="gem-shop-grid" id="gemMerchantOffers"></div>
+        </section>
+
         <section class="tab-panel" id="panel-character" aria-labelledby="tab-character" hidden>
             <div class="character-dashboard">
                 <div class="character-tools">
@@ -2505,6 +2548,9 @@ h1{
                     <p class="stat" id="cloudStatus" role="status" aria-live="polite">
                         Local saves are active. Sign in to back up characters to Firebase.
                     </p>
+                    <p class="stat" id="cloudSyncDetails" role="status" aria-live="polite">
+                        Automatic cloud sync starts after a first backup or restore.
+                    </p>
                     <div class="cloud-controls">
                         <button id="googleSignInButton" disabled>Sign in with Google</button>
                         <button id="cloudSaveButton" disabled>Save to Cloud</button>
@@ -2535,6 +2581,19 @@ h1{
 
                     <section class="panel inventory-panel">
                         <h2>Inventory</h2>
+                        <div class="inventory-salvage-controls">
+                            <label class="inventory-salvage-setting" for="autoSalvageRarity">
+                                Auto-salvage drops through
+                                <select id="autoSalvageRarity">
+                                    <option value="off">Off</option>
+                                    <option value="common">Common</option>
+                                    <option value="uncommon">Uncommon</option>
+                                    <option value="rare">Rare</option>
+                                </select>
+                            </label>
+                            <button type="button" onclick="applyAutoSalvageSetting()">Apply + Salvage Existing Gear</button>
+                            <p class="stat" id="autoSalvageStatus" role="status" aria-live="polite">Gear that would enter your bag is eligible; empty slots still auto-equip. Common, Uncommon, and Rare gear yields 1, 2, or 4 Gems. Equipped gear and Epic+ items are protected.</p>
+                        </div>
                         <div class="inventory-list" id="inventory">
                             <div class="stat">Defeat enemies to find equipment.</div>
                         </div>
@@ -3104,7 +3163,7 @@ function markNewsAsRead(){
 
 function showGamePanel(panelName){
 
-    ["combat","rvr","observer","crafting","character","world","guilds","statistics","achievements","raids","news","settings"].forEach(function(name){
+    ["combat","rvr","observer","crafting","merchant","character","world","guilds","statistics","achievements","raids","news","settings"].forEach(function(name){
         const isActive=name===panelName;
         const button=document.getElementById("tab-"+name);
         const panel=document.getElementById("panel-"+name);
@@ -3180,6 +3239,11 @@ function createDefaultPlayer(){
             gems:0,
             potions:0
         },
+        autoSalvageRarity:"rare",
+        gemShop:{
+            offers:[],
+            refreshAt:0
+        },
         craftingSkills:{
             mining:{level:1,xp:0},
             foraging:{level:1,xp:0},
@@ -3216,6 +3280,14 @@ let firebaseDatabase=null;
 let firebaseModules=null;
 let firebaseUser=null;
 let cloudBusy=false;
+let cloudAutoSyncEnabled=false;
+let cloudSaveExists=false;
+let cloudSaveRevision=0;
+let cloudSavedAt=0;
+let cloudLastSyncedAt=0;
+let cloudSaveTimer=null;
+let cloudSavePending=false;
+const cloudSyncUidStorageKey="idleEdenAutoCloudSyncUid";
 let guildDirectoryUnsubscribe=null;
 let guildMessagesUnsubscribe=null;
 let activeGuildId="";
@@ -4213,6 +4285,41 @@ function normalizePlayer(savedPlayer){
         }
     });
     player.inventory=Array.isArray(player.inventory) ? player.inventory : [];
+    player.autoSalvageRarity=["off","common","uncommon","rare"].indexOf(player.autoSalvageRarity)!==-1
+        ? player.autoSalvageRarity
+        : "rare";
+    const savedGemShop=player.gemShop && typeof player.gemShop==="object"
+        && !Array.isArray(player.gemShop) ? player.gemShop : {};
+    const normalizedGemOffers=Array.isArray(savedGemShop.offers)
+        ? savedGemShop.offers.slice(0,3).filter(function(offer){
+            const item=offer && offer.item;
+            return offer && typeof offer==="object"
+                && item && typeof item==="object"
+                && typeof item.name==="string" && item.name.length>0
+                && equipmentSlots.indexOf(item.slot)!==-1
+                && ["Rare","Epic"].indexOf(item.rarity)!==-1
+                && Number.isFinite(item.power) && Number.isFinite(item.hp)
+                && Number.isSafeInteger(offer.cost) && offer.cost>0 && offer.cost<=10000;
+        }).map(function(offer){
+            return {
+                item:{
+                    name:offer.item.name.slice(0,100),
+                    slot:offer.item.slot,
+                    rarity:offer.item.rarity,
+                    power:Math.max(0,Math.floor(offer.item.power)),
+                    hp:Math.max(0,Math.floor(offer.item.hp))
+                },
+                cost:offer.cost,
+                sold:offer.sold===true
+            };
+        })
+        : [];
+    player.gemShop={
+        offers:normalizedGemOffers.length===3 ? normalizedGemOffers : [],
+        refreshAt:normalizedGemOffers.length===3
+            ? validArenaTimestamp(savedGemShop.refreshAt)
+            : 0
+    };
     player.kills=Number.isFinite(player.kills) ? Math.max(0,Math.floor(player.kills)) : 0;
     player.pvpKills=validArenaCount(player.pvpKills);
     const savedStatistics=hasSavedStatistics && player.statistics && typeof player.statistics==="object"
@@ -4608,6 +4715,204 @@ function generateItem(forcedRarity){
     };
 }
 
+const salvageGemYield={
+    Common:1,
+    Uncommon:2,
+    Rare:4
+};
+const salvageRarityOrder=["Common","Uncommon","Rare","Epic","Legendary","Artifact"];
+const gemShopRefreshIntervalMs=24*60*60*1000;
+
+function getSalvageGemYield(item){
+    return item && Number.isSafeInteger(salvageGemYield[item.rarity])
+        ? salvageGemYield[item.rarity]
+        : 0;
+}
+
+function isAutoSalvageEligible(item,threshold){
+    const thresholdRarity=threshold || player.autoSalvageRarity;
+    const thresholdIndex=salvageRarityOrder.indexOf(
+        thresholdRarity.charAt(0).toUpperCase()+thresholdRarity.slice(1)
+    );
+    const itemIndex=item ? salvageRarityOrder.indexOf(item.rarity) : -1;
+    return thresholdIndex!==-1 && itemIndex!==-1 && itemIndex<=thresholdIndex
+        && getSalvageGemYield(item)>0;
+}
+
+function previewInventorySalvage(threshold){
+    let remainingGemCapacity=Math.max(0,resourceStackCap-player.resources.gems);
+    let itemCount=0;
+    let gemCount=0;
+    player.inventory.forEach(function(item){
+        const yieldAmount=getSalvageGemYield(item);
+        if(isAutoSalvageEligible(item,threshold) && yieldAmount<=remainingGemCapacity){
+            itemCount++;
+            gemCount+=yieldAmount;
+            remainingGemCapacity-=yieldAmount;
+        }
+    });
+    return {itemCount:itemCount,gemCount:gemCount};
+}
+
+function salvageEligibleInventory(){
+    const remaining=[];
+    let itemCount=0;
+    let gemCount=0;
+    player.inventory.forEach(function(item){
+        const yieldAmount=getSalvageGemYield(item);
+        if(isAutoSalvageEligible(item) && player.resources.gems+yieldAmount<=resourceStackCap){
+            player.resources.gems+=yieldAmount;
+            itemCount++;
+            gemCount+=yieldAmount;
+        }else{
+            remaining.push(item);
+        }
+    });
+    player.inventory=remaining;
+    return {itemCount:itemCount,gemCount:gemCount};
+}
+
+function applyAutoSalvageSetting(){
+    if(!player.name){
+        document.getElementById("autoSalvageStatus").textContent=
+            "Create or select a character before changing auto-salvage.";
+        return;
+    }
+    const threshold=document.getElementById("autoSalvageRarity").value;
+    if(["off","common","uncommon","rare"].indexOf(threshold)===-1){
+        document.getElementById("autoSalvageStatus").textContent="Choose a valid salvage tier.";
+        return;
+    }
+    const preview=previewInventorySalvage(threshold);
+    if(preview.itemCount>0 && !window.confirm(
+        "Salvage "+preview.itemCount+" eligible item(s) already in your inventory for "
+            +preview.gemCount+" Gems? This cannot be undone."
+    )){
+        updateUI();
+        return;
+    }
+
+    player.autoSalvageRarity=threshold;
+    const result=threshold==="off"
+        ? {itemCount:0,gemCount:0}
+        : salvageEligibleInventory();
+    const unsalvagedEligibleCount=threshold==="off"
+        ? 0
+        : player.inventory.filter(function(item){
+            return isAutoSalvageEligible(item);
+        }).length;
+    document.getElementById("autoSalvageStatus").textContent=threshold==="off"
+        ? "Auto-salvage is off. Existing gear was left untouched."
+        : "Auto-salvage is set through "+threshold+". Salvaged "+result.itemCount
+            +" existing item(s) for "+result.gemCount+" Gems."
+            +(unsalvagedEligibleCount>0
+                ? " Kept "+unsalvagedEligibleCount+" eligible item(s) because the Gem pouch is full."
+                : "");
+    if(result.itemCount>0){
+        addLog("Salvaged "+result.itemCount+" existing gear item(s) for "+result.gemCount+" Gems.");
+    }
+    updateUI();
+    saveImportantProgress();
+}
+
+function ensureGemShopOffers(){
+    if(player.gemShop && player.gemShop.offers.length===3
+        && player.gemShop.refreshAt>Date.now()){
+        return;
+    }
+    player.gemShop={
+        offers:Array.from({length:3},function(){
+            const rarity=Math.random()<.7 ? "Rare" : "Epic";
+            return {
+                item:generateItem(rarity),
+                cost:rarity==="Rare" ? 12 : 30,
+                sold:false
+            };
+        }),
+        refreshAt:Date.now()+gemShopRefreshIntervalMs
+    };
+}
+
+function renderGemMerchant(){
+    ensureGemShopOffers();
+    document.getElementById("gemMerchantBalance").textContent=
+        player.resources.gems.toLocaleString();
+    const status=document.getElementById("gemMerchantStatus");
+    if(!player.name){
+        status.textContent="Create a character to trade with the merchant.";
+    }else if(status.textContent==="Create a character to trade with the merchant."){
+        status.textContent="Browse the current stock and spend Gems to buy equipment.";
+    }
+    const remainingMs=Math.max(0,player.gemShop.refreshAt-Date.now());
+    const remainingHours=Math.floor(remainingMs/3600000);
+    const remainingMinutes=Math.floor((remainingMs%3600000)/60000);
+    document.getElementById("gemMerchantRefresh").textContent=
+        "New stock in "+remainingHours+"h "+remainingMinutes+"m.";
+
+    const offersElement=document.getElementById("gemMerchantOffers");
+    const renderKey=JSON.stringify([
+        Boolean(player.name),
+        player.resources.gems,
+        player.gemShop.offers
+    ]);
+    if(offersElement.dataset.renderKey===renderKey){
+        return;
+    }
+    offersElement.dataset.renderKey=renderKey;
+    offersElement.textContent="";
+    player.gemShop.offers.forEach(function(offer,index){
+        const card=document.createElement("article");
+        card.className="gem-shop-offer";
+        const name=document.createElement("strong");
+        name.className="rarity-"+offer.item.rarity.toLowerCase();
+        name.textContent=offer.item.name+" — "+offer.item.slot;
+        card.appendChild(name);
+        const stats=document.createElement("div");
+        stats.className="stat";
+        stats.textContent=formatItemStats(offer.item);
+        card.appendChild(stats);
+        const price=document.createElement("div");
+        price.className="stat";
+        price.textContent=offer.cost+" Gems";
+        card.appendChild(price);
+        const purchaseButton=document.createElement("button");
+        purchaseButton.type="button";
+        purchaseButton.textContent=offer.sold ? "Sold" : "Purchase";
+        purchaseButton.disabled=!player.name || offer.sold
+            || player.resources.gems<offer.cost;
+        purchaseButton.addEventListener("click",function(){
+            purchaseGemShopOffer(index);
+        });
+        card.appendChild(purchaseButton);
+        offersElement.appendChild(card);
+    });
+}
+
+function purchaseGemShopOffer(index){
+    ensureGemShopOffers();
+    const offer=player.gemShop.offers[index];
+    const status=document.getElementById("gemMerchantStatus");
+    if(!player.name){
+        status.textContent="Create or select a character before buying equipment.";
+        return;
+    }
+    if(!offer || offer.sold){
+        status.textContent="That offer is no longer available.";
+        return;
+    }
+    if(player.resources.gems<offer.cost){
+        status.textContent="You need "+(offer.cost-player.resources.gems)+" more Gems.";
+        return;
+    }
+    player.resources.gems-=offer.cost;
+    player.inventory.push(offer.item);
+    offer.sold=true;
+    status.textContent="Purchased "+offer.item.name+". It is waiting in your inventory.";
+    addLog("Bought "+offer.item.name+" from the Frontier Gem Merchant for "+offer.cost+" Gems.");
+    updateUI();
+    saveImportantProgress();
+}
+
 function formatItemStats(item){
     const stats=[];
     if(item.power>0) stats.push("+"+item.power+" Power");
@@ -4633,11 +4938,22 @@ function equipItem(index){
     player.hp=Math.max(0,Math.min(newMaxHp,player.hp+newMaxHp-oldMaxHp));
     addLog("Equipped "+item.name+" in the "+item.slot+" slot.");
     updateUI();
+    saveImportantProgress();
 }
 
 function grantItem(item){
 
     player.loot=(player.loot || 0)+1;
+    const salvageYield=getSalvageGemYield(item);
+    if(player.equipment[item.slot] && isAutoSalvageEligible(item)
+        && player.resources.gems+salvageYield<=resourceStackCap){
+        player.resources.gems+=salvageYield;
+        addLog("Auto-salvaged "+item.name+" for "+salvageYield+" Gem"
+            +(salvageYield===1 ? "" : "s")+".");
+        updateUI();
+        saveImportantProgress();
+        return;
+    }
     player.inventory.push(item);
     if(item.rarity==="Artifact"){
         player.statistics.artifactsFound++;
@@ -4647,6 +4963,9 @@ function grantItem(item){
         addLog("ARTIFACT FOUND: Spear of Kings!");
         publishStreamEvent("artifact","Artifact found: "+item.name,"character");
     }else{
+        if(player.equipment[item.slot] && isAutoSalvageEligible(item)){
+            addLog("Gem pouch full; "+item.name+" was kept in your inventory.");
+        }
         addLog(item.rarity+" loot found: "+item.name+".");
     }
 
@@ -4655,6 +4974,7 @@ function grantItem(item){
     }else{
         updateUI();
     }
+    saveImportantProgress();
 }
 
 function createTarget(){
@@ -4848,7 +5168,7 @@ function createCharacter(){
 
     addLog(player.name+" entered "+player.realm+" as a "+player.cls);
 
-    saveGame();
+    saveImportantProgress();
     renderCharacterSelect(activeCharacterId);
     updateUI();
 }
@@ -4882,7 +5202,7 @@ function loadSelectedCharacter(){
     renderCharacterSelect(activeCharacterId);
     updateUI();
     addLog("Loaded "+player.name+".");
-    saveGame();
+    saveImportantProgress();
 }
 
 function levelRequirement(){
@@ -5234,6 +5554,7 @@ function finishRvrMatch(now){
     }
     arena.match=null;
     publishStreamEvent("arena","8v8v8 Arena match ended: "+winner+" won.","rvr");
+    saveImportantProgress();
 }
 
 function renderRvrMap(match){
@@ -5817,7 +6138,7 @@ function setRaidTeamMember(characterId,isSelected){
         raidTeamIds.splice(selectedIndex,1);
     }
     eliteRaidRenderKey="";
-    saveGame();
+    saveImportantProgress();
     updateUI();
 }
 
@@ -5828,7 +6149,7 @@ function abandonEliteRaid(){
         "Raid abandoned. Your boss progress is saved only after a victory.";
     eliteRaidRenderKey="";
     updateUI();
-    saveGame();
+    saveImportantProgress();
 }
 
 function challengeEliteBoss(bossId){
@@ -5994,7 +6315,7 @@ function challengeEliteBoss(bossId){
     document.getElementById("eliteRaidLog").textContent=report.join(" ");
     eliteRaidRenderKey="";
     updateUI();
-    saveGame();
+    saveImportantProgress();
 }
 
 function renderEliteRaids(){
@@ -6251,7 +6572,7 @@ function setEquippedTitle(titleId){
     document.getElementById("titleStatus").textContent=titleId
         ? "Title equipped."
         : "Title removed.";
-    saveGame();
+    saveImportantProgress();
     updateUI();
 }
 
@@ -6392,6 +6713,7 @@ function updateUI(){
     renderBattlefield();
     renderBestiary();
     renderCrafting();
+    renderGemMerchant();
     renderRvrArena();
     renderObserverDashboard();
 
@@ -6460,6 +6782,10 @@ function updateUI(){
     });
 
     const inventoryElement=document.getElementById("inventory");
+    const autoSalvageSelector=document.getElementById("autoSalvageRarity");
+    if(document.activeElement!==autoSalvageSelector){
+        autoSalvageSelector.value=player.autoSalvageRarity;
+    }
     inventoryElement.textContent="";
     if(!player.inventory || player.inventory.length===0){
         const emptyMessage=document.createElement("div");
@@ -6508,6 +6834,7 @@ function xpTick(){
 
     const earnedXp=applyRelicBonus(5,"xp");
     awardGold(2);
+    let majorProgress=false;
 
     if(player.level<levelCap){
         player.xp+=earnedXp;
@@ -6515,6 +6842,7 @@ function xpTick(){
             const previousLevelZone=getZoneForLevel(player.level);
             player.xp=0;
             player.level++;
+            majorProgress=true;
             if(player.activeZoneId===previousLevelZone.id){
                 player.activeZoneId=null;
             }
@@ -6533,6 +6861,7 @@ function xpTick(){
             && player.masteryXp>=requiredXp){
             player.masteryXp-=requiredXp;
             player.mastery++;
+            majorProgress=true;
             const unlockedZone=zones.find(function(zone){
                 return zone.masteryLevel===player.mastery;
             });
@@ -6541,6 +6870,9 @@ function xpTick(){
         }
     }
 
+    if(majorProgress){
+        saveImportantProgress();
+    }
     updateUI();
 }
 
@@ -6659,6 +6991,9 @@ function resolvePveKill(target){
         createFrontierBoss();
     }else{
         createTarget();
+    }
+    if(target.champion || target.frontierBoss || player.kills%5===0){
+        saveImportantProgress();
     }
 }
 
@@ -6878,6 +7213,83 @@ function setCloudStatus(message,isError){
     status.classList.toggle("cloud-status-error",!!isError);
 }
 
+function setCloudSyncDetails(message,isError){
+    const details=document.getElementById("cloudSyncDetails");
+    details.textContent=message;
+    details.classList.toggle("cloud-status-error",!!isError);
+}
+
+function formatCloudSyncTime(timestamp){
+    const date=new Date(timestamp);
+    return Number.isFinite(date.getTime())
+        ? date.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})
+        : "Not synced yet";
+}
+
+function cloudSyncMetadataKey(uid,field){
+    return "idleEdenCloudSync:"+uid+":"+field;
+}
+
+function cloudSaveVersion(value){
+    return {
+        revision:value && Number.isSafeInteger(value.revision) && value.revision>=0
+            ? value.revision
+            : 0,
+        savedAt:value && Number.isFinite(value.savedAt)
+            ? value.savedAt
+            : 0
+    };
+}
+
+function readCloudSyncCheckpoint(uid){
+    if(localStorage.getItem(cloudSyncUidStorageKey)!==uid){
+        return null;
+    }
+    const revisionValue=localStorage.getItem(cloudSyncMetadataKey(uid,"revision"));
+    const savedAtValue=localStorage.getItem(cloudSyncMetadataKey(uid,"savedAt"));
+    if(revisionValue===null || savedAtValue===null){
+        return null;
+    }
+    const revision=Number(revisionValue);
+    const savedAt=Number(savedAtValue);
+    const lastSyncedAt=Number(localStorage.getItem(
+        cloudSyncMetadataKey(uid,"lastSyncedAt")
+    ));
+    if(!Number.isSafeInteger(revision) || revision<0
+        || !Number.isFinite(savedAt)){
+        return null;
+    }
+    return {
+        revision:revision,
+        savedAt:savedAt,
+        lastSyncedAt:Number.isFinite(lastSyncedAt) ? lastSyncedAt : 0
+    };
+}
+
+function recordCloudSync(uid,savedData){
+    const version=cloudSaveVersion(savedData);
+    cloudSaveExists=true;
+    cloudSaveRevision=version.revision;
+    cloudSavedAt=version.savedAt;
+    cloudLastSyncedAt=Date.now();
+    localStorage.setItem(cloudSyncUidStorageKey,uid);
+    localStorage.setItem(
+        cloudSyncMetadataKey(uid,"revision"),
+        String(cloudSaveRevision)
+    );
+    localStorage.setItem(
+        cloudSyncMetadataKey(uid,"savedAt"),
+        String(cloudSavedAt)
+    );
+    localStorage.setItem(
+        cloudSyncMetadataKey(uid,"lastSyncedAt"),
+        String(cloudLastSyncedAt)
+    );
+    setCloudSyncDetails(
+        "☁ Up to date · Last sync: "+formatCloudSyncTime(cloudLastSyncedAt)
+    );
+}
+
 function updateCloudControls(){
 
     document.getElementById("googleSignInButton").hidden=!!firebaseUser;
@@ -6888,8 +7300,158 @@ function updateCloudControls(){
     document.getElementById("cloudRestoreButton").disabled=!firebaseUser || cloudBusy;
 }
 
-function cloudSaveReference(){
-    return firebaseModules.ref(firebaseDatabase,"users/"+firebaseUser.uid+"/save");
+function cloudSaveReference(uid){
+    const userId=uid || (firebaseUser && firebaseUser.uid);
+    if(!firebaseModules || !firebaseDatabase || !userId){
+        throw new Error("Sign in before accessing cloud saves.");
+    }
+    return firebaseModules.ref(firebaseDatabase,"users/"+userId+"/save");
+}
+
+function cloudSavePayload(revision,savedAt){
+    return {
+        characters:characterRoster,
+        activeCharacterId:activeCharacterId,
+        raidTeamIds:raidTeamIds,
+        eliteRaidProgress:eliteRaidProgress,
+        eliteRaidRun:eliteRaidRun,
+        revision:revision,
+        savedAt:savedAt
+    };
+}
+
+async function writeCloudSaveIfUnchanged(user,expectedExists,expectedVersion){
+    const savedAt=Date.now();
+    const nextRevision=expectedVersion.revision+1;
+    const result=await firebaseModules.runTransaction(
+        cloudSaveReference(user.uid),
+        function(currentValue){
+            const currentExists=currentValue!==null;
+            const currentVersion=cloudSaveVersion(currentValue);
+            if(currentExists!==expectedExists
+                || currentVersion.revision!==expectedVersion.revision
+                || currentVersion.savedAt!==expectedVersion.savedAt){
+                return;
+            }
+            return cloudSavePayload(nextRevision,savedAt);
+        },
+        {applyLocally:false}
+    );
+    if(!result.committed){
+        throw new Error(
+            "The cloud save changed on another device. No data was overwritten; restore or review the latest backup."
+        );
+    }
+    return result.snapshot.val();
+}
+
+function finishCloudOperation(){
+    cloudBusy=false;
+    updateCloudControls();
+    const retryPending=cloudSavePending && cloudAutoSyncEnabled;
+    cloudSavePending=false;
+    if(retryPending){
+        window.setTimeout(saveToCloudSilent,0);
+    }
+}
+
+function pauseCloudAutoSync(message){
+    cloudAutoSyncEnabled=false;
+    cloudSavePending=false;
+    if(cloudSaveTimer!==null){
+        window.clearTimeout(cloudSaveTimer);
+        cloudSaveTimer=null;
+    }
+    setCloudStatus(message,true);
+    setCloudSyncDetails("Automatic sync is paused. Resolve the cloud-save version before syncing again.",true);
+}
+
+function scheduleCloudSave(){
+    if(!firebaseUser || !cloudAutoSyncEnabled){
+        return;
+    }
+    if(cloudSaveTimer!==null){
+        window.clearTimeout(cloudSaveTimer);
+    }
+    cloudSaveTimer=window.setTimeout(function(){
+        cloudSaveTimer=null;
+        saveToCloudSilent();
+    },750);
+}
+
+function saveImportantProgress(){
+    saveGame();
+    scheduleCloudSave();
+}
+
+async function initializeCloudSync(user){
+    setCloudSyncDetails("Checking for an existing cloud backup...");
+    try{
+        const snapshot=await firebaseModules.get(cloudSaveReference(user.uid));
+        if(firebaseUser!==user){
+            return;
+        }
+
+        if(!snapshot.exists()){
+            const previouslySynced=localStorage.getItem(cloudSyncUidStorageKey)===user.uid;
+            cloudSaveExists=false;
+            cloudSaveRevision=0;
+            cloudSavedAt=0;
+            cloudLastSyncedAt=0;
+            if(previouslySynced){
+                cloudAutoSyncEnabled=false;
+                setCloudStatus("Your previous cloud backup is missing. Automatic sync is paused.");
+                setCloudSyncDetails(
+                    "Create a new backup with Save to Cloud before automatic sync resumes.",
+                    true
+                );
+                return;
+            }
+
+            cloudAutoSyncEnabled=true;
+            setCloudStatus("Signed in as "+(user.email || user.displayName || "Google user")+".");
+            setCloudSyncDetails("No cloud backup found. Automatic sync will create one.");
+            if(characterRoster.length>0){
+                scheduleCloudSave();
+            }
+            return;
+        }
+
+        const savedData=snapshot.val();
+        const version=cloudSaveVersion(savedData);
+        const checkpoint=readCloudSyncCheckpoint(user.uid);
+        cloudSaveExists=true;
+        cloudSaveRevision=version.revision;
+        cloudSavedAt=version.savedAt;
+        if(checkpoint
+            && checkpoint.revision===version.revision
+            && checkpoint.savedAt===version.savedAt){
+            cloudAutoSyncEnabled=true;
+            cloudLastSyncedAt=checkpoint.lastSyncedAt;
+            setCloudStatus(
+                "Signed in as "+(user.email || user.displayName || "Google user")
+                    +". Automatic cloud sync is active."
+            );
+            setCloudSyncDetails(
+                "☁ Up to date · Last sync: "+formatCloudSyncTime(cloudLastSyncedAt)
+            );
+            return;
+        }
+
+        cloudAutoSyncEnabled=false;
+        setCloudStatus(
+            "Signed in as "+(user.email || user.displayName || "Google user")
+                +". A cloud backup already exists."
+        );
+        setCloudSyncDetails(
+            "Choose Restore Cloud Save or Save to Cloud once before automatic sync begins."
+        );
+    }catch(error){
+        cloudAutoSyncEnabled=false;
+        setCloudStatus("Could not check the cloud backup: "+error.message,true);
+        setCloudSyncDetails("Automatic sync is paused until the backup can be checked.",true);
+        console.error("Firebase cloud-sync initialization failed.",error);
+    }
 }
 
 async function signInWithGoogle(){
@@ -7234,37 +7796,94 @@ async function leaveGuild(){
     }
 }
 
-async function saveToCloud(){
+async function saveToCloudSilent(){
+    if(!firebaseUser || !firebaseModules || !cloudAutoSyncEnabled
+        || characterRoster.length===0){
+        return;
+    }
+    if(cloudBusy){
+        cloudSavePending=true;
+        return;
+    }
 
-    if(!firebaseUser || !firebaseModules) return;
-
+    const user=firebaseUser;
+    const expectedExists=cloudSaveExists;
+    const expectedVersion={
+        revision:cloudSaveRevision,
+        savedAt:cloudSavedAt
+    };
     cloudBusy=true;
     updateCloudControls();
     try{
         saveGame();
-        const saveReference=cloudSaveReference();
-        const existingSave=await firebaseModules.get(saveReference);
-        if(existingSave.exists() && !window.confirm(
+        const savedData=await writeCloudSaveIfUnchanged(
+            user,
+            expectedExists,
+            expectedVersion
+        );
+        if(firebaseUser!==user){
+            return;
+        }
+        recordCloudSync(user.uid,savedData);
+        setCloudStatus("Automatically synced "+characterRoster.length+" character(s).");
+    }catch(error){
+        if(error.message.indexOf("changed on another device")!==-1){
+            pauseCloudAutoSync(error.message);
+        }else{
+            setCloudStatus("Automatic cloud sync failed: "+error.message,true);
+            setCloudSyncDetails("Sync will retry automatically when the connection is available.",true);
+        }
+        console.error("Firebase automatic cloud sync failed.",error);
+    }finally{
+        finishCloudOperation();
+    }
+}
+
+async function saveToCloud(){
+    if(!firebaseUser || !firebaseModules || cloudBusy){
+        return;
+    }
+
+    const user=firebaseUser;
+    cloudBusy=true;
+    updateCloudControls();
+    try{
+        saveGame();
+        const existingSave=await firebaseModules.get(cloudSaveReference(user.uid));
+        if(firebaseUser!==user){
+            throw new Error("The signed-in account changed during the save.");
+        }
+        const expectedExists=existingSave.exists();
+        const expectedVersion=cloudSaveVersion(
+            expectedExists ? existingSave.val() : null
+        );
+        if(expectedExists && !window.confirm(
             "This replaces the existing cloud backup with this device's character roster. Continue?"
         )){
             setCloudStatus("Cloud save canceled.");
             return;
         }
-        await firebaseModules.set(saveReference,{
-            characters:characterRoster,
-            activeCharacterId:activeCharacterId,
-            raidTeamIds:raidTeamIds,
-            eliteRaidProgress:eliteRaidProgress,
-            eliteRaidRun:eliteRaidRun,
-            savedAt:Date.now()
-        });
-        setCloudStatus("Saved "+characterRoster.length+" character(s) to your cloud account.");
+        const savedData=await writeCloudSaveIfUnchanged(
+            user,
+            expectedExists,
+            expectedVersion
+        );
+        cloudAutoSyncEnabled=true;
+        cloudSavePending=false;
+        recordCloudSync(user.uid,savedData);
+        setCloudStatus(
+            "Saved "+characterRoster.length
+                +" character(s). Automatic cloud sync is now enabled."
+        );
     }catch(error){
-        setCloudStatus("Cloud save failed: "+error.message,true);
-        console.error("Firebase cloud save failed.",error);
+        if(error.message.indexOf("changed on another device")!==-1){
+            pauseCloudAutoSync(error.message);
+        }else{
+            setCloudStatus("Cloud save failed: "+error.message,true);
+            console.error("Firebase cloud save failed.",error);
+        }
     }finally{
-        cloudBusy=false;
-        updateCloudControls();
+        finishCloudOperation();
     }
 }
 
@@ -7285,15 +7904,19 @@ function cloudCharactersToArray(value){
 
 async function restoreFromCloud(){
 
-    if(!firebaseUser || !firebaseModules) return;
+    if(!firebaseUser || !firebaseModules || cloudBusy) return;
 
+    const user=firebaseUser;
     cloudBusy=true;
     updateCloudControls();
     try{
-        const snapshot=await firebaseModules.get(cloudSaveReference());
+        const snapshot=await firebaseModules.get(cloudSaveReference(user.uid));
         if(!snapshot.exists()){
             setCloudStatus("No cloud save exists for this account yet.");
             return;
+        }
+        if(firebaseUser!==user){
+            throw new Error("The signed-in account changed during restore.");
         }
 
         const savedData=snapshot.val();
@@ -7338,13 +7961,15 @@ async function restoreFromCloud(){
         updateUI();
         addLog("Cloud save restored.");
         saveGame();
+        cloudAutoSyncEnabled=true;
+        cloudSavePending=false;
+        recordCloudSync(user.uid,savedData);
         setCloudStatus("Restored "+characterRoster.length+" character(s) from your cloud account.");
     }catch(error){
         setCloudStatus("Cloud restore failed: "+error.message,true);
         console.error("Firebase cloud restore failed.",error);
     }finally{
-        cloudBusy=false;
-        updateCloudControls();
+        finishCloudOperation();
     }
 }
 
@@ -7398,6 +8023,7 @@ async function initializeFirebase(){
             ref:databaseSdk.ref,
             get:databaseSdk.get,
             set:databaseSdk.set,
+            runTransaction:databaseSdk.runTransaction,
             push:databaseSdk.push,
             remove:databaseSdk.remove,
             onValue:databaseSdk.onValue,
@@ -7410,15 +8036,26 @@ async function initializeFirebase(){
 
         authSdk.onAuthStateChanged(firebaseAuth,function(user){
             firebaseUser=user;
+            cloudAutoSyncEnabled=false;
+            cloudSaveExists=false;
+            cloudSaveRevision=0;
+            cloudSavedAt=0;
+            cloudLastSyncedAt=0;
+            cloudSavePending=false;
+            if(cloudSaveTimer!==null){
+                window.clearTimeout(cloudSaveTimer);
+                cloudSaveTimer=null;
+            }
             clearGuildListeners();
             availableGuilds={};
             document.getElementById("guildDirectory").textContent="";
             updateCloudControls();
             updateGuildControls();
             setCloudStatus(user
-                ? "Signed in as "+(user.email || user.displayName || "Google user")+". Save or restore your roster on demand."
+                ? "Signed in as "+(user.email || user.displayName || "Google user")+". Checking cloud backup..."
                 : "Not signed in. Local saves are active; sign in to use cloud backups.");
             if(user){
+                initializeCloudSync(user);
                 if(!getGuildDisplayName()){
                     setGuildStatus("Your Google profile needs a display name to use guilds and chat.",true);
                 }else{
@@ -7426,11 +8063,13 @@ async function initializeFirebase(){
                     startGuildDirectoryListener();
                 }
             }else{
+                setCloudSyncDetails("Sign in to enable automatic cloud sync.");
                 setGuildStatus("Sign in with Google to use guilds and chat.");
             }
         });
     }catch(error){
         setCloudStatus("Firebase could not initialize: "+error.message+" Local saves are still available.",true);
+        setCloudSyncDetails("Automatic cloud sync is unavailable until Firebase connects.",true);
         setGuildStatus("Firebase could not initialize: "+error.message,true);
         updateGuildControls();
         console.error("Firebase initialization failed.",error);
@@ -7452,6 +8091,7 @@ setInterval(rvrBattle,1000);
 setInterval(processRvrArena,1000);
 setInterval(processPlayerClassHealing,1000);
 setInterval(saveGame,5000);
+setInterval(saveToCloudSilent,30000);
 
 initializeStreamingSettings();
 updateClassOptions();
