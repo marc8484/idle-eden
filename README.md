@@ -1,6 +1,8 @@
 # ⚔ Idle Eden
 
-A browser-based idle Realm vs Realm RPG inspired by classic fantasy MMO warfare.
+🎮 **[Play Now](https://marc8484.github.io/idle-eden/)**
+
+A browser-based Realm vs Realm idle RPG inspired by classic fantasy MMORPGs.
 
 Idle Eden combines idle progression, character development, crafting, boss encounters, and large-scale realm warfare into a persistent fantasy world where players compete for realm dominance.
 
