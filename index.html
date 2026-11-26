@@ -2198,6 +2198,17 @@ h1{
     max-width:620px;
 }
 
+.discord-webhook-controls{
+    display:grid;
+    gap:8px;
+    max-width:620px;
+}
+
+.discord-webhook-controls input{
+    box-sizing:border-box;
+    width:100%;
+}
+
 .observer-intro{
     margin-bottom:16px;
 }
@@ -2954,8 +2965,13 @@ h1{
             </div>
             <section class="panel" aria-labelledby="discordAchievementHeading">
                 <h3 id="discordAchievementHeading">Discord Achievement Notifications</h3>
-                <p class="stat">Only newly unlocked achievements are sent to the project Discord. Sign in with Google to send notifications; the webhook is kept server-side.</p>
-                <p class="stat" id="discordNotificationStatus" role="status" aria-live="polite">Sign in with Google to send achievement notifications.</p>
+                <p class="stat">Test-only direct webhook integration. The URL is held in this page only and is not saved; do not use this with a public release because browser users can inspect it.</p>
+                <div class="discord-webhook-controls">
+                    <label for="discordWebhookInput">Discord webhook URL</label>
+                    <input id="discordWebhookInput" type="password" maxlength="300" autocomplete="new-password" spellcheck="false" placeholder="https://discord.com/api/webhooks/...">
+                    <button type="button" id="discordTestButton" onclick="testDiscordWebhook()">Test Discord connection</button>
+                </div>
+                <p class="stat" id="discordNotificationStatus" role="status" aria-live="polite">Enter a webhook URL and test the connection. Newly unlocked achievements will be sent while this page stays open.</p>
             </section>
         </section>
 
@@ -3306,7 +3322,6 @@ let activeCharacterId="";
 let characterIdSequence=1;
 let firebaseAuth=null;
 let firebaseDatabase=null;
-let firebaseFunctions=null;
 let firebaseModules=null;
 let firebaseUser=null;
 let cloudBusy=false;
@@ -7250,38 +7265,95 @@ function setDiscordStatus(message,isError){
     status.classList.toggle("cloud-status-error",!!isError);
 }
 
-function sendDiscordAchievement(playerName,achievement){
-    if(!firebaseUser){
-        setDiscordStatus("Sign in with Google to send achievement notifications.");
-        return;
+function getDiscordWebhookUrl(){
+    const value=document.getElementById("discordWebhookInput").value.trim();
+    if(!value){
+        throw new Error("Enter a Discord webhook URL first.");
     }
-    if(!firebaseFunctions || !firebaseModules
-        || typeof firebaseModules.httpsCallable!=="function"){
-        setDiscordStatus("Firebase Functions is unavailable; Discord notifications are disabled.",true);
+
+    let webhook;
+    try{
+        webhook=new URL(value);
+    }catch(error){
+        throw new Error("Enter a valid Discord webhook URL.");
+    }
+
+    const allowedHosts=["discord.com","canary.discord.com","ptb.discord.com"];
+    if(webhook.protocol!=="https:"
+        || allowedHosts.indexOf(webhook.hostname)===-1
+        || !/^\/api\/webhooks\/\d+\/[^/]+\/?$/.test(webhook.pathname)){
+        throw new Error("Enter a valid HTTPS Discord webhook URL.");
+    }
+    return webhook.toString();
+}
+
+async function postDiscordWebhookMessage(webhookUrl,content){
+    const response=await fetch(webhookUrl,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            content:content,
+            allowed_mentions:{parse:[]}
+        })
+    });
+    if(!response.ok){
+        throw new Error("Discord returned HTTP "+response.status+".");
+    }
+}
+
+function testDiscordWebhook(){
+    let webhookUrl;
+    try{
+        webhookUrl=getDiscordWebhookUrl();
+    }catch(error){
+        setDiscordStatus(error.message,true);
         return;
     }
 
-    setDiscordStatus("Sending "+achievement.name+" to Discord...");
-    let postAchievement;
+    const button=document.getElementById("discordTestButton");
+    button.disabled=true;
+    setDiscordStatus("Sending a Discord connection test...");
+    postDiscordWebhookMessage(
+        webhookUrl,
+        "Idle Eden test: achievement announcements are connected."
+    ).then(function(){
+        setDiscordStatus("Discord connection verified. Newly unlocked achievements will be announced.");
+    }).catch(function(error){
+        setDiscordStatus("Discord connection test failed: "+error.message,true);
+        console.error("Discord webhook test failed.",error);
+    }).finally(function(){
+        button.disabled=false;
+    });
+}
+
+function sendDiscordAchievement(playerName,achievement){
+    let webhookUrl;
     try{
-        postAchievement=firebaseModules.httpsCallable(
-            firebaseFunctions,
-            "postDiscordAchievement"
-        );
+        webhookUrl=getDiscordWebhookUrl();
     }catch(error){
-        setDiscordStatus("Could not prepare the Discord notification: "+error.message,true);
-        console.error("Discord achievement notification setup failed.",error);
+        setDiscordStatus(error.message,true);
         return;
     }
-    postAchievement({
-        playerName:playerName,
-        characterId:player.characterId,
-        achievementId:achievement.id,
-        achievement:achievement.name
-    }).then(function(result){
-        setDiscordStatus(result.data && result.data.duplicate
-            ? achievement.name+" was already announced to Discord."
-            : achievement.name+" was announced to Discord.");
+
+    const safePlayerName=String(playerName || "A player")
+        .replace(/[\u0000-\u001f\u007f]/g,"")
+        .replace(/@/g,"@\u200b")
+        .replace(/\s+/g," ")
+        .trim()
+        .slice(0,60);
+    const safeAchievementName=String(achievement.name)
+        .replace(/[\u0000-\u001f\u007f]/g,"")
+        .replace(/@/g,"@\u200b")
+        .replace(/\s+/g," ")
+        .trim()
+        .slice(0,100);
+
+    setDiscordStatus("Sending "+safeAchievementName+" to Discord...");
+    postDiscordWebhookMessage(
+        webhookUrl,
+        "🏆 "+safePlayerName+" unlocked achievement: "+safeAchievementName
+    ).then(function(){
+        setDiscordStatus(safeAchievementName+" was announced to Discord.");
     }).catch(function(error){
         setDiscordStatus(
             "Discord achievement notification failed: "+error.message,
@@ -8094,14 +8166,6 @@ async function initializeFirebase(){
 
         firebaseAuth=authSdk.getAuth(app);
         firebaseDatabase=databaseSdk.getDatabase(app);
-        let functionsSdk=null;
-        try{
-            functionsSdk=await import(sdkUrl+"firebase-functions.js");
-            firebaseFunctions=functionsSdk.getFunctions(app,"us-central1");
-        }catch(error){
-            setDiscordStatus("Firebase Functions is unavailable; Discord notifications are disabled.",true);
-            console.error("Firebase Functions initialization failed.",error);
-        }
         firebaseModules={
             GoogleAuthProvider:authSdk.GoogleAuthProvider,
             signInWithPopup:authSdk.signInWithPopup,
@@ -8116,8 +8180,7 @@ async function initializeFirebase(){
             query:databaseSdk.query,
             orderByChild:databaseSdk.orderByChild,
             limitToLast:databaseSdk.limitToLast,
-            serverTimestamp:databaseSdk.serverTimestamp,
-            httpsCallable:functionsSdk ? functionsSdk.httpsCallable : null
+            serverTimestamp:databaseSdk.serverTimestamp
         };
         updateCloudControls();
 
@@ -8141,12 +8204,6 @@ async function initializeFirebase(){
             setCloudStatus(user
                 ? "Signed in as "+(user.email || user.displayName || "Google user")+". Checking cloud backup..."
                 : "Not signed in. Local saves are active; sign in to use cloud backups.");
-            setDiscordStatus(user
-                ? (firebaseFunctions && firebaseModules.httpsCallable
-                    ? "Signed in. Newly unlocked achievements will be sent to Discord."
-                    : "Firebase Functions is unavailable; Discord notifications are disabled.")
-                : "Sign in with Google to send achievement notifications.",
-            !!user && (!firebaseFunctions || !firebaseModules.httpsCallable));
             if(user){
                 initializeCloudSync(user);
                 if(!getGuildDisplayName()){
@@ -8164,7 +8221,6 @@ async function initializeFirebase(){
         setCloudStatus("Firebase could not initialize: "+error.message+" Local saves are still available.",true);
         setCloudSyncDetails("Automatic cloud sync is unavailable until Firebase connects.",true);
         setGuildStatus("Firebase could not initialize: "+error.message,true);
-        setDiscordStatus("Firebase is unavailable; Discord achievement notifications are disabled.",true);
         updateGuildControls();
         console.error("Firebase initialization failed.",error);
     }
