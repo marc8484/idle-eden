@@ -474,6 +474,33 @@ h1{
     text-shadow:0 0 10px rgba(232,185,110,.2);
 }
 
+.ability-panel{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:10px;
+    background:rgba(7,12,10,.72);
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:5px;
+}
+
+.ability-copy{
+    min-width:0;
+}
+
+.ability-copy strong{
+    color:var(--gold);
+}
+
+.ability-copy p{
+    margin:4px 0;
+}
+
+.ability-panel button{
+    flex:0 0 auto;
+}
+
 .game-layout{
     display:grid;
     grid-template-columns:minmax(0,1fr);
@@ -1030,6 +1057,12 @@ h1{
         flex-direction:column;
     }
 
+    .ability-panel{
+        align-items:stretch;
+        flex-direction:column;
+        gap:4px;
+    }
+
     .versus{
         text-align:center;
     }
@@ -1113,6 +1146,14 @@ h1{
                         </div>
                     </div>
                     <p class="damage-readout" id="damageReadout" aria-live="polite"></p>
+                    <div class="ability-panel">
+                        <div class="ability-copy">
+                            <strong id="combatAbilityName">Class Ability</strong>
+                            <p class="stat" id="combatAbilityDescription">Create a character to unlock an ability.</p>
+                            <span class="stat" id="combatAbilityStatus" aria-live="polite">Unavailable</span>
+                        </div>
+                        <button type="button" id="combatAbilityButton" onclick="useClassAbility()" disabled>Use Ability</button>
+                    </div>
                 </section>
                 <section class="battle-log-section" aria-label="Battle log">
                     <h3>Battle Log</h3>
@@ -1155,6 +1196,14 @@ h1{
                     <strong id="rvrMatchCountdown">--:--</strong>
                 </div>
                 <p class="stat" id="rvrBattleStatus" aria-live="polite"></p>
+                <div class="ability-panel" id="rvrAbilityPanel" hidden>
+                    <div class="ability-copy">
+                        <strong id="rvrAbilityName">Class Ability</strong>
+                        <p class="stat" id="rvrAbilityDescription"></p>
+                        <span class="stat" id="rvrAbilityStatus" aria-live="polite">Unavailable</span>
+                    </div>
+                    <button type="button" id="rvrAbilityButton" onclick="useClassAbility()" disabled>Use Ability</button>
+                </div>
                 <div class="rvr-map" id="rvrMap" aria-label="Three realm arena map"></div>
                 <div class="rvr-scoreboard" id="rvrScoreboard"></div>
             </div>
@@ -1371,6 +1420,10 @@ function createDefaultPlayer(){
         kills:0,
         pvpKills:0,
         lastClassHealAt:0,
+        abilityState:{
+            cooldownUntil:0,
+            activeUntil:0
+        },
         target:null,
         huntOrder:null,
         rvrArena:{
@@ -1433,6 +1486,45 @@ const healingSupportClassesByRealm={
     Midgard:["Healer","Valkyrie","Shaman"],
     Albion:["Cleric","Heretic","Friar"]
 };
+const classAbilities={
+    Druid:{name:"Nature Heal",effect:"heal",amount:30,cooldownMs:30000,description:"Restore 30 HP."},
+    Chanter:{name:"Battle Hymn",effect:"buff",multiplier:1.2,durationMs:15000,cooldownMs:30000,description:"+20% Power for 15 seconds."},
+    Animist:{name:"Thorn Burst",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Bard:{name:"Soothing Ballad",effect:"heal",amount:20,cooldownMs:25000,description:"Restore 20 HP."},
+    Warden:{name:"Guardian's Focus",effect:"guard",multiplier:0.65,durationMs:12000,cooldownMs:25000,description:"Take 35% less damage for 12 seconds."},
+    Hero:{name:"Shield Slam",effect:"strike",multiplier:2,cooldownMs:20000,description:"Deal 200% Power as damage."},
+    Blademaster:{name:"Twin Moons",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Vampiir:{name:"Blood Frenzy",effect:"buff",multiplier:1.5,durationMs:10000,cooldownMs:30000,description:"+50% damage for 10 seconds."},
+    Mentalist:{name:"Mind Lance",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Eldritch:{name:"Void Bolt",effect:"strike",multiplier:2.2,cooldownMs:25000,description:"Deal 220% Power as damage."},
+    Berserker:{name:"Rage",effect:"buff",multiplier:1.5,durationMs:10000,cooldownMs:30000,description:"+50% damage for 10 seconds."},
+    Bonedancer:{name:"Bone Volley",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Healer:{name:"Greater Mend",effect:"heal",amount:30,cooldownMs:30000,description:"Restore 30 HP."},
+    Hunter:{name:"Piercing Shot",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Runemaster:{name:"Rune Burst",effect:"strike",multiplier:2.1,cooldownMs:25000,description:"Deal 210% Power as damage."},
+    Savage:{name:"Unbridled Assault",effect:"buff",multiplier:1.4,durationMs:10000,cooldownMs:25000,description:"+40% damage for 10 seconds."},
+    Shaman:{name:"Spirit Mending",effect:"heal",amount:25,cooldownMs:28000,description:"Restore 25 HP."},
+    Skald:{name:"War Chant",effect:"buff",multiplier:1.2,durationMs:15000,cooldownMs:30000,description:"+20% damage for 15 seconds."},
+    Shadowblade:{name:"Backstab",effect:"strike",multiplier:2.5,cooldownMs:25000,description:"Deal 250% Power as damage."},
+    Spiritmaster:{name:"Spirit Lash",effect:"strike",multiplier:2,cooldownMs:22000,description:"Deal 200% Power as damage."},
+    Thane:{name:"Stormcall",effect:"strike",multiplier:2,cooldownMs:22000,description:"Deal 200% Power as damage."},
+    Valkyrie:{name:"Valkyrie's Grace",effect:"heal",amount:25,cooldownMs:28000,description:"Restore 25 HP."},
+    Warlock:{name:"Hex Bolt",effect:"strike",multiplier:2.3,cooldownMs:25000,description:"Deal 230% Power as damage."},
+    Armsman:{name:"Crushing Blow",effect:"strike",multiplier:2,cooldownMs:20000,description:"Deal 200% Power as damage."},
+    Cabalist:{name:"Arcane Ward",effect:"guard",multiplier:0.7,durationMs:15000,cooldownMs:30000,description:"Take 30% less damage for 15 seconds."},
+    Cleric:{name:"Divine Mending",effect:"heal",amount:30,cooldownMs:30000,description:"Restore 30 HP."},
+    Friar:{name:"Staff Flurry",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Heretic:{name:"Searing Reversal",effect:"buff",multiplier:1.35,durationMs:12000,cooldownMs:28000,description:"+35% damage for 12 seconds."},
+    Infiltrator:{name:"Assassinate",effect:"strike",multiplier:2.5,cooldownMs:25000,description:"Deal 250% Power as damage."},
+    Mercenary:{name:"Dual Strike",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Minstrel:{name:"Pulse of Valor",effect:"buff",multiplier:1.2,durationMs:15000,cooldownMs:30000,description:"+20% damage for 15 seconds."},
+    Paladin:{name:"Rallying Cry",effect:"heal",amount:25,cooldownMs:28000,description:"Restore 25 HP."},
+    Reaver:{name:"Soul Rend",effect:"strike",multiplier:2.1,cooldownMs:23000,description:"Deal 210% Power as damage."},
+    Scout:{name:"Crippling Shot",effect:"strike",multiplier:1.8,cooldownMs:20000,description:"Deal 180% Power as damage."},
+    Sorcerer:{name:"Mind Shatter",effect:"strike",multiplier:2.1,cooldownMs:25000,description:"Deal 210% Power as damage."},
+    Theurgist:{name:"Elemental Burst",effect:"strike",multiplier:1.9,cooldownMs:22000,description:"Deal 190% Power as damage."},
+    Wizard:{name:"Fireball",effect:"strike",multiplier:2.2,cooldownMs:25000,description:"Deal 220% Power as damage."}
+};
 const rvrFighterMaxHp=100;
 const rvrRealmByClass={
     Animist:"Hibernia",Bard:"Hibernia",Bainshee:"Hibernia",Blademaster:"Hibernia",Chanter:"Hibernia",
@@ -1483,6 +1575,9 @@ const rvrMatchMaxDurationMs=300000;
 const rvrMatchTickMs=15000;
 const rvrRpPerPvpKill=25;
 const rvrWinBonusRp=100;
+const frontierBossMaxHp=2500;
+const frontierBossGoldReward=250;
+const frontierBossRpReward=250;
 const keepNames=["Dun Crauchon","Dun Bolg","Dun Scathaig"];
 const zones=[
     {name:"Connla",minLevel:1,maxLevel:10},
@@ -1781,8 +1876,18 @@ function normalizePlayer(savedPlayer){
             }[keep];
         }
     });
-    if(player.target && !player.target.zone){
-        player.target.zone=getZoneForLevel(player.target.level).name;
+    if(player.target && typeof player.target==="object"){
+        if(!player.target.zone){
+            player.target.zone=getZoneForLevel(player.target.level).name;
+        }
+        player.target.frontierBoss=player.target.frontierBoss===true;
+        if(player.target.frontierBoss){
+            player.target.maxHp=frontierBossMaxHp;
+            player.target.hp=Number.isFinite(player.target.hp)
+                ? Math.max(0,Math.min(frontierBossMaxHp,Math.floor(player.target.hp)))
+                : frontierBossMaxHp;
+            player.target.champion=true;
+        }
     }
     if(player.huntOrder && typeof player.huntOrder==="object"){
         const order=player.huntOrder;
@@ -1806,9 +1911,15 @@ function normalizePlayer(savedPlayer){
         }
     });
     player.inventory=Array.isArray(player.inventory) ? player.inventory : [];
-    player.kills=Number.isFinite(player.kills) ? player.kills : 0;
+    player.kills=Number.isFinite(player.kills) ? Math.max(0,Math.floor(player.kills)) : 0;
     player.pvpKills=validArenaCount(player.pvpKills);
     player.lastClassHealAt=validArenaTimestamp(player.lastClassHealAt);
+    const savedAbilityState=player.abilityState && typeof player.abilityState==="object"
+        && !Array.isArray(player.abilityState) ? player.abilityState : {};
+    player.abilityState={
+        cooldownUntil:validArenaTimestamp(savedAbilityState.cooldownUntil),
+        activeUntil:validArenaTimestamp(savedAbilityState.activeUntil)
+    };
     if(isHealingSupportClass(player.realm,player.cls) && player.lastClassHealAt===0){
         player.lastClassHealAt=Date.now();
     }
@@ -1911,6 +2022,67 @@ function isHealingSupportClass(realm,cls){
 
 function classDamageMultiplier(realm,cls){
     return isHealingSupportClass(realm,cls) ? .65 : 1;
+}
+
+function getArenaPlayerFighter(match){
+    if(!match || !match.teams || !Array.isArray(match.teams[match.playerRealm])){
+        return null;
+    }
+    return match.teams[match.playerRealm].find(function(member){
+        return member.isPlayer;
+    }) || null;
+}
+
+function isClassAbilityActive(at){
+    const ability=classAbilities[player.cls];
+    return Boolean(ability && (ability.effect==="buff" || ability.effect==="guard")
+        && player.abilityState && player.abilityState.activeUntil>at);
+}
+
+function classAbilityDamageMultiplier(at){
+    const ability=classAbilities[player.cls];
+    return isClassAbilityActive(at) && ability.effect==="buff" ? ability.multiplier : 1;
+}
+
+function classAbilityDefenseMultiplier(at){
+    const ability=classAbilities[player.cls];
+    return isClassAbilityActive(at) && ability.effect==="guard" ? ability.multiplier : 1;
+}
+
+function renderAbilityControls(prefix){
+    const ability=player.name ? classAbilities[player.cls] : null;
+    const now=Date.now();
+    const match=player.rvrArena && player.rvrArena.match;
+    const arenaFighter=getArenaPlayerFighter(match);
+    const nameElement=document.getElementById(prefix+"AbilityName");
+    const descriptionElement=document.getElementById(prefix+"AbilityDescription");
+    const statusElement=document.getElementById(prefix+"AbilityStatus");
+    const button=document.getElementById(prefix+"AbilityButton");
+    if(!nameElement || !descriptionElement || !statusElement || !button){
+        return;
+    }
+
+    nameElement.textContent=ability ? ability.name : "Class Ability";
+    descriptionElement.textContent=ability
+        ? ability.description+" Cooldown: "+Math.ceil(ability.cooldownMs/1000)+"s."
+        : "Create a character to unlock an ability.";
+
+    const cooldownRemaining=player.abilityState
+        ? Math.max(0,player.abilityState.cooldownUntil-now)
+        : 0;
+    if(match && (!arenaFighter || arenaFighter.hp<=0)){
+        statusElement.textContent="Defeated in the arena";
+    }else if(cooldownRemaining>0){
+        statusElement.textContent="Cooldown: "+Math.ceil(cooldownRemaining/1000)+"s";
+    }else if(player.abilityState && player.abilityState.activeUntil>now){
+        statusElement.textContent="Active: "+Math.ceil((player.abilityState.activeUntil-now)/1000)+"s left";
+    }else{
+        statusElement.textContent=player.name ? "Ready" : "Unavailable";
+    }
+
+    const unavailableInArena=Boolean(match && (!arenaFighter || arenaFighter.hp<=0));
+    button.disabled=!ability || cooldownRemaining>0 || unavailableInArena;
+    button.textContent=ability ? ability.name : "Use Ability";
 }
 
 function addLog(text){
@@ -2052,9 +2224,9 @@ function renderCrafting(){
     });
 }
 
-function generateItem(){
+function generateItem(forcedRarity){
 
-    const rarity=rollRarity();
+    const rarity=forcedRarity || rollRarity();
     const slot=rarity==="Artifact"
         ? "Weapon"
         : equipmentSlots[Math.floor(Math.random()*equipmentSlots.length)];
@@ -2159,6 +2331,27 @@ function createTarget(){
     }else{
         addLog("Target acquired: "+player.target.name+", "+player.target.realm+" "+player.target.cls+" in "+player.target.zone+".");
     }
+}
+
+function createFrontierBoss(){
+    const enemyRealms=realms.filter(function(realm){
+        return realm!==player.realm;
+    });
+    const realm=enemyRealms[Math.floor(Math.random()*enemyRealms.length)];
+    const zone=getZoneForLevel(player.level);
+    player.target={
+        name:"Pilzpower",
+        realm:realm,
+        cls:"Champion",
+        level:player.level,
+        zone:zone.name,
+        hp:frontierBossMaxHp,
+        maxHp:frontierBossMaxHp,
+        lastHealAt:Date.now(),
+        champion:true,
+        frontierBoss:true
+    };
+    addLog("Frontier Boss Appears! Pilzpower challenges you with "+frontierBossMaxHp+" HP.");
 }
 
 function setHuntOrder(realm,cls,championName){
@@ -2501,7 +2694,7 @@ function queueForRvr(){
     saveGame();
 }
 
-function simulateRvrRound(match){
+function simulateRvrRound(match,roundAt){
     realms.forEach(function(attackingRealm){
         match.teams[attackingRealm].forEach(function(attacker){
             if(attacker.hp<=0){
@@ -2523,18 +2716,22 @@ function simulateRvrRound(match){
             const baseDamage=attacker.isPlayer
                 ? playerPower()+randomBetween(0,5)
                 : randomBetween(20,28);
+            const damageReduction=target.isPlayer
+                ? classAbilityDefenseMultiplier(roundAt)
+                : 1;
+            const arenaAbilityBoost=attacker.isPlayer
+                ? classAbilityDamageMultiplier(roundAt)
+                : 1;
             const damage=Math.max(1,Math.floor(
                 baseDamage*classDamageMultiplier(attackerRealm,attacker.cls)
+                    *arenaAbilityBoost*damageReduction
             ));
             target.hp=Math.max(0,target.hp-damage);
             if(target.hp===0){
-                match.scores[attackingRealm]++;
                 if(attacker.isPlayer){
-                    player.pvpKills++;
-                    player.rp+=rvrRpPerPvpKill;
-                    match.playerKills++;
-                    match.rpEarned+=rvrRpPerPvpKill;
-                    addLog("You scored an arena PvP kill! +"+rvrRpPerPvpKill+" Realm Points.");
+                    awardArenaPlayerKill(match,attackingRealm);
+                }else{
+                    match.scores[attackingRealm]++;
                 }
             }
         });
@@ -2721,11 +2918,13 @@ function renderRvrArena(){
 
     const matchPanel=document.getElementById("rvrMatchPanel");
     matchPanel.hidden=!match;
+    document.getElementById("rvrAbilityPanel").hidden=!match;
+    renderAbilityControls("rvr");
     if(match){
         document.getElementById("rvrMatchTitle").textContent="Arena Battle — "+match.playerRealm;
         document.getElementById("rvrMatchCountdown").textContent=formatArenaTime(match.endsAt-now);
         document.getElementById("rvrBattleStatus").textContent=
-            "Fighters attack every 15 seconds. Support classes deal 65% damage and heal living teammates for 5 HP.";
+            "Fighters attack every 15 seconds. Use your class ability to strike or support your team.";
         renderRvrMap(match);
         const scoreboard=document.getElementById("rvrScoreboard");
         scoreboard.textContent="";
@@ -2763,7 +2962,7 @@ function processRvrArena(){
     const match=arena.match;
     if(match){
         while(match.nextTickAt<=now && match.nextTickAt<=match.endsAt){
-            simulateRvrRound(match);
+            simulateRvrRound(match,match.nextTickAt);
             match.nextTickAt+=rvrMatchTickMs;
             changed=true;
         }
@@ -2828,10 +3027,11 @@ function updateUI(){
         ? Math.max(0,Math.min(100,(player.hp/maxHp)*100))+"%"
         : "0%";
     document.getElementById("targetName").innerText=player.target
-        ? player.target.name
+        ? (player.target.frontierBoss ? "Frontier Boss: " : "")+player.target.name
         : "Waiting for a character";
     document.getElementById("targetDetails").innerText=player.target
-        ? "Level "+player.target.level+" "+player.target.realm+" "+player.target.cls+" — "+player.target.zone
+        ? (player.target.frontierBoss ? "Champion · " : "")
+            +"Level "+player.target.level+" "+player.target.realm+" "+player.target.cls+" — "+player.target.zone
         : "Create a character to enter combat.";
     document.getElementById("targetHp").innerText=player.target
         ? player.target.hp+"/"+player.target.maxHp
@@ -2840,6 +3040,7 @@ function updateUI(){
         ? Math.max(0,Math.min(100,(player.target.hp/player.target.maxHp)*100))+"%"
         : "0%";
     document.getElementById("damageReadout").innerText=lastDamageText;
+    renderAbilityControls("combat");
     renderBestiary();
     renderCrafting();
     renderRvrArena();
@@ -2985,31 +3186,19 @@ function rvrBattle(){
 
     const damage=Math.max(1,Math.floor(
         (playerPower()+Math.random()*6)*classDamageMultiplier(player.realm,player.cls)
+            *classAbilityDamageMultiplier(now)
     ));
     target.hp=Math.max(0,target.hp-damage);
     lastDamageText="You hit "+target.name+" for "+damage+" damage!";
 
     if(target.hp<=0){
+        resolvePveKill(target);
 
-        player.kills=(player.kills || 0)+1;
-        if(player.kills%5===0){
-            advanceRealmWar();
-        }
-        const baseRpGain=Math.floor(Math.random()*50)+25;
-        const hasRealmBonus=dominantRealm()===player.realm;
-        const rpGain=Math.floor(baseRpGain*(hasRealmBonus ? 1.1 : 1));
-        player.rp+=rpGain;
-        addLog("Defeated "+target.name+"! +"+rpGain+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
-
-        if(Math.random()>0.7){
-            grantItem(generateItem());
-        }
-
-        createTarget();
     }else{
 
         const enemyDamage=Math.max(1,Math.floor(
             (4+target.level*1.5+Math.random()*4)*classDamageMultiplier(target.realm,target.cls)
+                *classAbilityDefenseMultiplier(now)
         ));
         player.hp=Math.max(0,player.hp-enemyDamage);
         lastDamageText+=" "+target.name+" hits you for "+enemyDamage+".";
@@ -3039,6 +3228,151 @@ function processPlayerClassHealing(){
     }
     player.hp+=healAmount;
     addLog(player.name+" restored "+healAmount+" HP with "+player.cls+".");
+    updateUI();
+    saveGame();
+}
+
+function resolvePveKill(target){
+    player.kills=(player.kills || 0)+1;
+    if(player.kills%5===0){
+        advanceRealmWar();
+    }
+
+    const isFrontierBoss=target.frontierBoss===true;
+    const baseRpGain=isFrontierBoss
+        ? frontierBossRpReward
+        : Math.floor(Math.random()*50)+25;
+    const hasRealmBonus=dominantRealm()===player.realm;
+    const rpGain=Math.floor(baseRpGain*(hasRealmBonus ? 1.1 : 1));
+    player.rp+=rpGain;
+
+    if(isFrontierBoss){
+        player.gold+=frontierBossGoldReward;
+        addLog("Defeated Frontier Champion Pilzpower! +"+frontierBossGoldReward
+            +" Gold and +"+rpGain+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
+        grantItem(generateItem("Epic"));
+    }else{
+        addLog("Defeated "+target.name+"! +"+rpGain+" Realm Points"
+            +(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
+        if(Math.random()>0.7){
+            grantItem(generateItem());
+        }
+    }
+
+    if(player.kills%10===0){
+        createFrontierBoss();
+    }else{
+        createTarget();
+    }
+}
+
+function findArenaAbilityTarget(match){
+    const candidates=[];
+    realms.forEach(function(realm){
+        if(realm!==match.playerRealm){
+            match.teams[realm].forEach(function(member){
+                if(member.hp>0){
+                    candidates.push(member);
+                }
+            });
+        }
+    });
+    if(candidates.length===0){
+        return null;
+    }
+    const lowestHp=Math.min.apply(null,candidates.map(function(member){ return member.hp; }));
+    const weakest=candidates.filter(function(member){ return member.hp===lowestHp; });
+    return weakest[Math.floor(Math.random()*weakest.length)];
+}
+
+function awardArenaPlayerKill(match,realm){
+    match.scores[realm]++;
+    player.pvpKills++;
+    player.rp+=rvrRpPerPvpKill;
+    match.playerKills++;
+    match.rpEarned+=rvrRpPerPvpKill;
+    addLog("You scored an arena PvP kill! +"+rvrRpPerPvpKill+" Realm Points.");
+}
+
+function useClassAbility(){
+    const ability=player.name ? classAbilities[player.cls] : null;
+    if(!ability){
+        return;
+    }
+
+    const now=Date.now();
+    if(player.abilityState.cooldownUntil>now){
+        return;
+    }
+
+    const match=player.rvrArena && player.rvrArena.match;
+    const arenaFighter=getArenaPlayerFighter(match);
+    if(match && (!arenaFighter || arenaFighter.hp<=0)){
+        addLog("You cannot use an ability after being defeated in the arena.");
+        updateUI();
+        return;
+    }
+    if(!match && !player.target){
+        addLog("There is no target for your ability.");
+        updateUI();
+        return;
+    }
+
+    if(ability.effect==="heal"){
+        const currentHp=match ? arenaFighter.hp : player.hp;
+        const maxHp=match ? rvrFighterMaxHp : playerMaxHp();
+        const healAmount=Math.min(ability.amount,maxHp-currentHp);
+        if(healAmount<=0){
+            addLog("You are already at full health.");
+            updateUI();
+            return;
+        }
+        if(match){
+            arenaFighter.hp+=healAmount;
+        }else{
+            player.hp+=healAmount;
+        }
+        addLog(ability.name+" restored "+healAmount+" HP.");
+    }else if(ability.effect==="strike"){
+        const damage=Math.max(1,Math.floor(playerPower()*ability.multiplier
+            *classDamageMultiplier(player.realm,player.cls)
+            *classAbilityDamageMultiplier(now)));
+        if(match){
+            const target=findArenaAbilityTarget(match);
+            if(!target){
+                addLog("There are no living opponents to strike.");
+                updateUI();
+                return;
+            }
+            target.hp=Math.max(0,target.hp-damage);
+            addLog(ability.name+" struck "+target.name+" for "+damage+" damage.");
+            if(target.hp===0){
+                const targetRealm=realms.find(function(realm){
+                    return realm!==match.playerRealm && match.teams[realm].indexOf(target)!==-1;
+                });
+                if(targetRealm){
+                    awardArenaPlayerKill(match,targetRealm);
+                }
+            }
+        }else{
+            const target=player.target;
+            target.hp=Math.max(0,target.hp-damage);
+            lastDamageText=ability.name+" hit "+target.name+" for "+damage+" damage!";
+            addLog(lastDamageText);
+            if(target.hp===0){
+                resolvePveKill(target);
+            }
+        }
+    }else{
+        const arenaNextStrike=match ? match.nextTickAt+1000 : 0;
+        player.abilityState.activeUntil=Math.max(
+            now+ability.durationMs,
+            arenaNextStrike
+        );
+        addLog(ability.name+" is active for "+Math.ceil(ability.durationMs/1000)+" seconds.");
+    }
+
+    player.abilityState.cooldownUntil=now+ability.cooldownMs;
     updateUI();
     saveGame();
 }
