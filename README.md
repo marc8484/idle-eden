@@ -71,6 +71,18 @@ Track:
 - Google Authentication
 - Multiplayer expansion in development
 
+### Discord Achievement Notifications
+Newly unlocked achievements can be announced to the project Discord. This test integration requires the player to be signed in with Google; achievement notifications are the only game events sent.
+
+The webhook URL is stored as a Firebase secret and is never included in the browser client or repository. To configure and deploy it:
+
+```powershell
+firebase functions:secrets:set DISCORD_WEBHOOK_URL
+firebase deploy --only functions:postDiscordAchievement
+```
+
+Enter the Discord webhook URL only at the Firebase CLI prompt. The configured project alias is `idle-eden`; Firebase Cloud Functions deployment may require the project to use the Blaze billing plan. The callable requires Firebase Authentication and limits duplicate and rapid repeat notifications.
+
 ---
 
 ## 🚀 Play Online

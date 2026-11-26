@@ -2818,7 +2818,31 @@ h1{
         <section class="panel tab-panel" id="panel-news" aria-labelledby="tab-news" hidden>
             <div class="news-heading">
                 <div>
-                    <p class="stat">Latest Announcement</p>
+                    <p class="stat">New Player Guide</p>
+                    <h2>Welcome to Idle Eden</h2>
+                </div>
+            </div>
+            <p class="stat">Idle Eden is a browser-based idle RPG inspired by the realms, classes, and frontier warfare of Dark Age of Camelot. Create a roster of heroes, send them into combat, improve their gear, and fight for your realm. Idle Eden is an independent game simulation and is not connected to the DAoC live servers.</p>
+            <h3>Getting Started</h3>
+            <ul class="news-highlights">
+                <li><strong>1. Create a character.</strong> Open the Character tab, choose a name, realm, and class, then create your hero.</li>
+                <li><strong>2. Start fighting.</strong> Return to Combat. Your character battles automatically; use your class ability when it is ready.</li>
+                <li><strong>3. Grow stronger.</strong> Earn XP, Realm Points, and Gold. Find equipment, equip upgrades, and travel through frontier zones as you progress.</li>
+                <li><strong>4. Craft and trade.</strong> Gather materials in Crafting, brew healing potions, and turn eligible bag items into Gems. Spend Gems on the rotating Rare and Epic offers in the Gem Merchant tab.</li>
+                <li><strong>5. Explore the war.</strong> Visit World, RvR, and War Room to follow realm battles, arena matches, keeps, and battlefield activity.</li>
+            </ul>
+            <h3>What You Can Work Toward</h3>
+            <ul class="news-highlights">
+                <li>Progress through 446 frontier zones. Reach level 1,000, then earn Mastery ranks to unlock the remaining zones.</li>
+                <li>Build a team of eight level-capped characters, gear every slot in Epic items, and challenge the five endgame elite bosses. Defeating them all earns the game's ultimate achievement.</li>
+                <li>Your progress saves locally automatically. Google sign-in in the Character tab provides optional cloud backups.</li>
+            </ul>
+            <p class="stat">Idle Eden is actively evolving, and some realm-war activity is simulated within the game. Welcome to the frontier!</p>
+
+            <hr>
+            <div class="news-heading">
+                <div>
+                    <p class="stat">Recent Announcement</p>
                     <h2>Frontier Battlefield Opens</h2>
                 </div>
                 <time class="news-date" datetime="2026-11-26">Published: Nov 26, 2026</time>
@@ -2830,7 +2854,7 @@ h1{
                 <li>Battle outcomes, keep ownership, achievements, titles, and relics are saved with your character.</li>
             </ul>
             <details class="news-details">
-                <summary>Read Full Announcement</summary>
+                <summary>Read Full Battlefield Announcement</summary>
                 <div class="news-details-content">
                     <h3>Added</h3>
                     <ul>
@@ -2928,6 +2952,11 @@ h1{
                 </select>
                 <p class="stat" id="streamingModeStatus" role="status" aria-live="polite">Notifications Only: alerts never change the active screen.</p>
             </div>
+            <section class="panel" aria-labelledby="discordAchievementHeading">
+                <h3 id="discordAchievementHeading">Discord Achievement Notifications</h3>
+                <p class="stat">Only newly unlocked achievements are sent to the project Discord. Sign in with Google to send notifications; the webhook is kept server-side.</p>
+                <p class="stat" id="discordNotificationStatus" role="status" aria-live="polite">Sign in with Google to send achievement notifications.</p>
+            </section>
         </section>
 
         <section class="panel bestiary-panel" id="bestiaryPanel" hidden aria-labelledby="bestiaryTitle">
@@ -2951,7 +2980,7 @@ h1{
 <script src="assets/gameplay/raid-data.js"></script>
 <script>
 
-const latestNewsId="2026-11-26-frontier-battlefield";
+const latestNewsId="2026-11-26-welcome-guide";
 const streamingModeStorageKey="idleEdenStreamingMode";
 const validStreamingModes=["off","notifications","auto-focus","observer"];
 const savedStreamingMode=localStorage.getItem(streamingModeStorageKey);
@@ -3277,6 +3306,7 @@ let activeCharacterId="";
 let characterIdSequence=1;
 let firebaseAuth=null;
 let firebaseDatabase=null;
+let firebaseFunctions=null;
 let firebaseModules=null;
 let firebaseUser=null;
 let cloudBusy=false;
@@ -5761,6 +5791,7 @@ function renderAchievements(){
                         "Achievement unlocked: "+achievement.name,
                         "achievements"
                     );
+                    sendDiscordAchievement(player.name,achievement);
                 }
             });
         }
@@ -7213,6 +7244,53 @@ function setCloudStatus(message,isError){
     status.classList.toggle("cloud-status-error",!!isError);
 }
 
+function setDiscordStatus(message,isError){
+    const status=document.getElementById("discordNotificationStatus");
+    status.textContent=message;
+    status.classList.toggle("cloud-status-error",!!isError);
+}
+
+function sendDiscordAchievement(playerName,achievement){
+    if(!firebaseUser){
+        setDiscordStatus("Sign in with Google to send achievement notifications.");
+        return;
+    }
+    if(!firebaseFunctions || !firebaseModules
+        || typeof firebaseModules.httpsCallable!=="function"){
+        setDiscordStatus("Firebase Functions is unavailable; Discord notifications are disabled.",true);
+        return;
+    }
+
+    setDiscordStatus("Sending "+achievement.name+" to Discord...");
+    let postAchievement;
+    try{
+        postAchievement=firebaseModules.httpsCallable(
+            firebaseFunctions,
+            "postDiscordAchievement"
+        );
+    }catch(error){
+        setDiscordStatus("Could not prepare the Discord notification: "+error.message,true);
+        console.error("Discord achievement notification setup failed.",error);
+        return;
+    }
+    postAchievement({
+        playerName:playerName,
+        characterId:player.characterId,
+        achievementId:achievement.id,
+        achievement:achievement.name
+    }).then(function(result){
+        setDiscordStatus(result.data && result.data.duplicate
+            ? achievement.name+" was already announced to Discord."
+            : achievement.name+" was announced to Discord.");
+    }).catch(function(error){
+        setDiscordStatus(
+            "Discord achievement notification failed: "+error.message,
+            true
+        );
+        console.error("Discord achievement notification failed.",error);
+    });
+}
+
 function setCloudSyncDetails(message,isError){
     const details=document.getElementById("cloudSyncDetails");
     details.textContent=message;
@@ -8016,6 +8094,14 @@ async function initializeFirebase(){
 
         firebaseAuth=authSdk.getAuth(app);
         firebaseDatabase=databaseSdk.getDatabase(app);
+        let functionsSdk=null;
+        try{
+            functionsSdk=await import(sdkUrl+"firebase-functions.js");
+            firebaseFunctions=functionsSdk.getFunctions(app,"us-central1");
+        }catch(error){
+            setDiscordStatus("Firebase Functions is unavailable; Discord notifications are disabled.",true);
+            console.error("Firebase Functions initialization failed.",error);
+        }
         firebaseModules={
             GoogleAuthProvider:authSdk.GoogleAuthProvider,
             signInWithPopup:authSdk.signInWithPopup,
@@ -8030,7 +8116,8 @@ async function initializeFirebase(){
             query:databaseSdk.query,
             orderByChild:databaseSdk.orderByChild,
             limitToLast:databaseSdk.limitToLast,
-            serverTimestamp:databaseSdk.serverTimestamp
+            serverTimestamp:databaseSdk.serverTimestamp,
+            httpsCallable:functionsSdk ? functionsSdk.httpsCallable : null
         };
         updateCloudControls();
 
@@ -8054,6 +8141,12 @@ async function initializeFirebase(){
             setCloudStatus(user
                 ? "Signed in as "+(user.email || user.displayName || "Google user")+". Checking cloud backup..."
                 : "Not signed in. Local saves are active; sign in to use cloud backups.");
+            setDiscordStatus(user
+                ? (firebaseFunctions && firebaseModules.httpsCallable
+                    ? "Signed in. Newly unlocked achievements will be sent to Discord."
+                    : "Firebase Functions is unavailable; Discord notifications are disabled.")
+                : "Sign in with Google to send achievement notifications.",
+            !!user && (!firebaseFunctions || !firebaseModules.httpsCallable));
             if(user){
                 initializeCloudSync(user);
                 if(!getGuildDisplayName()){
@@ -8071,6 +8164,7 @@ async function initializeFirebase(){
         setCloudStatus("Firebase could not initialize: "+error.message+" Local saves are still available.",true);
         setCloudSyncDetails("Automatic cloud sync is unavailable until Firebase connects.",true);
         setGuildStatus("Firebase could not initialize: "+error.message,true);
+        setDiscordStatus("Firebase is unavailable; Discord achievement notifications are disabled.",true);
         updateGuildControls();
         console.error("Firebase initialization failed.",error);
     }
