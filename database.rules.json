@@ -1,9 +1,38 @@
 {
   "rules": {
+    ".read": false,
+    ".write": false,
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "guildDirectory": {
+      ".read": "auth != null",
+      ".indexOn": ["createdAt"],
+      "$guildId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.child('ownerUid').val() === auth.uid && (!newData.exists() || newData.child('ownerUid').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['name', 'ownerUid', 'ownerName', 'createdAt']) && newData.numChildren() === 4 && newData.child('name').isString() && newData.child('name').val().length >= 3 && newData.child('name').val().length <= 32 && newData.child('ownerUid').val() === auth.uid && newData.child('ownerName').val() === auth.token.name && newData.child('ownerName').val().length <= 80 && newData.child('createdAt').isNumber()"
+      }
+    },
+    "guilds": {
+      "$guildId": {
+        "members": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || root.child('guilds').child($guildId).child('members').child(auth.uid).exists())",
+            ".write": "auth != null && auth.uid === $uid && root.child('guildDirectory').child($guildId).exists() && (!newData.exists() || newData.child('displayName').val() === auth.token.name)",
+            ".validate": "newData.hasChildren(['displayName', 'joinedAt']) && newData.numChildren() === 2 && newData.child('displayName').isString() && newData.child('displayName').val() === auth.token.name && newData.child('displayName').val().length <= 80 && newData.child('joinedAt').isNumber()"
+          }
+        },
+        "messages": {
+          ".read": "auth != null && root.child('guilds').child($guildId).child('members').child(auth.uid).exists()",
+          ".indexOn": ["sentAt"],
+          "$messageId": {
+            ".write": "auth != null && root.child('guilds').child($guildId).child('members').child(auth.uid).exists() && !data.exists() && newData.child('uid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['uid', 'author', 'text', 'sentAt']) && newData.numChildren() === 4 && newData.child('author').val() === auth.token.name && newData.child('author').val().length <= 80 && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 280 && newData.child('sentAt').isNumber()"
+          }
+        }
       }
     }
   }

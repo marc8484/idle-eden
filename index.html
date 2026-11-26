@@ -1323,6 +1323,344 @@ h1{
 .title-controls select{
     min-width:min(100%,260px);
 }
+
+.news-badge{
+    display:inline-grid;
+    width:20px;
+    height:20px;
+    place-items:center;
+    margin-left:5px;
+    color:#17120a;
+    font-size:.75rem;
+    font-weight:800;
+    background:linear-gradient(145deg,#ffe8a0,#c3973f);
+    border-radius:50%;
+    box-shadow:0 0 10px rgba(243,211,126,.38);
+}
+
+.news-badge[hidden]{
+    display:none;
+}
+
+.news-heading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.news-date{
+    color:var(--text-muted);
+    font-size:.9rem;
+}
+
+.news-highlights{
+    display:grid;
+    gap:8px;
+    padding-left:0;
+    list-style:none;
+}
+
+.news-highlights li{
+    padding:10px 12px;
+    background:rgba(255,255,255,.025);
+    border-left:2px solid rgba(229,203,131,.72);
+}
+
+.news-details{
+    margin-top:16px;
+}
+
+.news-details summary{
+    display:inline-flex;
+    padding:10px 14px;
+    color:#17120a;
+    font-weight:700;
+    cursor:pointer;
+    background:linear-gradient(145deg,#ffe8a0,#c3973f);
+    border:1px solid rgba(255,235,173,.7);
+    border-radius:5px;
+}
+
+.news-details[open] summary{
+    margin-bottom:12px;
+}
+
+.news-details-content{
+    padding:14px;
+    background:rgba(4,8,7,.55);
+    border:1px solid rgba(182,154,94,.3);
+    border-radius:6px;
+}
+
+.guild-layout{
+    display:grid;
+    grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+    gap:12px;
+    align-items:start;
+}
+
+.guild-layout[hidden]{
+    display:none;
+}
+
+.guild-form,.guild-chat-form{
+    display:flex;
+    gap:8px;
+}
+
+.guild-form input,.guild-chat-form input{
+    flex:1 1 auto;
+    min-width:0;
+}
+
+.guild-directory{
+    display:grid;
+    gap:8px;
+}
+
+.guild-entry{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(182,154,94,.3);
+    border-radius:5px;
+}
+
+.guild-entry-name{
+    min-width:0;
+    overflow-wrap:anywhere;
+}
+
+.guild-entry-owner,.guild-message-time{
+    color:var(--text-muted);
+    font-size:.85rem;
+}
+
+.guild-messages{
+    display:grid;
+    gap:8px;
+    height:320px;
+    margin:10px 0;
+    padding:10px;
+    overflow-y:auto;
+    background:rgba(4,8,7,.7);
+    border:1px solid rgba(182,154,94,.3);
+    border-radius:5px;
+}
+
+.guild-message{
+    padding:8px;
+    background:rgba(255,255,255,.025);
+    border-radius:4px;
+    overflow-wrap:anywhere;
+}
+
+.guild-message p{
+    margin:4px 0 0;
+    white-space:pre-wrap;
+}
+
+.guild-status-error{
+    color:#e58a76;
+}
+
+.battlefield-panel{
+    grid-column:1/-1;
+}
+
+.battlefield-map{
+    position:relative;
+    min-height:330px;
+    margin:12px 0;
+    overflow:hidden;
+    background:
+        radial-gradient(ellipse at 50% 48%,rgba(75,115,78,.32),transparent 55%),
+        repeating-linear-gradient(24deg,rgba(170,177,128,.035) 0 2px,transparent 2px 34px),
+        linear-gradient(145deg,#17271f,#0a100e 70%);
+    border:1px solid rgba(182,154,94,.4);
+    border-radius:8px;
+    box-shadow:inset 0 0 50px rgba(0,0,0,.5);
+}
+
+.battlefield-map::before{
+    position:absolute;
+    inset:0;
+    content:"";
+    pointer-events:none;
+    background:
+        radial-gradient(ellipse at 25% 80%,rgba(38,106,77,.18),transparent 34%),
+        radial-gradient(ellipse at 75% 18%,rgba(121,98,57,.16),transparent 38%);
+}
+
+.battlefield-routes{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+}
+
+.battlefield-route{
+    fill:none;
+    stroke:rgba(210,190,130,.42);
+    stroke-width:5;
+    stroke-dasharray:13 14;
+    animation:battle-route-flow 12s linear infinite;
+}
+
+.battlefield-camp,.battlefield-keep,.battle-army{
+    position:absolute;
+    z-index:1;
+    transform:translate(-50%,-50%);
+}
+
+.battlefield-camp{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    width:126px;
+    padding:8px 6px;
+    color:#f0e5c4;
+    font-size:.8rem;
+    font-weight:700;
+    text-align:center;
+    background:rgba(8,13,11,.91);
+    border:1px solid var(--realm-color);
+    border-radius:6px;
+    box-shadow:0 0 18px color-mix(in srgb,var(--realm-color) 25%,transparent);
+}
+
+.battlefield-camp-hibernia{left:8%;top:78%;--realm-color:#65c69d}
+.battlefield-camp-midgard{left:50%;top:8%;--realm-color:#85a9dc}
+.battlefield-camp-albion{left:92%;top:78%;--realm-color:#d1b56c}
+
+.battlefield-keep{
+    display:grid;
+    min-width:136px;
+    gap:2px;
+    padding:8px;
+    color:#f5edda;
+    text-align:center;
+    background:rgba(8,13,11,.94);
+    border:1px solid var(--keep-color);
+    border-top:3px solid var(--keep-color);
+    border-radius:6px;
+    box-shadow:0 0 20px color-mix(in srgb,var(--keep-color) 18%,transparent);
+}
+
+.battlefield-keep strong{font-size:.82rem}
+.battlefield-keep small{color:var(--text-muted)}
+.battlefield-keep[data-owner="Hibernia"]{--keep-color:#65c69d}
+.battlefield-keep[data-owner="Midgard"]{--keep-color:#85a9dc}
+.battlefield-keep[data-owner="Albion"]{--keep-color:#d1b56c}
+.battlefield-keep-crauchon{left:30%;top:34%}
+.battlefield-keep-bolg{left:50%;top:62%}
+.battlefield-keep-scathaig{left:70%;top:34%}
+
+.battle-army{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 8px;
+    color:#fff6dd;
+    font-size:.72rem;
+    font-weight:700;
+    white-space:nowrap;
+    background:rgba(7,11,9,.88);
+    border:1px solid var(--realm-color);
+    border-radius:99px;
+    box-shadow:0 0 12px color-mix(in srgb,var(--realm-color) 36%,transparent);
+    animation-duration:11s;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+}
+
+.battle-army-hibernia{left:24%;top:61%;--realm-color:#65c69d;animation-name:battle-march-hibernia}
+.battle-army-midgard{left:50%;top:22%;--realm-color:#85a9dc;animation-name:battle-march-midgard;animation-delay:-4s}
+.battle-army-albion{left:76%;top:61%;--realm-color:#d1b56c;animation-name:battle-march-albion;animation-delay:-7s}
+
+.battlefield-event{
+    display:grid;
+    grid-template-columns:minmax(0,1.3fr) minmax(200px,.7fr);
+    align-items:center;
+    gap:16px;
+    padding:12px;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:6px;
+}
+
+.battlefield-event h3,.battlefield-event p{margin:0 0 6px}
+.battlefield-progress-track{
+    height:9px;
+    overflow:hidden;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:99px;
+}
+
+.battlefield-progress-fill{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#34765d,#78c89d);
+    transition:width .25s ease;
+}
+
+@keyframes battle-route-flow{
+    to{stroke-dashoffset:-108}
+}
+
+@keyframes battle-march-hibernia{
+    0%,100%{left:16%;top:64%}
+    50%{left:30%;top:40%}
+}
+
+@keyframes battle-march-midgard{
+    0%,100%{left:50%;top:22%}
+    50%{left:50%;top:49%}
+}
+
+@keyframes battle-march-albion{
+    0%,100%{left:84%;top:64%}
+    50%{left:70%;top:40%}
+}
+
+@keyframes battle-march-hibernia-mobile{
+    0%,100%{left:24%;top:64%}
+    50%{left:38%;top:43%}
+}
+
+@keyframes battle-march-albion-mobile{
+    0%,100%{left:76%;top:64%}
+    50%{left:62%;top:43%}
+}
+
+@media(max-width:640px){
+    .guild-layout{grid-template-columns:1fr}
+
+    .battlefield-map{min-height:360px}
+    .battlefield-camp{width:92px;font-size:.68rem}
+    .battlefield-camp-hibernia{left:22%}
+    .battlefield-camp-albion{left:78%}
+    .battlefield-keep{min-width:104px;padding:6px}
+    .battlefield-keep strong{font-size:.72rem}
+    .battlefield-keep-crauchon{left:30%;top:34%}
+    .battlefield-keep-bolg{left:50%;top:63%}
+    .battlefield-keep-scathaig{left:70%;top:34%}
+    .battlefield-event{grid-template-columns:1fr}
+    .battle-army{font-size:.64rem;padding:4px 6px}
+    .battle-army-hibernia{left:24%;top:61%;animation-name:battle-march-hibernia-mobile}
+    .battle-army-albion{left:76%;top:61%;animation-name:battle-march-albion-mobile}
+}
+
+@media(prefers-reduced-motion:reduce){
+    .battlefield-route,.battle-army{animation:none}
+}
 </style>
 </head>
 
@@ -1364,8 +1702,12 @@ h1{
         <button type="button" id="tab-crafting" aria-controls="panel-crafting" onclick="showGamePanel('crafting')">Crafting</button>
         <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
         <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
+        <button type="button" id="tab-guilds" aria-controls="panel-guilds" onclick="showGamePanel('guilds')">Guilds</button>
         <button type="button" id="tab-statistics" aria-controls="panel-statistics" onclick="showGamePanel('statistics')">Statistics</button>
         <button type="button" id="tab-achievements" aria-controls="panel-achievements" onclick="showGamePanel('achievements')">Achievements</button>
+        <button type="button" id="tab-news" aria-controls="panel-news" onclick="showGamePanel('news')" aria-label="News, 1 unread announcement">
+            News <span class="news-badge" id="newsBadge" aria-hidden="true">1</span>
+        </button>
     </nav>
 
     <main class="game-content">
@@ -1603,6 +1945,48 @@ h1{
         </section>
 
         <section class="tab-panel world-layout" id="panel-world" aria-labelledby="tab-world" hidden>
+            <section class="panel battlefield-panel" aria-labelledby="battlefieldHeading">
+                <h2 id="battlefieldHeading">Frontier Battlefield</h2>
+                <p class="stat">Realm armies advance across the frontier while you hunt. Every five PvE kills contributes to the next keep battle.</p>
+                <div class="battlefield-map" role="group" aria-label="Animated frontier map showing realm camps, marching armies, and keep ownership">
+                    <svg class="battlefield-routes" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+                        <path class="battlefield-route" d="M80 390 C170 330 210 235 300 170"/>
+                        <path class="battlefield-route" d="M500 55 C500 155 500 215 500 315"/>
+                        <path class="battlefield-route" d="M920 390 C830 330 790 235 700 170"/>
+                        <path class="battlefield-route" d="M330 185 C400 245 440 280 500 315"/>
+                        <path class="battlefield-route" d="M670 185 C600 245 560 280 500 315"/>
+                    </svg>
+                    <div class="battlefield-camp battlefield-camp-hibernia">🍀 Hibernia Camp</div>
+                    <div class="battlefield-camp battlefield-camp-midgard">🐺 Midgard Camp</div>
+                    <div class="battlefield-camp battlefield-camp-albion">🦁 Albion Camp</div>
+                    <div class="battlefield-keep battlefield-keep-crauchon" id="mapKeepDunCrauchon" data-owner="Hibernia">
+                        <strong>🏰 Dun Crauchon</strong><small>Hibernia</small>
+                    </div>
+                    <div class="battlefield-keep battlefield-keep-bolg" id="mapKeepDunBolg" data-owner="Midgard">
+                        <strong>🏰 Dun Bolg</strong><small>Midgard</small>
+                    </div>
+                    <div class="battlefield-keep battlefield-keep-scathaig" id="mapKeepDunScathaig" data-owner="Albion">
+                        <strong>🏰 Dun Scathaig</strong><small>Albion</small>
+                    </div>
+                    <div class="battle-army battle-army-hibernia">⚔️ Hibernian Army</div>
+                    <div class="battle-army battle-army-midgard">⚔️ Midgard Army</div>
+                    <div class="battle-army battle-army-albion">⚔️ Albion Army</div>
+                </div>
+                <div class="battlefield-event">
+                    <div>
+                        <h3 id="battlefieldEventTitle">The frontier awaits its first battle.</h3>
+                        <p class="stat" id="battlefieldEventDescription">Create a character to join the realm war.</p>
+                        <p class="stat" id="battlefieldEventOutcome" role="status" aria-live="polite"></p>
+                    </div>
+                    <div>
+                        <p class="stat" id="battlefieldProgressText">Battle objective: 0 / 5 kills</p>
+                        <div class="battlefield-progress-track" role="progressbar" aria-label="Progress toward the next keep battle" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
+                            <div class="battlefield-progress-fill" id="battlefieldProgress"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="panel">
                 <h2>Frontier Zones</h2>
                 <div class="stat">Current zone: <span id="currentZone">Connla</span></div>
@@ -1611,7 +1995,7 @@ h1{
 
             <section class="panel">
                 <h2>Realm War Map</h2>
-                <div class="stat">Keep control shifts every 5 kills.</div>
+                <div class="stat">A keep battle resolves every 5 PvE kills. Capture victories reward Realm Points and Gold.</div>
                 <div class="realm-counts" id="realmCounts"></div>
                 <div class="keep-list" id="keepList"></div>
                 <div class="stat" id="realmBonus"></div>
@@ -1674,6 +2058,73 @@ h1{
             <div class="achievement-grid" id="achievementList"></div>
         </section>
 
+        <section class="panel tab-panel" id="panel-guilds" aria-labelledby="tab-guilds" hidden>
+            <h2>Guild Hall</h2>
+            <p class="stat">Create or join a guild and chat with its members in real time. The latest 50 messages are shown, and your Google profile name is visible to guild members.</p>
+            <p class="stat" id="guildStatus" role="status" aria-live="polite">Sign in with Google to use guilds and chat.</p>
+            <div id="guildSignInPrompt">
+                <button type="button" id="guildSignInButton" onclick="signInWithGoogle()" disabled>Sign in with Google</button>
+            </div>
+            <div class="guild-layout" id="guildOnlineContent" hidden>
+                <section class="panel">
+                    <h3>Create a Guild</h3>
+                    <form class="guild-form" id="guildCreateForm">
+                        <label class="visually-hidden" for="guildNameInput">Guild name</label>
+                        <input id="guildNameInput" type="text" maxlength="32" minlength="3" placeholder="Guild name" required>
+                        <button type="submit" id="guildCreateButton">Create</button>
+                    </form>
+                    <h3>Find a Guild</h3>
+                    <div class="guild-directory" id="guildDirectory" role="list" aria-label="Available guilds"></div>
+                </section>
+                <section class="panel" id="guildChatPanel" aria-label="Guild chat" hidden>
+                    <h3 id="guildChatTitle">Guild Chat</h3>
+                    <button type="button" id="guildLeaveButton">Leave Guild</button>
+                    <div class="guild-messages" id="guildMessages" role="log" aria-live="polite" aria-label="Guild messages"></div>
+                    <form class="guild-chat-form" id="guildChatForm">
+                        <label class="visually-hidden" for="guildMessageInput">Message</label>
+                        <input id="guildMessageInput" type="text" maxlength="280" placeholder="Write a message..." autocomplete="off" required>
+                        <button type="submit" id="guildSendButton">Send</button>
+                    </form>
+                </section>
+            </div>
+        </section>
+
+        <section class="panel tab-panel" id="panel-news" aria-labelledby="tab-news" hidden>
+            <div class="news-heading">
+                <div>
+                    <p class="stat">Latest Announcement</p>
+                    <h2>Frontier Battlefield Opens</h2>
+                </div>
+                <time class="news-date" datetime="2026-11-26">Published: Nov 26, 2026</time>
+            </div>
+            <p class="stat">A local frontier simulation brings realm armies to life as you hunt, and every five PvE kills brings the keeps closer to battle.</p>
+            <ul class="news-highlights">
+                <li>Watch Hibernia, Midgard, and Albion armies advance between their camps and three frontier keeps.</li>
+                <li>A keep battle resolves every five PvE kills; victories by your realm award 75 RP and 25 Gold, with relic bonuses applied.</li>
+                <li>Battle outcomes, keep ownership, achievements, titles, and relics are saved with your character.</li>
+            </ul>
+            <details class="news-details">
+                <summary>Read Full Announcement</summary>
+                <div class="news-details-content">
+                    <h3>Added</h3>
+                    <ul>
+                        <li>A local frontier battlefield map with realm camps, marching armies, keep ownership, and a live battle report.</li>
+                        <li>Every five PvE kills triggers a keep battle. Captures by your realm reward 75 RP and 25 Gold, adjusted by relic bonuses.</li>
+                        <li>First Blood: defeat 1 enemy; Veteran: defeat 1,000.</li>
+                        <li>Champion Hunter: defeat Pilzpower 25 times; Relic Master: find 50 Artifacts.</li>
+                        <li>Realm Hero: earn 100,000 RP; RR10 Hero: reach Realm Rank 10.</li>
+                        <li>Unlock and equip titles as achievement milestones are reached.</li>
+                        <li>Three relics can change hands after arena victories. Relic bonuses are saved per character and apply to that character's realm.</li>
+                    </ul>
+                    <h3>Improved</h3>
+                    <ul>
+                        <li>Legacy characters receive safe defaults for battlefield progress, achievements, titles, and relic control.</li>
+                        <li>Fractional relic bonuses accumulate over time, so small rewards still receive their full +5% bonus.</li>
+                    </ul>
+                </div>
+            </details>
+        </section>
+
         <section class="panel bestiary-panel" id="bestiaryPanel" hidden aria-labelledby="bestiaryTitle">
             <h2 id="bestiaryTitle">Bestiary &amp; Hunt Board</h2>
             <p class="stat">Choose an opposing realm and foe to keep your auto-battles focused. Your hunt order is saved with this character.</p>
@@ -1692,9 +2143,26 @@ h1{
 
 <script>
 
+const latestNewsId="2026-11-26-frontier-battlefield";
+
+function updateNewsBadge(){
+    const unread=localStorage.getItem("idleEdenLastReadNews")!==latestNewsId;
+    const badge=document.getElementById("newsBadge");
+    const button=document.getElementById("tab-news");
+    badge.hidden=!unread;
+    button.setAttribute("aria-label",unread
+        ? "News, 1 unread announcement"
+        : "News");
+}
+
+function markNewsAsRead(){
+    localStorage.setItem("idleEdenLastReadNews",latestNewsId);
+    updateNewsBadge();
+}
+
 function showGamePanel(panelName){
 
-    ["combat","rvr","crafting","character","world","statistics","achievements"].forEach(function(name){
+    ["combat","rvr","crafting","character","world","guilds","statistics","achievements","news"].forEach(function(name){
         const isActive=name===panelName;
         const button=document.getElementById("tab-"+name);
         const panel=document.getElementById("panel-"+name);
@@ -1707,6 +2175,9 @@ function showGamePanel(panelName){
         }
     });
     document.getElementById("bestiaryPanel").hidden=panelName!=="world";
+    if(panelName==="news"){
+        markNewsAsRead();
+    }
 }
 
 function createDefaultPlayer(){
@@ -1774,6 +2245,10 @@ function createDefaultPlayer(){
             "Dun Bolg":"Midgard",
             "Dun Scathaig":"Albion"
         },
+        battlefield:{
+            battles:0,
+            lastEvent:null
+        },
         inventory:[],
         equipment:{
             Weapon:null,
@@ -1795,6 +2270,10 @@ let firebaseDatabase=null;
 let firebaseModules=null;
 let firebaseUser=null;
 let cloudBusy=false;
+let guildDirectoryUnsubscribe=null;
+let guildMessagesUnsubscribe=null;
+let activeGuildId="";
+let availableGuilds={};
 let playtimeLastUpdatedAt=performance.now();
 let playtimeWasVisible=document.visibilityState==="visible";
 
@@ -2334,6 +2813,33 @@ function normalizePlayer(savedPlayer){
             }[keep];
         }
     });
+    const savedBattlefield=player.battlefield && typeof player.battlefield==="object"
+        && !Array.isArray(player.battlefield) ? player.battlefield : {};
+    const savedBattleEvent=savedBattlefield.lastEvent;
+    const validBattleEvent=savedBattleEvent && typeof savedBattleEvent==="object"
+        && keepNames.indexOf(savedBattleEvent.keep)!==-1
+        && realms.indexOf(savedBattleEvent.attackerRealm)!==-1
+        && realms.indexOf(savedBattleEvent.defenderRealm)!==-1
+        && savedBattleEvent.attackerRealm!==savedBattleEvent.defenderRealm
+        && enemyNames.indexOf(savedBattleEvent.commander)!==-1
+        && Number.isSafeInteger(savedBattleEvent.finishedAt)
+        ? {
+            keep:savedBattleEvent.keep,
+            attackerRealm:savedBattleEvent.attackerRealm,
+            defenderRealm:savedBattleEvent.defenderRealm,
+            commander:savedBattleEvent.commander,
+            winner:realms.indexOf(savedBattleEvent.winner)!==-1
+                ? savedBattleEvent.winner
+                : savedBattleEvent.attackerRealm,
+            finishedAt:savedBattleEvent.finishedAt
+        }
+        : null;
+    player.battlefield={
+        battles:Number.isSafeInteger(savedBattlefield.battles) && savedBattlefield.battles>=0
+            ? savedBattlefield.battles
+            : 0,
+        lastEvent:validBattleEvent
+    };
     const savedRelicOwners=player.relicOwners && typeof player.relicOwners==="object"
         && !Array.isArray(player.relicOwners) ? player.relicOwners : {};
     player.relicOwners={};
@@ -2939,7 +3445,26 @@ function advanceRealmWar(){
     }
 
     player.keeps[keep]=newOwner;
-    addLog("Realm War: "+newOwner+" captured "+keep+" from "+previousOwner+".");
+    const commander=enemyNames[Math.floor(Math.random()*enemyNames.length)];
+    player.battlefield.battles++;
+    player.battlefield.lastEvent={
+        keep:keep,
+        attackerRealm:newOwner,
+        defenderRealm:previousOwner,
+        commander:commander,
+        winner:newOwner,
+        finishedAt:Date.now()
+    };
+
+    if(newOwner===player.realm){
+        const rpReward=awardRealmPoints(75);
+        const goldReward=awardGold(25);
+        addLog("Realm War: "+commander+" led "+newOwner+" to capture "+keep
+            +" from "+previousOwner+". +"+rpReward+" RP and +"+goldReward+" Gold.");
+    }else{
+        addLog("Realm War: "+commander+" led "+newOwner+" to capture "+keep
+            +" from "+previousOwner+".");
+    }
 }
 
 function createCharacter(){
@@ -3617,6 +4142,46 @@ function renderRelics(){
     });
 }
 
+function renderBattlefield(){
+    const mapKeeps=[
+        {name:"Dun Crauchon",id:"mapKeepDunCrauchon"},
+        {name:"Dun Bolg",id:"mapKeepDunBolg"},
+        {name:"Dun Scathaig",id:"mapKeepDunScathaig"}
+    ];
+    mapKeeps.forEach(function(keep){
+        const node=document.getElementById(keep.id);
+        const owner=player.keeps[keep.name];
+        node.dataset.owner=owner;
+        node.setAttribute("aria-label",keep.name+" controlled by "+owner);
+        node.querySelector("small").textContent=owner+" controls";
+    });
+
+    const contribution=player.name ? (player.kills || 0)%5 : 0;
+    const progressTrack=document.querySelector(".battlefield-progress-track");
+    progressTrack.setAttribute("aria-valuenow",String(contribution));
+    document.getElementById("battlefieldProgress").style.width=(contribution/5*100)+"%";
+    document.getElementById("battlefieldProgressText").textContent=player.name
+        ? "Battlefield contribution: "+contribution+" / 5 kills. Next keep battle in "+(5-contribution)+"."
+        : "Create a character to contribute to the next keep battle.";
+
+    const lastEvent=player.battlefield.lastEvent;
+    document.getElementById("battlefieldEventTitle").textContent=lastEvent
+        ? "Latest Siege: "+lastEvent.keep
+        : "The frontier awaits its first battle.";
+    document.getElementById("battlefieldEventDescription").textContent=player.name
+        ? lastEvent
+            ? "Champion "+lastEvent.commander+" led "+lastEvent.attackerRealm
+                +" against "+lastEvent.defenderRealm+"."
+            : "Defeat enemies to help your realm decide the next keep battle."
+        : "Create a character to join the realm war.";
+    document.getElementById("battlefieldEventOutcome").textContent=lastEvent
+        ? lastEvent.winner+" captured "+lastEvent.keep+" from "+lastEvent.defenderRealm
+            +". Battles fought: "+player.battlefield.battles+"."
+        : player.name
+            ? "Battles fought: "+player.battlefield.battles+"."
+            : "";
+}
+
 function setEquippedTitle(titleId){
     if(!player.name){
         document.getElementById("titleStatus").textContent="Create or load a character first.";
@@ -3755,6 +4320,7 @@ function updateUI(){
     renderStatistics();
     renderAchievements();
     renderRelics();
+    renderBattlefield();
     renderBestiary();
     renderCrafting();
     renderRvrArena();
@@ -4237,6 +4803,316 @@ async function signOutFromGoogle(){
     }
 }
 
+function setGuildStatus(message,isError){
+
+    const status=document.getElementById("guildStatus");
+    status.textContent=message;
+    status.classList.toggle("guild-status-error",!!isError);
+}
+
+function getGuildDisplayName(){
+
+    return firebaseUser && typeof firebaseUser.displayName==="string"
+        ? firebaseUser.displayName.trim()
+        : "";
+}
+
+function updateGuildControls(){
+
+    const canUseGuilds=!!(firebaseUser && firebaseModules && firebaseDatabase);
+    document.getElementById("guildSignInPrompt").hidden=!!firebaseUser;
+    document.getElementById("guildSignInButton").disabled=!firebaseAuth || !firebaseModules || !!firebaseUser;
+    document.getElementById("guildOnlineContent").hidden=!firebaseUser;
+    document.getElementById("guildCreateButton").disabled=!canUseGuilds || !getGuildDisplayName();
+    document.getElementById("guildSendButton").disabled=!canUseGuilds || !getGuildDisplayName();
+    document.getElementById("guildLeaveButton").disabled=!canUseGuilds || !activeGuildId;
+}
+
+function stopGuildMessagesListener(){
+
+    if(guildMessagesUnsubscribe){
+        guildMessagesUnsubscribe();
+        guildMessagesUnsubscribe=null;
+    }
+}
+
+function resetActiveGuild(){
+
+    stopGuildMessagesListener();
+    activeGuildId="";
+    document.getElementById("guildChatPanel").hidden=true;
+    document.getElementById("guildMessages").textContent="";
+    updateGuildDirectoryButtons();
+    updateGuildControls();
+}
+
+function clearGuildListeners(){
+
+    if(guildDirectoryUnsubscribe){
+        guildDirectoryUnsubscribe();
+        guildDirectoryUnsubscribe=null;
+    }
+    resetActiveGuild();
+}
+
+function updateGuildDirectoryButtons(){
+
+    Array.from(document.querySelectorAll("[data-guild-id]")).forEach(function(button){
+        button.textContent=button.dataset.guildId===activeGuildId ? "Open Chat" : "Join Guild";
+    });
+}
+
+function renderGuildDirectory(snapshot){
+
+    const list=document.getElementById("guildDirectory");
+    const entries=snapshot.exists() && snapshot.val() && typeof snapshot.val()==="object"
+        ? Object.entries(snapshot.val()).filter(function(entry){
+            return entry[1] && typeof entry[1]==="object" && typeof entry[1].name==="string";
+        })
+        : [];
+    availableGuilds={};
+    list.textContent="";
+
+    entries.sort(function(a,b){
+        return Number(b[1].createdAt || 0)-Number(a[1].createdAt || 0);
+    });
+
+    if(entries.length===0){
+        const emptyMessage=document.createElement("p");
+        emptyMessage.className="stat";
+        emptyMessage.textContent="No guilds yet. Create one to get started.";
+        list.appendChild(emptyMessage);
+        setGuildStatus("Guild list is live. Create the first guild or join one when it appears.");
+        return;
+    }
+
+    entries.forEach(function(entry){
+        const guildId=entry[0];
+        const guild=entry[1];
+        availableGuilds[guildId]=guild;
+
+        const item=document.createElement("article");
+        item.className="guild-entry";
+        item.setAttribute("role","listitem");
+
+        const details=document.createElement("div");
+        details.className="guild-entry-name";
+        const name=document.createElement("strong");
+        name.textContent=guild.name;
+        const owner=document.createElement("div");
+        owner.className="guild-entry-owner";
+        owner.textContent="Created by "+(typeof guild.ownerName==="string" ? guild.ownerName : "a player");
+        details.append(name,owner);
+
+        const joinButton=document.createElement("button");
+        joinButton.type="button";
+        joinButton.dataset.guildId=guildId;
+        joinButton.textContent=guildId===activeGuildId ? "Open Chat" : "Join Guild";
+        joinButton.addEventListener("click",function(){
+            openGuild(guildId);
+        });
+
+        item.append(details,joinButton);
+        list.appendChild(item);
+    });
+    if(!activeGuildId){
+        setGuildStatus("Guild list is live. Join a guild to open its chat.");
+    }
+}
+
+function renderGuildMessages(snapshot){
+
+    const list=document.getElementById("guildMessages");
+    list.textContent="";
+    if(!snapshot.exists()){
+        const emptyMessage=document.createElement("p");
+        emptyMessage.className="stat";
+        emptyMessage.textContent="No messages yet. Say hello!";
+        list.appendChild(emptyMessage);
+        return;
+    }
+
+    const messages=Object.values(snapshot.val() || {}).filter(function(message){
+        return message && typeof message.text==="string";
+    }).sort(function(a,b){
+        return Number(a.sentAt || 0)-Number(b.sentAt || 0);
+    });
+
+    messages.forEach(function(message){
+        const item=document.createElement("article");
+        item.className="guild-message";
+        const time=new Date(Number(message.sentAt));
+        const stamp=Number.isFinite(time.getTime())
+            ? time.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})
+            : "";
+        const heading=document.createElement("div");
+        heading.className="guild-message-time";
+        heading.textContent=(typeof message.author==="string" ? message.author : "Player")+(stamp ? " · "+stamp : "");
+        const text=document.createElement("p");
+        text.textContent=message.text;
+        item.append(heading,text);
+        list.appendChild(item);
+    });
+    list.scrollTop=list.scrollHeight;
+}
+
+async function openGuild(guildId,guildData){
+
+    const guild=guildData || availableGuilds[guildId];
+    const displayName=getGuildDisplayName();
+    if(!firebaseUser || !firebaseModules || !guild){
+        setGuildStatus("This guild is no longer available. Refresh the list and try again.",true);
+        return false;
+    }
+    if(!displayName){
+        setGuildStatus("Your Google profile needs a display name before you can join a guild.",true);
+        return false;
+    }
+
+    try{
+        if(activeGuildId!==guildId){
+            const memberReference=firebaseModules.ref(
+                firebaseDatabase,
+                "guilds/"+guildId+"/members/"+firebaseUser.uid
+            );
+            await firebaseModules.set(memberReference,{
+                displayName:displayName,
+                joinedAt:firebaseModules.serverTimestamp()
+            });
+        }
+
+        stopGuildMessagesListener();
+        activeGuildId=guildId;
+        document.getElementById("guildChatTitle").textContent=guild.name+" Chat";
+        document.getElementById("guildChatPanel").hidden=false;
+        document.getElementById("guildMessages").textContent="Loading messages...";
+        updateGuildDirectoryButtons();
+        updateGuildControls();
+
+        const messagesQuery=firebaseModules.query(
+            firebaseModules.ref(firebaseDatabase,"guilds/"+guildId+"/messages"),
+            firebaseModules.orderByChild("sentAt"),
+            firebaseModules.limitToLast(50)
+        );
+        guildMessagesUnsubscribe=firebaseModules.onValue(
+            messagesQuery,
+            renderGuildMessages,
+            function(error){
+                setGuildStatus("Guild chat failed: "+error.message,true);
+                console.error("Firebase guild chat listener failed.",error);
+            }
+        );
+        setGuildStatus("Joined "+guild.name+". Chat updates live.");
+        return true;
+    }catch(error){
+        setGuildStatus("Could not join guild: "+error.message,true);
+        console.error("Firebase guild join failed.",error);
+        return false;
+    }
+}
+
+async function createGuild(event){
+
+    event.preventDefault();
+    const input=document.getElementById("guildNameInput");
+    const name=input.value.trim();
+    const ownerName=getGuildDisplayName();
+    if(name.length<3 || name.length>32){
+        setGuildStatus("Guild names must be between 3 and 32 characters.",true);
+        return;
+    }
+    if(!firebaseUser || !firebaseModules || !ownerName){
+        setGuildStatus("Sign in with a Google profile that has a display name to create a guild.",true);
+        return;
+    }
+
+    const createButton=document.getElementById("guildCreateButton");
+    createButton.disabled=true;
+    setGuildStatus("Creating "+name+"...");
+    try{
+        const guildReference=firebaseModules.push(
+            firebaseModules.ref(firebaseDatabase,"guildDirectory")
+        );
+        const guild={
+            name:name,
+            ownerUid:firebaseUser.uid,
+            ownerName:ownerName,
+            createdAt:firebaseModules.serverTimestamp()
+        };
+        await firebaseModules.set(guildReference,guild);
+        const joined=await openGuild(guildReference.key,guild);
+        if(joined){
+            input.value="";
+            setGuildStatus("Created "+name+". Guild chat is live.");
+        }else{
+            setGuildStatus("Guild created, but joining failed. Select it from the list to retry.",true);
+        }
+    }catch(error){
+        setGuildStatus("Guild creation failed: "+error.message,true);
+        console.error("Firebase guild creation failed.",error);
+    }finally{
+        updateGuildControls();
+    }
+}
+
+async function sendGuildMessage(event){
+
+    event.preventDefault();
+    const input=document.getElementById("guildMessageInput");
+    const text=input.value.trim();
+    const displayName=getGuildDisplayName();
+    if(!firebaseUser || !firebaseModules || !activeGuildId || !displayName){
+        setGuildStatus("Join a guild and sign in before sending messages.",true);
+        return;
+    }
+    if(!text || text.length>280){
+        setGuildStatus("Messages must be between 1 and 280 characters.",true);
+        return;
+    }
+
+    const sendButton=document.getElementById("guildSendButton");
+    sendButton.disabled=true;
+    try{
+        const messageReference=firebaseModules.push(
+            firebaseModules.ref(firebaseDatabase,"guilds/"+activeGuildId+"/messages")
+        );
+        await firebaseModules.set(messageReference,{
+            uid:firebaseUser.uid,
+            author:displayName,
+            text:text,
+            sentAt:firebaseModules.serverTimestamp()
+        });
+        input.value="";
+        setGuildStatus("Message sent.");
+    }catch(error){
+        setGuildStatus("Message could not be sent: "+error.message,true);
+        console.error("Firebase guild message failed.",error);
+    }finally{
+        updateGuildControls();
+    }
+}
+
+async function leaveGuild(){
+
+    if(!firebaseUser || !firebaseModules || !activeGuildId) return;
+    const guildId=activeGuildId;
+    const guildName=availableGuilds[guildId] ? availableGuilds[guildId].name : "the guild";
+    document.getElementById("guildLeaveButton").disabled=true;
+    try{
+        await firebaseModules.remove(firebaseModules.ref(
+            firebaseDatabase,
+            "guilds/"+guildId+"/members/"+firebaseUser.uid
+        ));
+        resetActiveGuild();
+        setGuildStatus("You left "+guildName+".");
+    }catch(error){
+        setGuildStatus("Could not leave guild: "+error.message,true);
+        console.error("Firebase guild leave failed.",error);
+    }finally{
+        updateGuildControls();
+    }
+}
+
 async function saveToCloud(){
 
     if(!firebaseUser || !firebaseModules) return;
@@ -4347,6 +5223,28 @@ async function restoreFromCloud(){
     }
 }
 
+function startGuildDirectoryListener(){
+
+    try{
+        const directoryQuery=firebaseModules.query(
+            firebaseModules.ref(firebaseDatabase,"guildDirectory"),
+            firebaseModules.orderByChild("createdAt"),
+            firebaseModules.limitToLast(50)
+        );
+        guildDirectoryUnsubscribe=firebaseModules.onValue(
+            directoryQuery,
+            renderGuildDirectory,
+            function(error){
+                setGuildStatus("Guild list failed: "+error.message,true);
+                console.error("Firebase guild directory listener failed.",error);
+            }
+        );
+    }catch(error){
+        setGuildStatus("Guild list failed: "+error.message,true);
+        console.error("Firebase guild directory listener failed.",error);
+    }
+}
+
 async function initializeFirebase(){
 
     const firebaseConfig={
@@ -4374,19 +5272,42 @@ async function initializeFirebase(){
             signOut:authSdk.signOut,
             ref:databaseSdk.ref,
             get:databaseSdk.get,
-            set:databaseSdk.set
+            set:databaseSdk.set,
+            push:databaseSdk.push,
+            remove:databaseSdk.remove,
+            onValue:databaseSdk.onValue,
+            query:databaseSdk.query,
+            orderByChild:databaseSdk.orderByChild,
+            limitToLast:databaseSdk.limitToLast,
+            serverTimestamp:databaseSdk.serverTimestamp
         };
         updateCloudControls();
 
         authSdk.onAuthStateChanged(firebaseAuth,function(user){
             firebaseUser=user;
+            clearGuildListeners();
+            availableGuilds={};
+            document.getElementById("guildDirectory").textContent="";
             updateCloudControls();
+            updateGuildControls();
             setCloudStatus(user
                 ? "Signed in as "+(user.email || user.displayName || "Google user")+". Save or restore your roster on demand."
                 : "Not signed in. Local saves are active; sign in to use cloud backups.");
+            if(user){
+                if(!getGuildDisplayName()){
+                    setGuildStatus("Your Google profile needs a display name to use guilds and chat.",true);
+                }else{
+                    setGuildStatus("Signed in as "+getGuildDisplayName()+". Loading guilds...");
+                    startGuildDirectoryListener();
+                }
+            }else{
+                setGuildStatus("Sign in with Google to use guilds and chat.");
+            }
         });
     }catch(error){
         setCloudStatus("Firebase could not initialize: "+error.message+" Local saves are still available.",true);
+        setGuildStatus("Firebase could not initialize: "+error.message,true);
+        updateGuildControls();
         console.error("Firebase initialization failed.",error);
     }
 }
@@ -4395,6 +5316,9 @@ document.getElementById("googleSignInButton").addEventListener("click",signInWit
 document.getElementById("googleSignOutButton").addEventListener("click",signOutFromGoogle);
 document.getElementById("cloudSaveButton").addEventListener("click",saveToCloud);
 document.getElementById("cloudRestoreButton").addEventListener("click",restoreFromCloud);
+document.getElementById("guildCreateForm").addEventListener("submit",createGuild);
+document.getElementById("guildChatForm").addEventListener("submit",sendGuildMessage);
+document.getElementById("guildLeaveButton").addEventListener("click",leaveGuild);
 document.getElementById("championRealm").addEventListener("change",renderBestiary);
 document.getElementById("realm").addEventListener("change",updateClassOptions);
 
@@ -4407,6 +5331,7 @@ setInterval(saveGame,5000);
 updateClassOptions();
 loadGame();
 initializeFirebase();
+updateNewsBadge();
 
 </script>
 
