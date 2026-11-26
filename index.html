@@ -227,6 +227,7 @@ button:disabled{
 
 .game-tabs{
     display:flex;
+    flex-wrap:wrap;
     gap:8px;
 }
 
@@ -1069,7 +1070,7 @@ h1{
 
     .game-tabs{
         display:grid;
-        grid-template-columns:repeat(5,minmax(0,1fr));
+        grid-template-columns:repeat(3,minmax(0,1fr));
     }
 
     .game-tabs button{
@@ -1086,6 +1087,34 @@ h1{
         grid-template-columns:1fr;
     }
 
+}
+
+.statistics-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+}
+
+.statistics-card{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-width:0;
+    padding:12px;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:6px;
+}
+
+.statistics-card span{
+    color:var(--text-muted);
+}
+
+.statistics-card strong{
+    color:var(--gold);
+    font-size:1.55rem;
+    overflow-wrap:anywhere;
+    text-shadow:0 0 12px rgba(229,203,131,.14);
 }
 </style>
 </head>
@@ -1125,6 +1154,7 @@ h1{
         <button type="button" id="tab-crafting" aria-controls="panel-crafting" onclick="showGamePanel('crafting')">Crafting</button>
         <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
         <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
+        <button type="button" id="tab-statistics" aria-controls="panel-statistics" onclick="showGamePanel('statistics')">Statistics</button>
     </nav>
 
     <main class="game-content">
@@ -1370,6 +1400,45 @@ h1{
             </section>
         </section>
 
+        <section class="panel tab-panel" id="panel-statistics" aria-labelledby="tab-statistics" hidden>
+            <h2>Lifetime Statistics</h2>
+            <p class="stat" id="statisticsMessage">Statistics are saved separately for each character.</p>
+            <div class="statistics-grid">
+                <article class="statistics-card">
+                    <span>Lifetime Kills</span>
+                    <strong id="statLifetimeKills">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>Boss Kills</span>
+                    <strong id="statBossKills">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>PvP Kills</span>
+                    <strong id="statPvpKills">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>Highest Damage</span>
+                    <strong id="statHighestDamage">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>Artifacts Found</span>
+                    <strong id="statArtifactsFound">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>Gold Earned</span>
+                    <strong id="statGoldEarned">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>RP Earned</span>
+                    <strong id="statRpEarned">0</strong>
+                </article>
+                <article class="statistics-card">
+                    <span>Hours Played</span>
+                    <strong id="statHoursPlayed">0h 00m</strong>
+                </article>
+            </div>
+        </section>
+
         <section class="panel bestiary-panel" id="bestiaryPanel" hidden aria-labelledby="bestiaryTitle">
             <h2 id="bestiaryTitle">Bestiary &amp; Hunt Board</h2>
             <p class="stat">Choose an opposing realm and foe to keep your auto-battles focused. Your hunt order is saved with this character.</p>
@@ -1390,7 +1459,7 @@ h1{
 
 function showGamePanel(panelName){
 
-    ["combat","rvr","crafting","character","world"].forEach(function(name){
+    ["combat","rvr","crafting","character","world","statistics"].forEach(function(name){
         const isActive=name===panelName;
         const button=document.getElementById("tab-"+name);
         const panel=document.getElementById("panel-"+name);
@@ -1419,6 +1488,14 @@ function createDefaultPlayer(){
         hp:100,
         kills:0,
         pvpKills:0,
+        statistics:{
+            bossKills:0,
+            highestDamage:0,
+            artifactsFound:0,
+            goldEarned:0,
+            rpEarned:0,
+            playtimeMs:0
+        },
         lastClassHealAt:0,
         abilityState:{
             cooldownUntil:0,
@@ -1472,6 +1549,20 @@ let firebaseDatabase=null;
 let firebaseModules=null;
 let firebaseUser=null;
 let cloudBusy=false;
+let playtimeLastUpdatedAt=performance.now();
+let playtimeWasVisible=document.visibilityState==="visible";
+
+document.addEventListener("visibilitychange",function(){
+    const now=performance.now();
+    if(playtimeWasVisible && player.name){
+        player.statistics.playtimeMs+=Math.max(0,now-playtimeLastUpdatedAt);
+        if(document.visibilityState!=="visible"){
+            saveGame();
+        }
+    }
+    playtimeLastUpdatedAt=now;
+    playtimeWasVisible=document.visibilityState==="visible";
+});
 
 const enemyNames=["Pilzpower","Boogie","Yates","Prack","Sylence"];
 const enemyClasses=["Berserker","Hero","Mercenary","Healer","Chanter"];
@@ -1721,6 +1812,10 @@ function validArenaCount(value){
     return Number.isSafeInteger(value) && value>=0 ? value : 0;
 }
 
+function normalizeLifetimeCount(value,fallback){
+    return Number.isFinite(value) && value>=0 ? Math.floor(value) : fallback;
+}
+
 function validArenaTimestamp(value){
     return Number.isSafeInteger(value) && value>=0 ? value : 0;
 }
@@ -1834,6 +1929,8 @@ function normalizeArenaResult(savedResult){
 
 function normalizePlayer(savedPlayer){
 
+    const hasSavedStatistics=Boolean(savedPlayer && typeof savedPlayer==="object"
+        && Object.prototype.hasOwnProperty.call(savedPlayer,"statistics"));
     player=Object.assign(createDefaultPlayer(),savedPlayer || {});
     const savedResources=player.resources && typeof player.resources==="object" && !Array.isArray(player.resources)
         ? player.resources
@@ -1913,6 +2010,23 @@ function normalizePlayer(savedPlayer){
     player.inventory=Array.isArray(player.inventory) ? player.inventory : [];
     player.kills=Number.isFinite(player.kills) ? Math.max(0,Math.floor(player.kills)) : 0;
     player.pvpKills=validArenaCount(player.pvpKills);
+    const savedStatistics=hasSavedStatistics && player.statistics && typeof player.statistics==="object"
+        && !Array.isArray(player.statistics) ? player.statistics : {};
+    const ownedArtifacts=player.inventory.filter(function(item){
+        return item && item.rarity==="Artifact";
+    }).length+equipmentSlots.filter(function(slot){
+        return player.equipment[slot] && player.equipment[slot].rarity==="Artifact";
+    }).length;
+    player.statistics={
+        bossKills:normalizeLifetimeCount(savedStatistics.bossKills,0),
+        highestDamage:normalizeLifetimeCount(savedStatistics.highestDamage,0),
+        artifactsFound:normalizeLifetimeCount(savedStatistics.artifactsFound,ownedArtifacts),
+        goldEarned:normalizeLifetimeCount(savedStatistics.goldEarned,
+            Number.isFinite(player.gold) ? Math.max(0,Math.floor(player.gold)) : 0),
+        rpEarned:normalizeLifetimeCount(savedStatistics.rpEarned,
+            Number.isFinite(player.rp) ? Math.max(0,Math.floor(player.rp)) : 0),
+        playtimeMs:normalizeLifetimeCount(savedStatistics.playtimeMs,0)
+    };
     player.lastClassHealAt=validArenaTimestamp(player.lastClassHealAt);
     const savedAbilityState=player.abilityState && typeof player.abilityState==="object"
         && !Array.isArray(player.abilityState) ? player.abilityState : {};
@@ -2022,6 +2136,31 @@ function isHealingSupportClass(realm,cls){
 
 function classDamageMultiplier(realm,cls){
     return isHealingSupportClass(realm,cls) ? .65 : 1;
+}
+
+function awardGold(amount){
+    if(!Number.isSafeInteger(amount) || amount<=0){
+        return;
+    }
+    player.gold+=amount;
+    player.statistics.goldEarned+=amount;
+}
+
+function awardRealmPoints(amount){
+    if(!Number.isSafeInteger(amount) || amount<=0){
+        return;
+    }
+    player.rp+=amount;
+    player.statistics.rpEarned+=amount;
+}
+
+function recordDamageDealt(damage){
+    if(Number.isFinite(damage) && damage>0){
+        player.statistics.highestDamage=Math.max(
+            player.statistics.highestDamage,
+            Math.floor(damage)
+        );
+    }
 }
 
 function getArenaPlayerFighter(match){
@@ -2277,6 +2416,9 @@ function grantItem(item){
 
     player.loot=(player.loot || 0)+1;
     player.inventory.push(item);
+    if(item.rarity==="Artifact"){
+        player.statistics.artifactsFound++;
+    }
 
     if(item.rarity==="Artifact"){
         addLog("ARTIFACT FOUND: Spear of Kings!");
@@ -2726,6 +2868,9 @@ function simulateRvrRound(match,roundAt){
                 baseDamage*classDamageMultiplier(attackerRealm,attacker.cls)
                     *arenaAbilityBoost*damageReduction
             ));
+            if(attacker.isPlayer){
+                recordDamageDealt(damage);
+            }
             target.hp=Math.max(0,target.hp-damage);
             if(target.hp===0){
                 if(attacker.isPlayer){
@@ -2771,7 +2916,7 @@ function finishRvrMatch(now){
     });
     const winner=winners[Math.floor(Math.random()*winners.length)];
     if(winner===match.playerRealm){
-        player.rp+=rvrWinBonusRp;
+        awardRealmPoints(rvrWinBonusRp);
         match.rpEarned+=rvrWinBonusRp;
     }
     arena.lastResult={
@@ -2946,6 +3091,28 @@ function renderRvrArena(){
     }
 }
 
+function formatPlaytime(milliseconds){
+    const totalMinutes=Math.floor(milliseconds/60000);
+    const hours=Math.floor(totalMinutes/60);
+    const minutes=totalMinutes%60;
+    return hours.toLocaleString()+"h "+String(minutes).padStart(2,"0")+"m";
+}
+
+function renderStatistics(){
+    const statistics=player.statistics;
+    document.getElementById("statLifetimeKills").textContent=(player.kills || 0).toLocaleString();
+    document.getElementById("statBossKills").textContent=statistics.bossKills.toLocaleString();
+    document.getElementById("statPvpKills").textContent=(player.pvpKills || 0).toLocaleString();
+    document.getElementById("statHighestDamage").textContent=statistics.highestDamage.toLocaleString();
+    document.getElementById("statArtifactsFound").textContent=statistics.artifactsFound.toLocaleString();
+    document.getElementById("statGoldEarned").textContent=statistics.goldEarned.toLocaleString();
+    document.getElementById("statRpEarned").textContent=statistics.rpEarned.toLocaleString();
+    document.getElementById("statHoursPlayed").textContent=formatPlaytime(statistics.playtimeMs);
+    document.getElementById("statisticsMessage").textContent=player.name
+        ? "Lifetime totals for "+player.name+". Playtime counts while this page is visible."
+        : "Create or load a character to begin tracking lifetime statistics.";
+}
+
 function processRvrArena(){
     if(!player.name){
         renderRvrArena();
@@ -3041,6 +3208,7 @@ function updateUI(){
         : "0%";
     document.getElementById("damageReadout").innerText=lastDamageText;
     renderAbilityControls("combat");
+    renderStatistics();
     renderBestiary();
     renderCrafting();
     renderRvrArena();
@@ -3146,12 +3314,21 @@ function updateUI(){
     }
 }
 
+function trackPlaytime(){
+    const now=performance.now();
+    if(playtimeWasVisible && player.name){
+        player.statistics.playtimeMs+=Math.max(0,now-playtimeLastUpdatedAt);
+    }
+    playtimeLastUpdatedAt=now;
+}
+
 function xpTick(){
 
+    trackPlaytime();
     if(!player.name) return;
 
     player.xp += 5;
-    player.gold += 2;
+    awardGold(2);
 
     if(player.xp >= levelRequirement()){
 
@@ -3188,6 +3365,7 @@ function rvrBattle(){
         (playerPower()+Math.random()*6)*classDamageMultiplier(player.realm,player.cls)
             *classAbilityDamageMultiplier(now)
     ));
+    recordDamageDealt(damage);
     target.hp=Math.max(0,target.hp-damage);
     lastDamageText="You hit "+target.name+" for "+damage+" damage!";
 
@@ -3244,10 +3422,11 @@ function resolvePveKill(target){
         : Math.floor(Math.random()*50)+25;
     const hasRealmBonus=dominantRealm()===player.realm;
     const rpGain=Math.floor(baseRpGain*(hasRealmBonus ? 1.1 : 1));
-    player.rp+=rpGain;
+    awardRealmPoints(rpGain);
 
     if(isFrontierBoss){
-        player.gold+=frontierBossGoldReward;
+        player.statistics.bossKills++;
+        awardGold(frontierBossGoldReward);
         addLog("Defeated Frontier Champion Pilzpower! +"+frontierBossGoldReward
             +" Gold and +"+rpGain+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
         grantItem(generateItem("Epic"));
@@ -3288,7 +3467,7 @@ function findArenaAbilityTarget(match){
 function awardArenaPlayerKill(match,realm){
     match.scores[realm]++;
     player.pvpKills++;
-    player.rp+=rvrRpPerPvpKill;
+    awardRealmPoints(rvrRpPerPvpKill);
     match.playerKills++;
     match.rpEarned+=rvrRpPerPvpKill;
     addLog("You scored an arena PvP kill! +"+rvrRpPerPvpKill+" Realm Points.");
@@ -3337,6 +3516,7 @@ function useClassAbility(){
         const damage=Math.max(1,Math.floor(playerPower()*ability.multiplier
             *classDamageMultiplier(player.realm,player.cls)
             *classAbilityDamageMultiplier(now)));
+        recordDamageDealt(damage);
         if(match){
             const target=findArenaAbilityTarget(match);
             if(!target){
@@ -3379,6 +3559,7 @@ function useClassAbility(){
 
 function saveGame(){
 
+    trackPlaytime();
     if(player.name){
         if(!activeCharacterId){
             activeCharacterId=player.characterId || createCharacterId();
