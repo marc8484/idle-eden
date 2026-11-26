@@ -2,33 +2,38 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Idle Eden Prototype</title>
 
 <style>
 :root{
     color-scheme:dark;
-    --stone:#242923;
-    --stone-deep:#171b17;
-    --bronze:#80673e;
-    --bronze-light:#b59a60;
-    --gold:#dcc486;
-    --ivory:#e7dfcd;
-    --text-muted:#aaa18c;
-    --jade:#65d9c1;
-    --jade-deep:#286e65;
+    --stone:#17211e;
+    --stone-deep:#0b100f;
+    --bronze:#665536;
+    --bronze-light:#b69a5e;
+    --gold:#e5cb83;
+    --ivory:#e9e7dc;
+    --text-muted:#a2aaa3;
+    --jade:#69c7ae;
+    --jade-deep:#285d52;
 }
 
 #panel-combat{
     background:
-        radial-gradient(ellipse at 50% 0%,rgba(52,125,113,.14),transparent 58%),
+        radial-gradient(ellipse at 50% 0%,rgba(47,104,82,.16),transparent 58%),
         linear-gradient(145deg,var(--stone),var(--stone-deep));
 }
 
 body{
-    background:radial-gradient(ellipse at top,#344036 0%,#171a17 48%,#0c0e0c 100%);
+    box-sizing:border-box;
+    background:
+        radial-gradient(ellipse at 48% 0%,rgba(41,81,62,.42),transparent 45%),
+        radial-gradient(ellipse at 8% 78%,rgba(93,71,35,.18),transparent 38%),
+        linear-gradient(180deg,#101715 0%,#090d0d 62%,#070909 100%);
     background-attachment:fixed;
     color:var(--ivory);
-    font-family:Georgia,"Times New Roman",serif;
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif;
     max-width:1400px;
     margin:auto;
     padding:16px;
@@ -41,11 +46,11 @@ body::before{
     inset:0;
     z-index:0;
     pointer-events:none;
-    opacity:.5;
+    opacity:.38;
     background:
-        radial-gradient(ellipse at 12% 18%,rgba(51,164,143,.2),transparent 38%),
-        radial-gradient(ellipse at 88% 12%,rgba(174,132,62,.13),transparent 34%),
-        radial-gradient(ellipse at 62% 92%,rgba(63,110,142,.12),transparent 42%);
+        radial-gradient(ellipse at 12% 18%,rgba(61,131,97,.2),transparent 38%),
+        radial-gradient(ellipse at 88% 12%,rgba(177,145,73,.1),transparent 34%),
+        radial-gradient(ellipse at 62% 92%,rgba(34,93,76,.16),transparent 42%);
     animation:ambient-drift 24s ease-in-out infinite alternate;
 }
 
@@ -61,12 +66,12 @@ body::before{
 
 .panel{
     position:relative;
-    background:linear-gradient(145deg,var(--stone),var(--stone-deep));
+    background:linear-gradient(145deg,rgba(23,33,30,.97),rgba(9,14,13,.98));
     padding:12px;
     margin-bottom:12px;
-    border:1px solid var(--bronze);
-    border-radius:4px;
-    box-shadow:inset 0 0 0 1px rgba(220,196,134,.07),0 6px 18px rgba(0,0,0,.38);
+    border:1px solid rgba(182,154,94,.58);
+    border-radius:7px;
+    box-shadow:inset 0 0 0 1px rgba(229,203,131,.045),0 10px 28px rgba(0,0,0,.4);
     transition:border-color .25s ease,box-shadow .25s ease;
 }
 
@@ -78,33 +83,34 @@ body::before{
     right:12px;
     height:1px;
     pointer-events:none;
-    background:linear-gradient(90deg,transparent,rgba(220,196,134,.7),rgba(101,217,193,.7),rgba(220,196,134,.7),transparent);
+    background:linear-gradient(90deg,transparent,rgba(229,203,131,.72),rgba(105,199,174,.48),rgba(229,203,131,.72),transparent);
     background-size:220% 100%;
     opacity:.65;
     animation:panel-glint 8s linear infinite;
 }
 
 .panel:hover{
-    border-color:rgba(181,154,96,.9);
-    box-shadow:inset 0 0 0 1px rgba(220,196,134,.1),0 8px 24px rgba(0,0,0,.44),0 0 16px rgba(101,217,193,.06);
+    border-color:rgba(205,176,107,.82);
+    box-shadow:inset 0 0 0 1px rgba(229,203,131,.08),0 12px 30px rgba(0,0,0,.48),0 0 18px rgba(105,199,174,.055);
 }
 
 h2,h3{
     color:var(--gold);
+    font-family:Georgia,"Times New Roman",serif;
     text-shadow:0 1px 2px #000;
 }
 
 .panel h2{
     padding-bottom:7px;
-    border-bottom:1px solid rgba(181,154,96,.45);
+    border-bottom:1px solid rgba(182,154,94,.42);
 }
 
 input,select{
     padding:9px;
-    background:#171b17;
+    background:#0b100f;
     color:var(--ivory);
-    border:1px solid var(--bronze);
-    border-radius:3px;
+    border:1px solid rgba(182,154,94,.58);
+    border-radius:5px;
 }
 
 .character-selector{
@@ -127,7 +133,7 @@ input,select{
     position:relative;
     z-index:1;
     padding:2px 2px 8px;
-    border-bottom:1px solid rgba(101,217,193,.22);
+    border-bottom:1px solid rgba(182,154,94,.36);
 }
 
 .game-header h1{
@@ -163,9 +169,9 @@ input,select{
 }
 
 input:focus,select:focus,button:focus-visible{
-    outline:2px solid var(--gold);
+    outline:2px solid var(--jade);
     outline-offset:2px;
-    box-shadow:0 0 12px rgba(101,217,193,.22);
+    box-shadow:0 0 12px rgba(105,199,174,.22);
 }
 
 button{
@@ -175,12 +181,12 @@ button{
     padding:10px;
     margin:5px;
     cursor:pointer;
-    color:#211d14;
-    font-family:inherit;
+    color:#201b10;
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif;
     font-weight:bold;
-    background:linear-gradient(#d5bd7f,#9e8047);
-    border:1px solid #ddc987;
-    border-radius:3px;
+    background:linear-gradient(180deg,#f1d98c,#b68d43);
+    border:1px solid #e4c879;
+    border-radius:5px;
     box-shadow:inset 0 1px rgba(255,255,255,.25),0 2px 4px rgba(0,0,0,.35);
     transition:background .2s ease,box-shadow .2s ease,transform .2s ease;
 }
@@ -199,8 +205,8 @@ button::after{
 }
 
 button:hover{
-    background:linear-gradient(#e2cd91,#b28e4b);
-    box-shadow:inset 0 1px rgba(255,255,255,.4),0 3px 10px rgba(220,196,134,.22);
+    background:linear-gradient(180deg,#ffebaa,#c39a4e);
+    box-shadow:inset 0 1px rgba(255,255,255,.48),0 3px 12px rgba(229,203,131,.2);
     transform:translateY(-1px);
 }
 
@@ -224,18 +230,147 @@ button:disabled{
     gap:8px;
 }
 
+.rvr-queue-groups,.rvr-map,.rvr-team-members{
+    display:grid;
+    gap:10px;
+}
+
+.rvr-queue-groups,.rvr-map{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.rvr-fill-card,.rvr-team{
+    min-width:0;
+    padding:10px;
+    background:linear-gradient(145deg,#1a2722,#0b1210);
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:6px;
+}
+
+.rvr-fill-heading,.rvr-team-heading,.rvr-timer-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+}
+
+.rvr-progress-track{
+    height:7px;
+    margin-top:8px;
+    overflow:hidden;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:99px;
+}
+
+.rvr-progress-fill{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#34765d,#78c89d);
+    transition:width .25s ease;
+}
+
+.rvr-map{
+    margin-top:12px;
+}
+
+.rvr-team{
+    border-top:3px solid var(--realm-color);
+}
+
+.rvr-team-heading{
+    justify-content:flex-start;
+    margin-bottom:8px;
+}
+
+.rvr-flag{
+    display:inline-grid;
+    width:26px;
+    height:26px;
+    place-items:center;
+    color:#101512;
+    font-weight:bold;
+    background:var(--realm-color);
+    border-radius:5px 5px 5px 1px;
+    box-shadow:0 0 12px rgba(105,199,174,.15);
+}
+
+.rvr-team-members{
+    max-height:190px;
+    overflow-y:auto;
+}
+
+.rvr-member{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:3px 8px;
+    padding:5px 2px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.rvr-member-identity,.rvr-member-health{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+}
+
+.rvr-member-health{
+    grid-column:1 / -1;
+    font-size:.75rem;
+}
+
+.rvr-health-track{
+    flex:1;
+    height:5px;
+    overflow:hidden;
+    background:#050807;
+    border-radius:99px;
+}
+
+.rvr-health-fill{
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,#a84f46,#e1c66f,#69b88c);
+    transition:width .25s ease;
+}
+
+.rvr-member-you{
+    color:var(--gold);
+    font-weight:bold;
+}
+
+.rvr-scoreboard{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    margin-top:12px;
+}
+
+.rvr-score{
+    padding:8px;
+    text-align:center;
+    background:rgba(7,12,10,.62);
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:5px;
+}
+
+.rvr-realm-hibernia{--realm-color:#72c28f;}
+.rvr-realm-midgard{--realm-color:#70a9de;}
+.rvr-realm-albion{--realm-color:#d9897c;}
+
 .game-tabs button[aria-current="page"]{
-    color:#e4fff7;
-    background:linear-gradient(145deg,#347d71,#244b48);
-    border-color:var(--jade);
-    box-shadow:inset 0 0 0 1px rgba(180,255,238,.18),0 0 14px rgba(101,217,193,.2),0 2px 6px rgba(0,0,0,.4);
+    color:#e7f2e7;
+    background:linear-gradient(145deg,#376b54,#203c32);
+    border-color:rgba(105,199,174,.74);
+    box-shadow:inset 0 0 0 1px rgba(208,238,202,.13),0 0 14px rgba(105,199,174,.14),0 2px 6px rgba(0,0,0,.4);
 }
 
 h1{
-    color:#e7d18f;
+    color:#f0d890;
     font-family:Georgia,"Times New Roman",serif;
-    letter-spacing:2px;
-    text-shadow:0 2px 4px #000,0 0 12px rgba(188,151,73,.32),0 0 26px rgba(101,217,193,.16);
+    letter-spacing:1.5px;
+    text-shadow:0 2px 4px #000,0 0 12px rgba(188,151,73,.27),0 0 22px rgba(105,199,174,.1);
 }
 
 .game-header h1::after{
@@ -246,7 +381,7 @@ h1{
     bottom:-5px;
     height:1px;
     background:linear-gradient(90deg,var(--jade),var(--gold),transparent);
-    box-shadow:0 0 8px rgba(101,217,193,.45);
+    box-shadow:0 0 8px rgba(105,199,174,.35);
 }
 
 .log{
@@ -254,15 +389,16 @@ h1{
     min-height:90px;
     max-height:22vh;
     overflow-y:auto;
-    background:#111510;
+    background:rgba(5,9,8,.78);
     padding:10px;
-    border:1px solid #51472f;
-    color:#d5cdbb;
-    font-family:Georgia,"Times New Roman",serif;
+    border:1px solid rgba(182,154,94,.32);
+    border-radius:5px;
+    color:#d4d7cd;
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif;
 }
 
 .stat{
-    color:#d8c486;
+    color:#d4d0bd;
 }
 
 .combatants{
@@ -274,17 +410,17 @@ h1{
 .combatant{
     flex:1;
     min-width:0;
-    background:linear-gradient(145deg,#20251f,#151915);
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
     padding:8px;
-    border:1px solid #5e5137;
-    border-radius:3px;
-    box-shadow:inset 0 0 18px rgba(101,217,193,.025);
+    border:1px solid rgba(182,154,94,.42);
+    border-radius:6px;
+    box-shadow:inset 0 0 18px rgba(105,199,174,.025);
     transition:border-color .25s ease,box-shadow .25s ease;
 }
 
 .combatant:hover{
-    border-color:rgba(101,217,193,.5);
-    box-shadow:inset 0 0 20px rgba(101,217,193,.07),0 0 14px rgba(101,217,193,.07);
+    border-color:rgba(105,199,174,.5);
+    box-shadow:inset 0 0 20px rgba(105,199,174,.07),0 0 14px rgba(105,199,174,.07);
 }
 
 .combatant h3{
@@ -296,9 +432,9 @@ h1{
 .health-track{
     height:18px;
     overflow:hidden;
-    background:#090c09;
-    border:1px solid #554a32;
-    border-radius:2px;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:4px;
     margin:8px 0;
 }
 
@@ -307,7 +443,7 @@ h1{
     overflow:hidden;
     height:100%;
     width:100%;
-    background:linear-gradient(#75bd72,#397448);
+    background:linear-gradient(#76c69b,#327652);
     transition:width .25s ease;
 }
 
@@ -321,29 +457,35 @@ h1{
 }
 
 .enemy-health{
-    background:linear-gradient(#d97463,#8d3430);
+    background:linear-gradient(#e27d70,#8e3932);
 }
 
 .versus{
     align-self:center;
     color:#f0d98f;
     font-weight:bold;
-    text-shadow:0 0 10px rgba(220,196,134,.52),0 0 22px rgba(101,217,193,.2);
+    text-shadow:0 0 10px rgba(229,203,131,.45),0 0 22px rgba(105,199,174,.16);
 }
 
 .damage-readout{
     min-height:24px;
     color:#e8b96e;
     font-weight:bold;
-    text-shadow:0 0 10px rgba(232,185,110,.25);
+    text-shadow:0 0 10px rgba(232,185,110,.2);
 }
 
 .game-layout{
     display:grid;
+    grid-template-columns:minmax(0,1fr);
     gap:8px;
     align-items:start;
     position:relative;
     z-index:1;
+    min-width:0;
+}
+
+.game-header,.character-overview,.game-tabs,.game-content{
+    min-width:0;
 }
 
 .character-overview{
@@ -370,9 +512,9 @@ h1{
 
 .stat-chip{
     padding:5px 8px;
-    background:rgba(12,15,12,.55);
-    border:1px solid #554a32;
-    border-radius:3px;
+    background:rgba(6,10,9,.62);
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:5px;
     color:var(--text-muted);
     font-size:13px;
     white-space:nowrap;
@@ -380,8 +522,8 @@ h1{
 }
 
 .stat-chip:hover{
-    border-color:rgba(101,217,193,.55);
-    box-shadow:0 0 12px rgba(101,217,193,.12);
+    border-color:rgba(105,199,174,.5);
+    box-shadow:0 0 12px rgba(105,199,174,.1);
     transform:translateY(-1px);
 }
 
@@ -395,8 +537,8 @@ h1{
 }
 
 .character-window{
-    border:1px solid var(--bronze-light);
-    box-shadow:inset 0 0 0 1px rgba(220,196,134,.1),0 6px 24px rgba(0,0,0,.55);
+    border:1px solid rgba(205,176,107,.72);
+    box-shadow:inset 0 0 0 1px rgba(229,203,131,.08),0 8px 26px rgba(0,0,0,.5);
 }
 
 .character-window h2{
@@ -420,16 +562,16 @@ h1{
 }
 
 .gear-slot,.inventory-item{
-    background:linear-gradient(145deg,#20241f,#151815);
+    background:linear-gradient(145deg,#1b2823,#0d1412);
     padding:6px 4px;
-    border:1px solid #5d5036;
-    border-radius:3px;
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:5px;
     transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
 }
 
 .inventory-item:hover,.gear-slot:hover{
-    border-color:rgba(101,217,193,.5);
-    box-shadow:0 0 12px rgba(101,217,193,.09);
+    border-color:rgba(105,199,174,.48);
+    box-shadow:0 0 12px rgba(105,199,174,.08);
     transform:translateY(-1px);
 }
 
@@ -473,11 +615,11 @@ h1{
     position:absolute;
     width:82px;
     height:82px;
-    border:1px solid rgba(101,217,193,.2);
-    border-top-color:rgba(101,217,193,.85);
-    border-bottom-color:rgba(220,196,134,.7);
+    border:1px solid rgba(105,199,174,.18);
+    border-top-color:rgba(105,199,174,.75);
+    border-bottom-color:rgba(229,203,131,.62);
     border-radius:50%;
-    box-shadow:0 0 18px rgba(101,217,193,.12),inset 0 0 16px rgba(220,196,134,.08);
+    box-shadow:0 0 18px rgba(105,199,174,.1),inset 0 0 16px rgba(229,203,131,.07);
     animation:sigil-turn 30s linear infinite;
 }
 
@@ -504,7 +646,7 @@ h1{
     justify-content:space-between;
     gap:6px;
     padding-top:8px;
-    border-top:1px solid #695638;
+    border-top:1px solid rgba(182,154,94,.46);
     font-size:12px;
 }
 
@@ -558,7 +700,7 @@ h1{
     display:none;
 }
 
-.character-dashboard,.character-tools,.character-assets,.world-layout,.bestiary-realms,.bestiary-foes,.bestiary-champions{
+.character-dashboard,.character-tools,.character-assets,.world-layout,.bestiary-realms,.bestiary-foes,.bestiary-champions,.crafting-layout,.crafting-skills,.resource-grid{
     display:grid;
     gap:12px;
     align-items:start;
@@ -616,15 +758,15 @@ h1{
 .bestiary-realm{
     min-width:0;
     padding:10px;
-    background:rgba(12,15,12,.35);
-    border:1px solid #574a32;
-    border-radius:3px;
+    background:rgba(7,12,10,.48);
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:6px;
     transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
 }
 
 .bestiary-entry:hover{
-    border-color:rgba(101,217,193,.5);
-    box-shadow:0 0 14px rgba(101,217,193,.09);
+    border-color:rgba(105,199,174,.48);
+    box-shadow:0 0 14px rgba(105,199,174,.08);
     transform:translateY(-1px);
 }
 
@@ -639,9 +781,9 @@ h1{
 .bestiary-entry{
     min-width:0;
     padding:9px;
-    background:linear-gradient(145deg,#20241f,#151815);
-    border:1px solid #574a32;
-    border-radius:3px;
+    background:linear-gradient(145deg,#1a2722,#0b1210);
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:5px;
 }
 
 .bestiary-entry button{
@@ -652,8 +794,91 @@ h1{
     grid-template-columns:repeat(5,minmax(0,1fr));
 }
 
+.crafting-layout{
+    grid-template-columns:minmax(0,1.35fr) minmax(290px,.65fr);
+}
+
+.crafting-skills{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.crafting-skill,.resource-stack,.recipe-card{
+    min-width:0;
+    padding:12px;
+    background:linear-gradient(145deg,#1a2722,#0b1210);
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:6px;
+}
+
+.crafting-skill h3,.recipe-card h3{
+    margin:0 0 6px;
+}
+
+.crafting-skill p,.recipe-card p{
+    margin:6px 0;
+}
+
+.skill-progress-label,.resource-stack-heading{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:center;
+}
+
+.skill-progress-track{
+    height:8px;
+    margin:8px 0;
+    overflow:hidden;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:99px;
+}
+
+.skill-progress-fill{
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,#34765d,#78c89d);
+    box-shadow:0 0 10px rgba(105,199,174,.3);
+    transition:width .25s ease;
+}
+
+.resource-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.resource-stack{
+    background:rgba(7,12,10,.62);
+}
+
+.resource-stack strong{
+    color:var(--gold);
+    font-size:1.15em;
+}
+
+.resource-cap{
+    color:var(--text-muted);
+    font-size:.8em;
+}
+
+.crafting-recipes{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+    margin-top:12px;
+}
+
+.recipe-card button{
+    width:100%;
+    margin:6px 0 0;
+}
+
+.resource-stack-full{
+    border-color:rgba(229,203,131,.72);
+    box-shadow:inset 0 0 14px rgba(229,203,131,.08);
+}
+
 .hunt-locked{
-    color:#a9c58d;
+    color:#9fd1a6;
     font-weight:bold;
 }
 
@@ -667,21 +892,21 @@ h1{
 }
 
 .zone-entry,.keep-entry,.realm-count{
-    background:linear-gradient(145deg,#20241f,#151815);
+    background:linear-gradient(145deg,#1a2722,#0b1210);
     padding:10px;
-    border:1px solid #574a32;
-    border-radius:3px;
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:5px;
     transition:border-color .2s ease,box-shadow .2s ease;
 }
 
 .zone-entry:hover,.keep-entry:hover,.realm-count:hover{
-    border-color:rgba(101,217,193,.4);
-    box-shadow:0 0 12px rgba(101,217,193,.07);
+    border-color:rgba(105,199,174,.42);
+    box-shadow:0 0 12px rgba(105,199,174,.07);
 }
 
 .zone-current{
-    border-left:4px solid #c8a95f;
-    box-shadow:inset 0 0 16px rgba(220,196,134,.07),0 0 10px rgba(220,196,134,.08);
+    border-left:4px solid #d3b86e;
+    box-shadow:inset 0 0 16px rgba(229,203,131,.06),0 0 10px rgba(229,203,131,.07);
 }
 
 .zone-locked{
@@ -696,9 +921,9 @@ h1{
 }
 
 .realm-dominant{
-    color:#a9c58d;
+    color:#a9d2a2;
     font-weight:bold;
-    text-shadow:0 0 10px rgba(169,197,141,.35);
+    text-shadow:0 0 10px rgba(169,210,162,.3);
 }
 
 @keyframes ambient-drift{
@@ -760,6 +985,10 @@ h1{
     .character-assets{
         grid-template-columns:repeat(2,minmax(0,380px));
     }
+
+    .crafting-layout{
+        grid-template-columns:1fr;
+    }
 }
 
 @media (max-width:700px){
@@ -807,12 +1036,21 @@ h1{
 
     .game-tabs{
         display:grid;
-        grid-template-columns:repeat(3,minmax(0,1fr));
+        grid-template-columns:repeat(5,minmax(0,1fr));
     }
 
     .game-tabs button{
         min-width:0;
-        padding:9px 5px;
+        padding:8px 2px;
+        font-size:.78rem;
+    }
+
+    .rvr-queue-groups,.rvr-map{
+        grid-template-columns:1fr;
+    }
+
+    .rvr-scoreboard{
+        grid-template-columns:1fr;
     }
 
 }
@@ -844,11 +1082,14 @@ h1{
             <span class="stat-chip">Loot <strong id="loot">0</strong></span>
             <span class="stat-chip">Power <strong id="power">10</strong></span>
             <span class="stat-chip">Kills <strong id="kills">0</strong></span>
+            <span class="stat-chip">PvP Kills <strong id="pvpKills">0</strong></span>
         </div>
     </section>
 
     <nav class="game-tabs" aria-label="Game sections">
         <button type="button" id="tab-combat" aria-controls="panel-combat" aria-current="page" onclick="showGamePanel('combat')">Combat</button>
+        <button type="button" id="tab-rvr" aria-controls="panel-rvr" onclick="showGamePanel('rvr')">RvR</button>
+        <button type="button" id="tab-crafting" aria-controls="panel-crafting" onclick="showGamePanel('crafting')">Crafting</button>
         <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
         <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
     </nav>
@@ -880,6 +1121,120 @@ h1{
             </div>
         </section>
 
+        <section class="panel tab-panel" id="panel-rvr" aria-labelledby="tab-rvr" hidden>
+            <h2>Realm vs Realm Arena</h2>
+            <p class="stat">Join a three-realm arena. Your character is placed on a random realm team for each match.</p>
+            <p class="stat">Listed support classes heal each living teammate for 5 HP and deal 65% damage every 15 seconds.</p>
+            <div class="rvr-queue-panel">
+                <div class="rvr-timer-row">
+                    <strong id="rvrQueueStatus">Ready to queue</strong>
+                    <strong id="rvrCountdown">--:--</strong>
+                </div>
+                <div class="rvr-progress-track"><div class="rvr-progress-fill" id="rvrQueueProgress"></div></div>
+                <div class="rvr-queue-groups">
+                    <div class="rvr-fill-card rvr-realm-hibernia">
+                        <div class="rvr-fill-heading"><span>Hibernia</span><strong><span id="rvrFillHibernia">0</span>/8</strong></div>
+                        <div class="rvr-progress-track"><div class="rvr-progress-fill" id="rvrProgressHibernia"></div></div>
+                    </div>
+                    <div class="rvr-fill-card rvr-realm-midgard">
+                        <div class="rvr-fill-heading"><span>Midgard</span><strong><span id="rvrFillMidgard">0</span>/8</strong></div>
+                        <div class="rvr-progress-track"><div class="rvr-progress-fill" id="rvrProgressMidgard"></div></div>
+                    </div>
+                    <div class="rvr-fill-card rvr-realm-albion">
+                        <div class="rvr-fill-heading"><span>Albion</span><strong><span id="rvrFillAlbion">0</span>/8</strong></div>
+                        <div class="rvr-progress-track"><div class="rvr-progress-fill" id="rvrProgressAlbion"></div></div>
+                    </div>
+                </div>
+                <button type="button" id="queueRvrButton" onclick="queueForRvr()">Queue for 8v8v8</button>
+                <p class="stat" id="rvrQueueMessage" aria-live="polite">A match runs every 7 minutes and lasts 3–5 minutes.</p>
+            </div>
+
+            <div id="rvrMatchPanel" hidden>
+                <div class="rvr-timer-row">
+                    <h3 id="rvrMatchTitle">Arena Battle</h3>
+                    <strong id="rvrMatchCountdown">--:--</strong>
+                </div>
+                <p class="stat" id="rvrBattleStatus" aria-live="polite"></p>
+                <div class="rvr-map" id="rvrMap" aria-label="Three realm arena map"></div>
+                <div class="rvr-scoreboard" id="rvrScoreboard"></div>
+            </div>
+            <p class="stat" id="rvrLastResult" aria-live="polite" hidden></p>
+        </section>
+
+        <section class="tab-panel" id="panel-crafting" aria-labelledby="tab-crafting" hidden>
+            <div class="crafting-layout">
+                <div>
+                    <section class="panel">
+                        <h2>Gathering &amp; Professions</h2>
+                        <p class="stat">Gather materials, train your skills, and craft useful supplies.</p>
+                        <div class="crafting-skills">
+                            <article class="crafting-skill">
+                                <h3>Mining</h3>
+                                <div class="skill-progress-label">
+                                    <span>Rank <strong id="miningLevel">1</strong></span>
+                                    <span class="stat" id="miningXp">0 / 50 XP</span>
+                                </div>
+                                <div class="skill-progress-track"><div class="skill-progress-fill" id="miningProgress"></div></div>
+                                <p class="stat">Mine ore for gemcrafting.</p>
+                                <button type="button" id="mineOreButton" onclick="gatherResource('mining','ore')">Mine Ore</button>
+                            </article>
+
+                            <article class="crafting-skill">
+                                <h3>Foraging</h3>
+                                <div class="skill-progress-label">
+                                    <span>Rank <strong id="foragingLevel">1</strong></span>
+                                    <span class="stat" id="foragingXp">0 / 50 XP</span>
+                                </div>
+                                <div class="skill-progress-track"><div class="skill-progress-fill" id="foragingProgress"></div></div>
+                                <p class="stat">Gather wood for recipes.</p>
+                                <button type="button" id="gatherWoodButton" onclick="gatherResource('foraging','wood')">Gather Wood</button>
+                            </article>
+
+                            <article class="crafting-skill">
+                                <h3>Herbalism</h3>
+                                <div class="skill-progress-label">
+                                    <span>Rank <strong id="herbalismLevel">1</strong></span>
+                                    <span class="stat" id="herbalismXp">0 / 50 XP</span>
+                                </div>
+                                <div class="skill-progress-track"><div class="skill-progress-fill" id="herbalismProgress"></div></div>
+                                <p class="stat">Gather herbs and brew potions.</p>
+                                <button type="button" id="gatherHerbsButton" onclick="gatherResource('herbalism','herbs')">Gather Herbs</button>
+                            </article>
+
+                            <article class="crafting-skill">
+                                <h3>Gemcrafting</h3>
+                                <div class="skill-progress-label">
+                                    <span>Rank <strong id="gemcraftingLevel">1</strong></span>
+                                    <span class="stat" id="gemcraftingXp">0 / 50 XP</span>
+                                </div>
+                                <div class="skill-progress-track"><div class="skill-progress-fill" id="gemcraftingProgress"></div></div>
+                                <p class="stat">Cut gems from ore and wood.</p>
+                                <button type="button" id="craftGemButton" onclick="craftGem()">Cut Gem · 5 Ore + 1 Wood</button>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <h2>Potion Recipe</h2>
+                        <div class="crafting-recipes">
+                            <article class="recipe-card">
+                                <h3>Healing Potion</h3>
+                                <p class="stat">Herbalism · 3 Herbs + 1 Wood</p>
+                                <button type="button" id="craftPotionButton" onclick="craftPotion()">Brew Potion</button>
+                            </article>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="panel">
+                    <h2>Materials Pouch</h2>
+                    <p class="stat">Materials, gems, and potions stack separately up to 1,000 each.</p>
+                    <p class="stat" id="craftingStatus" aria-live="polite">Gathering and crafted items are stored here.</p>
+                    <div class="resource-grid" id="resourceInventory"></div>
+                </section>
+            </div>
+        </section>
+
         <section class="tab-panel" id="panel-character" aria-labelledby="tab-character" hidden>
             <div class="character-dashboard">
                 <div class="character-tools">
@@ -894,12 +1249,15 @@ h1{
                             <option>Albion</option>
                         </select>
                         <select id="class" aria-label="Class">
-                            <option>Chanter</option>
                             <option>Druid</option>
+                            <option>Chanter</option>
+                            <option>Animist</option>
+                            <option>Bard</option>
                             <option>Hero</option>
-                            <option>Berserker</option>
-                            <option>Healer</option>
-                            <option>Mercenary</option>
+                            <option>Blademaster</option>
+                            <option>Vampiir</option>
+                            <option>Mentalist</option>
+                            <option>Eldritch</option>
                         </select>
                         <button type="button" onclick="createCharacter()">Create New Character</button>
                     </div>
@@ -983,7 +1341,7 @@ h1{
 
 function showGamePanel(panelName){
 
-    ["combat","character","world"].forEach(function(name){
+    ["combat","rvr","crafting","character","world"].forEach(function(name){
         const isActive=name===panelName;
         const button=document.getElementById("tab-"+name);
         const panel=document.getElementById("panel-"+name);
@@ -1011,8 +1369,30 @@ function createDefaultPlayer(){
         loot:0,
         hp:100,
         kills:0,
+        pvpKills:0,
+        lastClassHealAt:0,
         target:null,
         huntOrder:null,
+        rvrArena:{
+            nextQueueAt:0,
+            queueStartedAt:0,
+            queueEndsAt:0,
+            match:null,
+            lastResult:null
+        },
+        resources:{
+            ore:0,
+            herbs:0,
+            wood:0,
+            gems:0,
+            potions:0
+        },
+        craftingSkills:{
+            mining:{level:1,xp:0},
+            foraging:{level:1,xp:0},
+            herbalism:{level:1,xp:0},
+            gemcrafting:{level:1,xp:0}
+        },
         keeps:{
             "Dun Crauchon":"Hibernia",
             "Dun Bolg":"Midgard",
@@ -1043,6 +1423,66 @@ let cloudBusy=false;
 const enemyNames=["Pilzpower","Boogie","Yates","Prack","Sylence"];
 const enemyClasses=["Berserker","Hero","Mercenary","Healer","Chanter"];
 const realms=["Hibernia","Midgard","Albion"];
+const characterClasses={
+    Hibernia:["Druid","Chanter","Animist","Bard","Warden","Hero","Blademaster","Vampiir","Mentalist","Eldritch"],
+    Midgard:["Berserker","Bonedancer","Healer","Hunter","Runemaster","Savage","Shaman","Skald","Shadowblade","Spiritmaster","Thane","Valkyrie","Warlock"],
+    Albion:["Armsman","Cabalist","Cleric","Friar","Heretic","Infiltrator","Mercenary","Minstrel","Paladin","Reaver","Scout","Sorcerer","Theurgist","Wizard"]
+};
+const healingSupportClassesByRealm={
+    Hibernia:["Druid","Warden","Bard"],
+    Midgard:["Healer","Valkyrie","Shaman"],
+    Albion:["Cleric","Heretic","Friar"]
+};
+const rvrFighterMaxHp=100;
+const rvrRealmByClass={
+    Animist:"Hibernia",Bard:"Hibernia",Bainshee:"Hibernia",Blademaster:"Hibernia",Chanter:"Hibernia",
+    Champion:"Hibernia",Druid:"Hibernia",Eldritch:"Hibernia",Enchanter:"Hibernia",
+    Hero:"Hibernia",Mentalist:"Hibernia",Nightshade:"Hibernia",Ranger:"Hibernia",
+    Vampiir:"Hibernia",Warden:"Hibernia",
+    Bonedancer:"Midgard",Berserker:"Midgard",Healer:"Midgard",Hunter:"Midgard",
+    Runemaster:"Midgard",Shaman:"Midgard",Skald:"Midgard",Shadowblade:"Midgard",
+    Spiritmaster:"Midgard",Thane:"Midgard",Valkyrie:"Midgard",Warlock:"Midgard",Savage:"Midgard",
+    Armsman:"Albion",Cabalist:"Albion",Cleric:"Albion",Friar:"Albion",Heretic:"Albion",
+    Infiltrator:"Albion",Mercenary:"Albion",Minstrel:"Albion",Paladin:"Albion",Reaver:"Albion",
+    Scout:"Albion",Sorcerer:"Albion",Theurgist:"Albion",Wizard:"Albion"
+};
+const rvrRosterData=[
+    ["Pilzpower","Animist"],["Prack","Paladin"],["Sylence","Druid"],["Boogie","Warden"],
+    ["Yates","Eldritch"],["Jefhet","Healer"],["Airmid","Bard"],["Mattx","Mentalist"],
+    ["Rebekahann","Cleric"],["Cornelio","Mercenary"],["Keoo","Bard"],["Malkkie","Wizard"],
+    ["Almor","Druid"],["Elessara","Druid"],["Speedlost","Skald"],["Tullehrs","Warden"],
+    ["Fiftyfifty","Healer"],["Marcopolo","Bonedancer"],["Klarinogampros","Thane"],["Elyhymn","Eldritch"],
+    ["Concorde","Skald"],["Mathurin","Friar"],["Geoluxel","Eldritch"],["Zondy","Warden"],
+    ["Sigarny","Druid"],["Chronogrind","Mentalist"],["Devvor","Druid"],["Salva","Hero"],
+    ["Kerrigan","Eldritch"],["Sicuro","Runemaster"],["Georges","Minstrel"],["Falka","Bard"],
+    ["Moahr","Cleric"],["Zaradia","Cleric"],["Xenless","Minstrel"],["Teufelsbrut","Heretic"],
+    ["Ninki","Eldritch"],["Theshar","Hunter"],["Zhirq","Bard"],["Eolol","Cleric"],
+    ["Lamusica","Bard"],["Mogarr","Mentalist"],["Suzzet","Eldritch"],["Jimmbo","Enchanter"],
+    ["Niceone","Champion"],["Winoe","Nightshade"],["Drallo","Eldritch"],["Ulrigmerc","Mercenary"],
+    ["Largefarva","Mentalist"],["Ark","Bainshee"],["Tila","Shadowblade"],["Buddhist","Druid"],
+    ["Heavenly","Bard"],["Glowon","Wizard"],["Decept","Hero"],["Goron","Healer"],
+    ["Weedbomber","Spiritmaster"],["Modoc","Druid"],["Nikxen","Healer"],["Cerou","Animist"],
+    ["Elbronkas","Hero"],["Eelon","Ranger"],["Miezuleika","Skald"],["Vasanah","Druid"],
+    ["Maluca","Mentalist"],["Cinnia","Bard"],["Crazyeyyeed","Enchanter"],["Agroaash","Bainshee"],
+    ["Amethyst","Skald"],["Schleiereule","Bonedancer"],["Brezyy","Hero"],["Methalic","Cleric"],
+    ["Nodeteeks","Blademaster"],["Ylien","Warden"],["Joppler","Shaman"],["Emoral","Cabalist"],
+    ["Fonzy","Warlock"],["Runesmith","Runemaster"],["Bobwin","Warden"],["Kinza","Druid"],
+    ["Meuuccii","Runemaster"],["Someil","Sorcerer"],["Kookiez","Mentalist"],["Problemo","Thane"],
+    ["Izie","Enchanter"],["Exterminate","Healer"],["Amerc","Scout"],["Nyderiee","Warden"],
+    ["Stj","Skald"],["Drufoh","Thane"],["Halftroll","Shaman"],["Inelukay","Warden"],
+    ["Umbrellaz","Healer"],["Missmarti","Healer"],["Spitball","Hunter"],["Phaeneia","Healer"],
+    ["Lottiline","Druid"],["Rakija","Bard"],["Ozeydid","Healer"],["Bugshee","Bainshee"]
+];
+const rvrNpcRoster=rvrRosterData.map(function(entry){
+    return {name:entry[0],cls:entry[1],realm:rvrRealmByClass[entry[1]]};
+});
+const rvrQueueDurationMs=30000;
+const rvrCooldownMs=420000;
+const rvrMatchMinDurationMs=180000;
+const rvrMatchMaxDurationMs=300000;
+const rvrMatchTickMs=15000;
+const rvrRpPerPvpKill=25;
+const rvrWinBonusRp=100;
 const keepNames=["Dun Crauchon","Dun Bolg","Dun Scathaig"];
 const zones=[
     {name:"Connla",minLevel:1,maxLevel:10},
@@ -1051,6 +1491,34 @@ const zones=[
     {name:"Frontier Keeps",minLevel:31,maxLevel:Infinity}
 ];
 const equipmentSlots=["Weapon","Helm","Chest","Ring","Cloak","Boots"];
+const resourceKeys=["ore","herbs","wood","gems","potions"];
+const resourceLabels={
+    ore:"Ore",
+    herbs:"Herbs",
+    wood:"Wood",
+    gems:"Gems",
+    potions:"Healing Potions"
+};
+const resourceSingularLabels={
+    ore:"Ore",
+    herbs:"Herb",
+    wood:"Wood",
+    gems:"Gem",
+    potions:"Healing Potion"
+};
+const craftingSkillKeys=["mining","foraging","herbalism","gemcrafting"];
+const craftingSkillLabels={
+    mining:"Mining",
+    foraging:"Foraging",
+    herbalism:"Herbalism",
+    gemcrafting:"Gemcrafting"
+};
+const resourceGatheringSkills={
+    mining:"ore",
+    foraging:"wood",
+    herbalism:"herbs"
+};
+const resourceStackCap=1000;
 const itemBases={
     Weapon:["Celtic Spear","Frontier Blade","Oak Staff"],
     Helm:["Warden's Helm","Reinforced Coif"],
@@ -1077,6 +1545,26 @@ const itemBaseStats={
 };
 let lastDamageText="Create a character to enter combat.";
 let bestiaryRenderKey="";
+
+function updateClassOptions(){
+
+    const realm=document.getElementById("realm").value;
+    const classSelect=document.getElementById("class");
+    const selectedClass=classSelect.value;
+    const options=characterClasses[realm] || characterClasses.Hibernia;
+
+    classSelect.textContent="";
+    options.forEach(function(cls){
+        const option=document.createElement("option");
+        option.value=cls;
+        option.textContent=cls;
+        classSelect.appendChild(option);
+    });
+
+    classSelect.value=options.indexOf(selectedClass)!==-1
+        ? selectedClass
+        : options[0];
+}
 
 function getZoneForLevel(level){
     return zones.find(function(zone){
@@ -1134,9 +1622,151 @@ function cloneCharacter(character){
     return JSON.parse(JSON.stringify(character));
 }
 
+function validArenaCount(value){
+    return Number.isSafeInteger(value) && value>=0 ? value : 0;
+}
+
+function validArenaTimestamp(value){
+    return Number.isSafeInteger(value) && value>=0 ? value : 0;
+}
+
+function normalizeArenaScores(scores){
+    if(!scores || typeof scores!=="object" || Array.isArray(scores)){
+        return null;
+    }
+    const normalized={};
+    for(let i=0;i<realms.length;i++){
+        const realm=realms[i];
+        if(!Number.isSafeInteger(scores[realm]) || scores[realm]<0){
+            return null;
+        }
+        normalized[realm]=scores[realm];
+    }
+    return normalized;
+}
+
+function normalizeArenaMatch(savedMatch){
+    if(!savedMatch || typeof savedMatch!=="object" || Array.isArray(savedMatch)
+        || realms.indexOf(savedMatch.playerRealm)===-1){
+        return null;
+    }
+    const startedAt=validArenaTimestamp(savedMatch.startedAt);
+    const endsAt=validArenaTimestamp(savedMatch.endsAt);
+    const durationMs=validArenaCount(savedMatch.durationMs);
+    const nextTickAt=validArenaTimestamp(savedMatch.nextTickAt);
+    const scores=normalizeArenaScores(savedMatch.scores);
+    const sourceTeams=savedMatch.teams;
+    if(!startedAt || endsAt<=startedAt
+        || durationMs<rvrMatchMinDurationMs
+        || durationMs>rvrMatchMaxDurationMs
+        || Math.abs((endsAt-startedAt)-durationMs)>1000
+        || !nextTickAt || !scores
+        || !sourceTeams || typeof sourceTeams!=="object" || Array.isArray(sourceTeams)){
+        return null;
+    }
+
+    const teams={};
+    let playerCount=0;
+    for(let i=0;i<realms.length;i++){
+        const realm=realms[i];
+        const sourceMembers=sourceTeams[realm];
+        if(!Array.isArray(sourceMembers) || sourceMembers.length!==8){
+            return null;
+        }
+        teams[realm]=[];
+        for(let j=0;j<sourceMembers.length;j++){
+            const member=sourceMembers[j];
+            if(!member || typeof member!=="object"
+                || typeof member.name!=="string" || !member.name
+                || typeof member.cls!=="string" || !member.cls){
+                return null;
+            }
+            const isPlayer=member.isPlayer===true;
+            if(isPlayer){
+                playerCount++;
+                if(realm!==savedMatch.playerRealm){
+                    return null;
+                }
+            }
+            teams[realm].push({
+                name:member.name.slice(0,60),
+                cls:member.cls.slice(0,40),
+                isPlayer:isPlayer,
+                hp:Number.isFinite(member.hp)
+                    ? Math.max(0,Math.min(rvrFighterMaxHp,Math.floor(member.hp)))
+                    : rvrFighterMaxHp
+            });
+        }
+    }
+    if(playerCount!==1){
+        return null;
+    }
+
+    return {
+        startedAt:startedAt,
+        endsAt:endsAt,
+        durationMs:durationMs,
+        nextTickAt:nextTickAt,
+        playerRealm:savedMatch.playerRealm,
+        teams:teams,
+        scores:scores,
+        playerKills:validArenaCount(savedMatch.playerKills),
+        rpEarned:validArenaCount(savedMatch.rpEarned)
+    };
+}
+
+function normalizeArenaResult(savedResult){
+    if(!savedResult || typeof savedResult!=="object" || Array.isArray(savedResult)
+        || realms.indexOf(savedResult.winner)===-1){
+        return null;
+    }
+    const scores=normalizeArenaScores(savedResult.scores);
+    const durationMs=validArenaCount(savedResult.durationMs);
+    const finishedAt=validArenaTimestamp(savedResult.finishedAt);
+    if(!scores || durationMs<rvrMatchMinDurationMs
+        || durationMs>rvrMatchMaxDurationMs || !finishedAt){
+        return null;
+    }
+    return {
+        winner:savedResult.winner,
+        scores:scores,
+        playerKills:validArenaCount(savedResult.playerKills),
+        rpEarned:validArenaCount(savedResult.rpEarned),
+        durationMs:durationMs,
+        finishedAt:finishedAt
+    };
+}
+
 function normalizePlayer(savedPlayer){
 
     player=Object.assign(createDefaultPlayer(),savedPlayer || {});
+    const savedResources=player.resources && typeof player.resources==="object" && !Array.isArray(player.resources)
+        ? player.resources
+        : {};
+    player.resources={};
+    resourceKeys.forEach(function(resource){
+        const amount=savedResources[resource];
+        player.resources[resource]=Number.isFinite(amount)
+            ? Math.max(0,Math.min(resourceStackCap,Math.floor(amount)))
+            : 0;
+    });
+    const savedSkills=player.craftingSkills && typeof player.craftingSkills==="object" && !Array.isArray(player.craftingSkills)
+        ? player.craftingSkills
+        : {};
+    player.craftingSkills={};
+    craftingSkillKeys.forEach(function(skillName){
+        const savedSkill=savedSkills[skillName] && typeof savedSkills[skillName]==="object"
+            ? savedSkills[skillName]
+            : {};
+        const level=Number.isSafeInteger(savedSkill.level) && savedSkill.level>=1
+            ? savedSkill.level
+            : 1;
+        const requiredXp=level*50;
+        const xp=Number.isFinite(savedSkill.xp)
+            ? Math.max(0,Math.min(requiredXp-1,Math.floor(savedSkill.xp)))
+            : 0;
+        player.craftingSkills[skillName]={level:level,xp:xp};
+    });
     player.keeps=Object.assign({
         "Dun Crauchon":"Hibernia",
         "Dun Bolg":"Midgard",
@@ -1177,7 +1807,34 @@ function normalizePlayer(savedPlayer){
     });
     player.inventory=Array.isArray(player.inventory) ? player.inventory : [];
     player.kills=Number.isFinite(player.kills) ? player.kills : 0;
+    player.pvpKills=validArenaCount(player.pvpKills);
+    player.lastClassHealAt=validArenaTimestamp(player.lastClassHealAt);
+    if(isHealingSupportClass(player.realm,player.cls) && player.lastClassHealAt===0){
+        player.lastClassHealAt=Date.now();
+    }
+    const savedArena=player.rvrArena && typeof player.rvrArena==="object" && !Array.isArray(player.rvrArena)
+        ? player.rvrArena
+        : {};
+    const queueStartedAt=validArenaTimestamp(savedArena.queueStartedAt);
+    const queueEndsAt=validArenaTimestamp(savedArena.queueEndsAt);
+    player.rvrArena={
+        nextQueueAt:validArenaTimestamp(savedArena.nextQueueAt),
+        queueStartedAt:queueEndsAt>queueStartedAt
+            && queueEndsAt-queueStartedAt<=rvrQueueDurationMs+1000
+            ? queueStartedAt
+            : 0,
+        queueEndsAt:queueEndsAt>queueStartedAt
+            && queueEndsAt-queueStartedAt<=rvrQueueDurationMs+1000
+            ? queueEndsAt
+            : 0,
+        match:normalizeArenaMatch(savedArena.match),
+        lastResult:normalizeArenaResult(savedArena.lastResult)
+    };
     player.hp=Number.isFinite(player.hp) ? player.hp : playerMaxHp();
+    if(player.target && typeof player.target==="object"
+        && !Number.isSafeInteger(player.target.lastHealAt)){
+        player.target.lastHealAt=Date.now();
+    }
     if(player.name && !player.characterId){
         player.characterId=createCharacterId();
     }
@@ -1247,6 +1904,15 @@ function playerPower(){
     return 8+player.level*2+equipmentBonuses().power;
 }
 
+function isHealingSupportClass(realm,cls){
+    return Boolean(healingSupportClassesByRealm[realm]
+        && healingSupportClassesByRealm[realm].indexOf(cls)!==-1);
+}
+
+function classDamageMultiplier(realm,cls){
+    return isHealingSupportClass(realm,cls) ? .65 : 1;
+}
+
 function addLog(text){
 
     const log=document.getElementById("log");
@@ -1272,6 +1938,118 @@ function rollRarity(){
 
 function randomBetween(min,max){
     return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function setCraftingStatus(message){
+    document.getElementById("craftingStatus").textContent=message;
+}
+
+function craftingSkillXpRequirement(level){
+    return level*50;
+}
+
+function awardCraftingXp(skillName,amount){
+    const skill=player.craftingSkills[skillName];
+    skill.xp+=amount;
+    while(skill.xp>=craftingSkillXpRequirement(skill.level)){
+        skill.xp-=craftingSkillXpRequirement(skill.level);
+        skill.level++;
+        addLog(craftingSkillLabels[skillName]+" reached rank "+skill.level+".");
+    }
+}
+
+function gatherResource(skillName,resourceName){
+    if(!player.name){
+        setCraftingStatus("Create or select a character before gathering.");
+        return;
+    }
+    if(resourceGatheringSkills[skillName]!==resourceName){
+        setCraftingStatus("That gathering skill cannot collect this resource.");
+        return;
+    }
+    if(player.resources[resourceName]>=resourceStackCap){
+        setCraftingStatus(resourceLabels[resourceName]+" stack is full (1,000/1,000).");
+        return;
+    }
+
+    player.resources[resourceName]++;
+    awardCraftingXp(skillName,10);
+    setCraftingStatus("Gathered 1 "+resourceSingularLabels[resourceName]+".");
+    updateUI();
+    saveGame();
+}
+
+function craftResource(recipeName,skillName,ingredients,outputName){
+    if(!player.name){
+        setCraftingStatus("Create or select a character before crafting.");
+        return;
+    }
+    if(player.resources[outputName]>=resourceStackCap){
+        setCraftingStatus(resourceLabels[outputName]+" stack is full (1,000/1,000); ingredients were not used.");
+        return;
+    }
+
+    const missing=Object.keys(ingredients).filter(function(resourceName){
+        return player.resources[resourceName]<ingredients[resourceName];
+    });
+    if(missing.length>0){
+        const missingText=missing.map(function(resourceName){
+            return (ingredients[resourceName]-player.resources[resourceName])+" more "+resourceLabels[resourceName];
+        });
+        setCraftingStatus("Not enough ingredients: "+missingText.join(", ")+".");
+        return;
+    }
+
+    Object.keys(ingredients).forEach(function(resourceName){
+        player.resources[resourceName]-=ingredients[resourceName];
+    });
+    player.resources[outputName]++;
+    awardCraftingXp(skillName,15);
+    setCraftingStatus("Crafted 1 "+resourceSingularLabels[outputName]+" ("+recipeName+").");
+    updateUI();
+    saveGame();
+}
+
+function craftPotion(){
+    craftResource("Healing Potion","herbalism",{herbs:3,wood:1},"potions");
+}
+
+function craftGem(){
+    craftResource("Cut Gem","gemcrafting",{ore:5,wood:1},"gems");
+}
+
+function renderCrafting(){
+    craftingSkillKeys.forEach(function(skillName){
+        const skill=player.craftingSkills[skillName];
+        const requiredXp=craftingSkillXpRequirement(skill.level);
+        document.getElementById(skillName+"Level").textContent=skill.level;
+        document.getElementById(skillName+"Xp").textContent=skill.xp+" / "+requiredXp+" XP";
+        document.getElementById(skillName+"Progress").style.width=(skill.xp/requiredXp*100)+"%";
+    });
+
+    const inventory=document.getElementById("resourceInventory");
+    inventory.textContent="";
+    resourceKeys.forEach(function(resourceName){
+        const amount=player.resources[resourceName];
+        const stack=document.createElement("div");
+        stack.className="resource-stack"+(amount>=resourceStackCap ? " resource-stack-full" : "");
+
+        const heading=document.createElement("div");
+        heading.className="resource-stack-heading";
+        const name=document.createElement("span");
+        name.textContent=resourceLabels[resourceName];
+        const count=document.createElement("strong");
+        count.textContent=amount.toLocaleString();
+        heading.appendChild(name);
+        heading.appendChild(count);
+        stack.appendChild(heading);
+
+        const cap=document.createElement("div");
+        cap.className="resource-cap";
+        cap.textContent="/ "+resourceStackCap.toLocaleString();
+        stack.appendChild(cap);
+        inventory.appendChild(stack);
+    });
 }
 
 function generateItem(){
@@ -1372,6 +2150,7 @@ function createTarget(){
         zone:getZoneForLevel(level).name,
         hp:maxHp,
         maxHp:maxHp,
+        lastHealAt:Date.now(),
         champion:champion
     };
 
@@ -1453,6 +2232,7 @@ function createCharacter(){
     player.name=name || "Warhymn";
     player.realm=realm;
     player.cls=cls;
+    player.lastClassHealAt=Date.now();
     activeCharacterId=player.characterId;
     player.hp=playerMaxHp();
     lastDamageText="Create a character to enter combat.";
@@ -1644,6 +2424,363 @@ function renderBestiary(){
     });
 }
 
+function formatArenaTime(milliseconds){
+    const totalSeconds=Math.max(0,Math.ceil(milliseconds/1000));
+    const minutes=Math.floor(totalSeconds/60);
+    const seconds=totalSeconds%60;
+    return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0");
+}
+
+function shuffledArenaRoster(realm){
+    const roster=rvrNpcRoster.filter(function(member){
+        return member.realm===realm;
+    }).map(function(member){
+        return {name:member.name,cls:member.cls,isPlayer:false,hp:rvrFighterMaxHp};
+    });
+    for(let i=roster.length-1;i>0;i--){
+        const index=Math.floor(Math.random()*(i+1));
+        const member=roster[i];
+        roster[i]=roster[index];
+        roster[index]=member;
+    }
+    return roster;
+}
+
+function createRvrTeams(){
+    const playerRealm=realms[Math.floor(Math.random()*realms.length)];
+    const teams={};
+    realms.forEach(function(realm){
+        teams[realm]=shuffledArenaRoster(realm).slice(0,8);
+        if(realm===playerRealm){
+            const playerPosition=Math.floor(Math.random()*teams[realm].length);
+            teams[realm][playerPosition]={
+                name:player.name,
+                cls:player.cls,
+                isPlayer:true,
+                hp:rvrFighterMaxHp
+            };
+        }
+    });
+    return {playerRealm:playerRealm,teams:teams};
+}
+
+function startRvrMatch(now){
+    const arena=player.rvrArena;
+    const formation=createRvrTeams();
+    const durationMs=randomBetween(rvrMatchMinDurationMs,rvrMatchMaxDurationMs);
+    arena.queueStartedAt=0;
+    arena.queueEndsAt=0;
+    arena.nextQueueAt=now+rvrCooldownMs;
+    arena.lastResult=null;
+    arena.match={
+        startedAt:now,
+        endsAt:now+durationMs,
+        durationMs:durationMs,
+        nextTickAt:now+rvrMatchTickMs,
+        playerRealm:formation.playerRealm,
+        teams:formation.teams,
+        scores:{Hibernia:0,Midgard:0,Albion:0},
+        playerKills:0,
+        rpEarned:0
+    };
+    addLog("RvR arena match started. You were placed with "+formation.playerRealm+".");
+}
+
+function queueForRvr(){
+    if(!player.name){
+        return;
+    }
+    const arena=player.rvrArena;
+    const now=Date.now();
+    if(arena.match || arena.queueEndsAt>now || arena.nextQueueAt>now){
+        return;
+    }
+    arena.queueStartedAt=now;
+    arena.queueEndsAt=now+rvrQueueDurationMs;
+    updateUI();
+    saveGame();
+}
+
+function simulateRvrRound(match){
+    realms.forEach(function(attackingRealm){
+        match.teams[attackingRealm].forEach(function(attacker){
+            if(attacker.hp<=0){
+                return;
+            }
+            const availableRealms=realms.filter(function(realm){
+                return realm!==attackingRealm
+                    && match.teams[realm].some(function(member){ return member.hp>0; });
+            });
+            if(availableRealms.length===0){
+                return;
+            }
+            const targetRealm=availableRealms[Math.floor(Math.random()*availableRealms.length)];
+            const availableTargets=match.teams[targetRealm].filter(function(member){
+                return member.hp>0;
+            });
+            const target=availableTargets[Math.floor(Math.random()*availableTargets.length)];
+            const attackerRealm=attacker.isPlayer ? player.realm : attackingRealm;
+            const baseDamage=attacker.isPlayer
+                ? playerPower()+randomBetween(0,5)
+                : randomBetween(20,28);
+            const damage=Math.max(1,Math.floor(
+                baseDamage*classDamageMultiplier(attackerRealm,attacker.cls)
+            ));
+            target.hp=Math.max(0,target.hp-damage);
+            if(target.hp===0){
+                match.scores[attackingRealm]++;
+                if(attacker.isPlayer){
+                    player.pvpKills++;
+                    player.rp+=rvrRpPerPvpKill;
+                    match.playerKills++;
+                    match.rpEarned+=rvrRpPerPvpKill;
+                    addLog("You scored an arena PvP kill! +"+rvrRpPerPvpKill+" Realm Points.");
+                }
+            }
+        });
+    });
+
+    realms.forEach(function(realm){
+        const team=match.teams[realm];
+        const healerCount=team.filter(function(member){
+            const memberRealm=member.isPlayer ? player.realm : realm;
+            return member.hp>0 && isHealingSupportClass(memberRealm,member.cls);
+        }).length;
+        if(healerCount===0){
+            return;
+        }
+        team.forEach(function(member){
+            if(member.hp>0){
+                member.hp=Math.min(rvrFighterMaxHp,member.hp+healerCount*5);
+            }
+        });
+    });
+}
+
+function finishRvrMatch(now){
+    const arena=player.rvrArena;
+    const match=arena.match;
+    const highestScore=Math.max.apply(null,realms.map(function(realm){
+        return match.scores[realm];
+    }));
+    let winners=realms.filter(function(realm){
+        return match.scores[realm]===highestScore;
+    });
+    const mostSurvivors=Math.max.apply(null,winners.map(function(realm){
+        return match.teams[realm].filter(function(member){ return member.hp>0; }).length;
+    }));
+    winners=winners.filter(function(realm){
+        return match.teams[realm].filter(function(member){ return member.hp>0; }).length===mostSurvivors;
+    });
+    const winner=winners[Math.floor(Math.random()*winners.length)];
+    if(winner===match.playerRealm){
+        player.rp+=rvrWinBonusRp;
+        match.rpEarned+=rvrWinBonusRp;
+    }
+    arena.lastResult={
+        winner:winner,
+        scores:match.scores,
+        playerKills:match.playerKills,
+        rpEarned:match.rpEarned,
+        durationMs:match.durationMs,
+        finishedAt:now
+    };
+    addLog("RvR arena ended: "+winner+" won. You earned "+match.playerKills
+        +" PvP kill(s) and "+match.rpEarned+" Realm Points.");
+    arena.match=null;
+}
+
+function renderRvrMap(match){
+    const map=document.getElementById("rvrMap");
+    const matchKey=String(match.startedAt);
+    if(map.dataset.matchStarted!==matchKey){
+        map.textContent="";
+        realms.forEach(function(realm){
+            const realmClass="rvr-realm-"+realm.toLowerCase();
+            const team=document.createElement("section");
+            team.className="rvr-team "+realmClass;
+
+            const heading=document.createElement("div");
+            heading.className="rvr-team-heading";
+            const flag=document.createElement("span");
+            flag.className="rvr-flag";
+            flag.setAttribute("aria-hidden","true");
+            flag.textContent=realm.charAt(0);
+            const name=document.createElement("strong");
+            name.textContent=realm;
+            const score=document.createElement("span");
+            score.className="stat";
+            score.id="rvrTeamScore"+realm;
+            heading.appendChild(flag);
+            heading.appendChild(name);
+            heading.appendChild(score);
+            team.appendChild(heading);
+
+            const members=document.createElement("div");
+            members.className="rvr-team-members";
+            match.teams[realm].forEach(function(member,index){
+                const memberElement=document.createElement("div");
+                memberElement.className="rvr-member"+(member.isPlayer ? " rvr-member-you" : "");
+
+                const identity=document.createElement("div");
+                identity.className="rvr-member-identity";
+                const memberName=document.createElement("span");
+                memberName.textContent=member.name+(member.isPlayer ? " (You)" : "");
+                const memberClass=document.createElement("span");
+                memberClass.className="stat";
+                memberClass.textContent=member.cls;
+                identity.appendChild(memberName);
+                identity.appendChild(memberClass);
+                memberElement.appendChild(identity);
+
+                const health=document.createElement("div");
+                health.className="rvr-member-health";
+                const healthValue=document.createElement("span");
+                healthValue.id="rvrHealth"+realm+index;
+                health.appendChild(healthValue);
+                const healthTrack=document.createElement("div");
+                healthTrack.className="rvr-health-track";
+                const healthFill=document.createElement("div");
+                healthFill.className="rvr-health-fill";
+                healthFill.id="rvrHealthBar"+realm+index;
+                healthTrack.appendChild(healthFill);
+                health.appendChild(healthTrack);
+                memberElement.appendChild(health);
+                members.appendChild(memberElement);
+            });
+            team.appendChild(members);
+            map.appendChild(team);
+        });
+        map.dataset.matchStarted=matchKey;
+    }
+
+    realms.forEach(function(realm){
+        document.getElementById("rvrTeamScore"+realm).textContent=match.scores[realm]+" kills";
+        match.teams[realm].forEach(function(member,index){
+            document.getElementById("rvrHealth"+realm+index).textContent=
+                Math.floor(member.hp)+"/"+rvrFighterMaxHp+" HP";
+            document.getElementById("rvrHealthBar"+realm+index).style.width=
+                Math.max(0,Math.min(100,member.hp/rvrFighterMaxHp*100))+"%";
+        });
+    });
+}
+
+function renderRvrArena(){
+    const arena=player.rvrArena;
+    const now=Date.now();
+    const isQueueing=!arena.match && arena.queueEndsAt>now;
+    const match=arena.match;
+    const remainingQueue=isQueueing ? arena.queueEndsAt-now : 0;
+    const remainingCooldown=Math.max(0,arena.nextQueueAt-now);
+    const queueButton=document.getElementById("queueRvrButton");
+    const queueStatus=document.getElementById("rvrQueueStatus");
+    const queueMessage=document.getElementById("rvrQueueMessage");
+
+    if(!player.name){
+        queueStatus.textContent="No character selected";
+        document.getElementById("rvrCountdown").textContent="--:--";
+        queueMessage.textContent="Create or select a character to join the arena.";
+        queueButton.disabled=true;
+    }else if(match){
+        queueStatus.textContent="Arena battle in progress";
+        document.getElementById("rvrCountdown").textContent=formatArenaTime(match.endsAt-now);
+        queueMessage.textContent="You are fighting for "+match.playerRealm+". The next queue opens 7 minutes after this match began.";
+        queueButton.disabled=true;
+    }else if(isQueueing){
+        queueStatus.textContent="Forming the three realm groups";
+        document.getElementById("rvrCountdown").textContent=formatArenaTime(remainingQueue);
+        queueMessage.textContent="Matchmaking is filling three teams of eight.";
+        queueButton.disabled=true;
+    }else if(remainingCooldown>0){
+        queueStatus.textContent="Arena queue on cooldown";
+        document.getElementById("rvrCountdown").textContent=formatArenaTime(remainingCooldown);
+        queueMessage.textContent="You can queue again when the cooldown ends.";
+        queueButton.disabled=true;
+    }else{
+        queueStatus.textContent="Ready to queue";
+        document.getElementById("rvrCountdown").textContent="Ready";
+        queueMessage.textContent="A 30-second group-up begins matchmaking; battles last 3–5 minutes.";
+        queueButton.disabled=false;
+    }
+
+    const progressElement=document.getElementById("rvrQueueProgress");
+    const queueProgress=match
+        ? 100
+        : isQueueing
+            ? Math.max(0,Math.min(100,(now-arena.queueStartedAt)/rvrQueueDurationMs*100))
+            : 0;
+    progressElement.style.width=queueProgress+"%";
+    const filledPlayers=match ? 24 : isQueueing ? Math.min(24,Math.floor(queueProgress/100*24)) : 0;
+    const baseFilled=Math.floor(filledPlayers/3);
+    const extraFilled=filledPlayers%3;
+    realms.forEach(function(realm,index){
+        const realmFilled=Math.min(8,baseFilled+(index<extraFilled ? 1 : 0));
+        document.getElementById("rvrFill"+realm).textContent=realmFilled;
+        document.getElementById("rvrProgress"+realm).style.width=(realmFilled/8*100)+"%";
+    });
+
+    const matchPanel=document.getElementById("rvrMatchPanel");
+    matchPanel.hidden=!match;
+    if(match){
+        document.getElementById("rvrMatchTitle").textContent="Arena Battle — "+match.playerRealm;
+        document.getElementById("rvrMatchCountdown").textContent=formatArenaTime(match.endsAt-now);
+        document.getElementById("rvrBattleStatus").textContent=
+            "Fighters attack every 15 seconds. Support classes deal 65% damage and heal living teammates for 5 HP.";
+        renderRvrMap(match);
+        const scoreboard=document.getElementById("rvrScoreboard");
+        scoreboard.textContent="";
+        realms.forEach(function(realm){
+            const score=document.createElement("div");
+            score.className="rvr-score "+("rvr-realm-"+realm.toLowerCase());
+            score.textContent=realm+": "+match.scores[realm]+" kills";
+            scoreboard.appendChild(score);
+        });
+    }
+
+    const resultElement=document.getElementById("rvrLastResult");
+    const result=arena.lastResult;
+    resultElement.hidden=!result;
+    if(result){
+        resultElement.textContent="Last match: "+result.winner+" won. You earned "
+            +result.playerKills+" PvP kill"+(result.playerKills===1 ? "" : "s")
+            +" and "+result.rpEarned+" Realm Points.";
+    }
+}
+
+function processRvrArena(){
+    if(!player.name){
+        renderRvrArena();
+        return;
+    }
+    const arena=player.rvrArena;
+    const now=Date.now();
+    let changed=false;
+    if(!arena.match && arena.queueEndsAt>0 && now>=arena.queueEndsAt){
+        startRvrMatch(now);
+        changed=true;
+    }
+
+    const match=arena.match;
+    if(match){
+        while(match.nextTickAt<=now && match.nextTickAt<=match.endsAt){
+            simulateRvrRound(match);
+            match.nextTickAt+=rvrMatchTickMs;
+            changed=true;
+        }
+        if(now>=match.endsAt){
+            finishRvrMatch(now);
+            changed=true;
+        }
+    }
+
+    if(changed){
+        updateUI();
+        saveGame();
+    }else{
+        renderRvrArena();
+    }
+}
+
 function updateUI(){
 
     const maxHp=playerMaxHp();
@@ -1684,6 +2821,7 @@ function updateUI(){
     Math.floor(player.rp / 1000) + 1;
 
     document.getElementById("kills").innerText=player.kills || 0;
+    document.getElementById("pvpKills").innerText=player.pvpKills || 0;
     document.getElementById("combatPlayerName").innerText=player.name || "No character";
     document.getElementById("playerHp").innerText=player.name ? player.hp+"/"+maxHp : "--";
     document.getElementById("playerHpBar").style.width=player.name
@@ -1703,6 +2841,8 @@ function updateUI(){
         : "0%";
     document.getElementById("damageReadout").innerText=lastDamageText;
     renderBestiary();
+    renderCrafting();
+    renderRvrArena();
 
     const currentZone=getZoneForLevel(player.level);
     document.getElementById("currentZone").innerText=currentZone.name+" (Level "+zoneLevelLabel(currentZone)+")";
@@ -1832,7 +2972,20 @@ function rvrBattle(){
     if(!player.name || !player.target) return;
 
     const target=player.target;
-    const damage=Math.floor(playerPower()+Math.random()*6);
+    const now=Date.now();
+    if(isHealingSupportClass(target.realm,target.cls)
+        && now-target.lastHealAt>=rvrMatchTickMs){
+        target.lastHealAt=now;
+        const targetHeal=Math.min(5,target.maxHp-target.hp);
+        if(targetHeal>0){
+            target.hp+=targetHeal;
+            addLog(target.name+" healed for "+targetHeal+" HP.");
+        }
+    }
+
+    const damage=Math.max(1,Math.floor(
+        (playerPower()+Math.random()*6)*classDamageMultiplier(player.realm,player.cls)
+    ));
     target.hp=Math.max(0,target.hp-damage);
     lastDamageText="You hit "+target.name+" for "+damage+" damage!";
 
@@ -1855,7 +3008,9 @@ function rvrBattle(){
         createTarget();
     }else{
 
-        const enemyDamage=Math.floor(4+target.level*1.5+Math.random()*4);
+        const enemyDamage=Math.max(1,Math.floor(
+            (4+target.level*1.5+Math.random()*4)*classDamageMultiplier(target.realm,target.cls)
+        ));
         player.hp=Math.max(0,player.hp-enemyDamage);
         lastDamageText+=" "+target.name+" hits you for "+enemyDamage+".";
 
@@ -1866,6 +3021,26 @@ function rvrBattle(){
     }
 
     updateUI();
+}
+
+function processPlayerClassHealing(){
+    if(!player.name || player.rvrArena.match
+        || !isHealingSupportClass(player.realm,player.cls)){
+        return;
+    }
+    const now=Date.now();
+    if(now-player.lastClassHealAt<rvrMatchTickMs){
+        return;
+    }
+    player.lastClassHealAt=now;
+    const healAmount=Math.min(5,playerMaxHp()-player.hp);
+    if(healAmount<=0){
+        return;
+    }
+    player.hp+=healAmount;
+    addLog(player.name+" restored "+healAmount+" HP with "+player.cls+".");
+    updateUI();
+    saveGame();
 }
 
 function saveGame(){
@@ -2160,11 +3335,15 @@ document.getElementById("googleSignOutButton").addEventListener("click",signOutF
 document.getElementById("cloudSaveButton").addEventListener("click",saveToCloud);
 document.getElementById("cloudRestoreButton").addEventListener("click",restoreFromCloud);
 document.getElementById("championRealm").addEventListener("change",renderBestiary);
+document.getElementById("realm").addEventListener("change",updateClassOptions);
 
 setInterval(xpTick,1000);
 setInterval(rvrBattle,1000);
+setInterval(processRvrArena,1000);
+setInterval(processPlayerClassHealing,1000);
 setInterval(saveGame,5000);
 
+updateClassOptions();
 loadGame();
 initializeFirebase();
 
