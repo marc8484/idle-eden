@@ -21,17 +21,24 @@
 
 #panel-combat{
     background:
-        radial-gradient(ellipse at 50% 0%,rgba(47,104,82,.16),transparent 58%),
-        linear-gradient(145deg,var(--stone),var(--stone-deep));
+        radial-gradient(ellipse at 50% 0%,rgba(47,104,82,.2),transparent 58%),
+        linear-gradient(145deg,rgba(23,33,30,.9),rgba(9,14,13,.93));
 }
 
 body{
     box-sizing:border-box;
-    background:
-        radial-gradient(ellipse at 48% 0%,rgba(41,81,62,.42),transparent 45%),
-        radial-gradient(ellipse at 8% 78%,rgba(93,71,35,.18),transparent 38%),
-        linear-gradient(180deg,#101715 0%,#090d0d 62%,#070909 100%);
+    background-color:#070b09;
+    background-image:
+        radial-gradient(circle at 84% 17%,rgba(245,231,184,.64) 0 22px,rgba(244,227,170,.18) 23px 34px,transparent 36px),
+        linear-gradient(180deg,rgba(3,8,7,.28),rgba(3,7,6,.8)),
+        radial-gradient(ellipse at 50% 7%,rgba(206,187,120,.2),transparent 22%),
+        radial-gradient(ellipse at 49% 40%,rgba(50,119,76,.3),transparent 54%),
+        radial-gradient(ellipse at 12% 78%,rgba(77,102,50,.28),transparent 40%),
+        radial-gradient(ellipse at 88% 73%,rgba(35,91,66,.3),transparent 44%),
+        linear-gradient(180deg,#263b31 0%,#14231d 45%,#060a08 100%);
     background-attachment:fixed;
+    background-size:cover;
+    background-position:center;
     color:var(--ivory);
     font-family:"Segoe UI",Tahoma,Arial,sans-serif;
     max-width:1400px;
@@ -46,12 +53,28 @@ body::before{
     inset:0;
     z-index:0;
     pointer-events:none;
-    opacity:.38;
+    opacity:.48;
     background:
-        radial-gradient(ellipse at 12% 18%,rgba(61,131,97,.2),transparent 38%),
-        radial-gradient(ellipse at 88% 12%,rgba(177,145,73,.1),transparent 34%),
-        radial-gradient(ellipse at 62% 92%,rgba(34,93,76,.16),transparent 42%);
+        radial-gradient(ellipse at 50% 18%,rgba(218,202,145,.12),transparent 18%),
+        radial-gradient(ellipse at 12% 18%,rgba(61,131,97,.24),transparent 38%),
+        radial-gradient(ellipse at 88% 12%,rgba(177,145,73,.13),transparent 34%),
+        radial-gradient(ellipse at 62% 92%,rgba(34,93,76,.22),transparent 42%);
     animation:ambient-drift 24s ease-in-out infinite alternate;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:30% 0 0;
+    z-index:0;
+    pointer-events:none;
+    opacity:.34;
+    background:linear-gradient(180deg,rgba(32,79,56,.18),#050908 82%);
+    clip-path:polygon(
+        0 56%,4% 47%,8% 58%,12% 35%,16% 57%,20% 45%,25% 60%,30% 31%,
+        35% 58%,41% 44%,46% 62%,51% 30%,56% 59%,62% 40%,67% 58%,73% 33%,
+        78% 56%,84% 39%,89% 59%,94% 29%,100% 55%,100% 100%,0 100%
+    );
 }
 
 @media (max-width:900px){
@@ -66,7 +89,7 @@ body::before{
 
 .panel{
     position:relative;
-    background:linear-gradient(145deg,rgba(23,33,30,.97),rgba(9,14,13,.98));
+    background:linear-gradient(145deg,rgba(23,33,30,.88),rgba(9,14,13,.92));
     padding:12px;
     margin-bottom:12px;
     border:1px solid rgba(182,154,94,.58);
@@ -87,6 +110,24 @@ body::before{
     background-size:220% 100%;
     opacity:.65;
     animation:panel-glint 8s linear infinite;
+}
+
+.panel::after{
+    content:"";
+    position:absolute;
+    inset:5px;
+    pointer-events:none;
+    border-radius:4px;
+    background:
+        linear-gradient(var(--gold),var(--gold)) left top/18px 1px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) left top/1px 18px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) right top/18px 1px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) right top/1px 18px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) left bottom/18px 1px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) left bottom/1px 18px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) right bottom/18px 1px no-repeat,
+        linear-gradient(var(--gold),var(--gold)) right bottom/1px 18px no-repeat;
+    opacity:.32;
 }
 
 .panel:hover{
@@ -222,7 +263,8 @@ button:disabled{
 
 .game-tabs button{
     margin:0;
-    min-width:110px;
+    min-width:118px;
+    white-space:nowrap;
 }
 
 .game-tabs{
@@ -360,6 +402,34 @@ button:disabled{
 .rvr-realm-midgard{--realm-color:#70a9de;}
 .rvr-realm-albion{--realm-color:#d9897c;}
 
+.realm-banner-hibernia{--realm-color:#72c28f;}
+.realm-banner-midgard{--realm-color:#70a9de;}
+.realm-banner-albion{--realm-color:#d9897c;}
+
+.realm-banner{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    flex:0 0 auto;
+    padding:5px 9px;
+    color:var(--realm-color);
+    font-size:.84rem;
+    font-weight:bold;
+    white-space:nowrap;
+    background:linear-gradient(145deg,rgba(8,13,11,.88),rgba(7,11,10,.62));
+    border:1px solid rgba(182,154,94,.58);
+    border-color:color-mix(in srgb,var(--realm-color) 68%,transparent);
+    border-radius:999px;
+    box-shadow:inset 0 0 10px rgba(0,0,0,.4),0 0 12px color-mix(in srgb,var(--realm-color) 16%,transparent);
+}
+
+.character-nameplate{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+}
+
 .game-tabs button[aria-current="page"]{
     color:#e7f2e7;
     background:linear-gradient(145deg,#376b54,#203c32);
@@ -428,6 +498,86 @@ h1{
     margin:4px 0 8px;
     font-size:1.1em;
     line-height:1.2;
+}
+
+.enemy-card-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+    min-height:84px;
+}
+
+.enemy-identity{
+    min-width:0;
+}
+
+.enemy-portrait{
+    position:relative;
+    display:grid;
+    flex:0 0 66px;
+    width:66px;
+    height:78px;
+    overflow:hidden;
+    place-items:end center;
+    color:var(--portrait-accent,#9bb89a);
+    background:
+        radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--portrait-accent,#9bb89a) 25%,transparent),transparent 58%),
+        linear-gradient(160deg,#293b31 0%,#111b17 58%,#070b09 100%);
+    border:1px solid rgba(182,154,94,.55);
+    border-color:color-mix(in srgb,var(--portrait-accent,#9bb89a) 66%,transparent);
+    border-radius:7px 7px 14px 14px;
+    box-shadow:inset 0 0 16px rgba(0,0,0,.7),0 4px 12px rgba(0,0,0,.42);
+}
+
+.enemy-portrait::before{
+    content:"";
+    position:absolute;
+    top:11px;
+    left:50%;
+    width:26px;
+    height:29px;
+    transform:translateX(-50%);
+    background:radial-gradient(circle at 38% 30%,#b5b39a 0%,#696c5d 44%,#343a31 76%);
+    border:1px solid rgba(229,203,131,.2);
+    border-radius:48% 48% 43% 43%;
+    box-shadow:0 0 13px color-mix(in srgb,var(--portrait-accent,#9bb89a) 30%,transparent);
+}
+
+.enemy-portrait::after{
+    content:"";
+    position:absolute;
+    bottom:-12px;
+    left:50%;
+    width:52px;
+    height:45px;
+    transform:translateX(-50%);
+    background:linear-gradient(145deg,#717668,#28362e 55%,#111a15);
+    border:1px solid rgba(229,203,131,.17);
+    border-radius:48% 48% 12% 12%;
+}
+
+.enemy-portrait span{
+    position:relative;
+    z-index:1;
+    margin-bottom:5px;
+    padding:1px 4px;
+    color:var(--gold);
+    font-size:.67rem;
+    font-weight:bold;
+    letter-spacing:.5px;
+    background:rgba(5,9,7,.78);
+    border-radius:3px;
+}
+
+.enemy-portrait[data-realm="hibernia"]{--portrait-accent:#72c28f;}
+.enemy-portrait[data-realm="midgard"]{--portrait-accent:#70a9de;}
+.enemy-portrait[data-realm="albion"]{--portrait-accent:#d9897c;}
+
+.enemy-portrait-boss{
+    --portrait-accent:#e5cb83 !important;
+    border-width:2px;
+    box-shadow:inset 0 0 18px rgba(229,203,131,.14),0 0 14px rgba(229,203,131,.24);
 }
 
 .health-track{
@@ -1134,7 +1284,10 @@ h1{
     </header>
 
     <section class="panel character-overview" aria-label="Character progress">
-        <h2 id="charInfo">No character</h2>
+        <div class="character-nameplate">
+            <span class="realm-banner" id="realmBanner" hidden></span>
+            <h2 id="charInfo">No character</h2>
+        </div>
         <div class="stat-chips">
             <span class="stat-chip">Level <strong id="level">1</strong></span>
             <span class="stat-chip">XP <strong id="xp">0</strong></span>
@@ -1169,8 +1322,15 @@ h1{
                         </div>
                         <div class="versus">VS</div>
                         <div class="combatant">
-                            <h3 id="targetName">Waiting for a character</h3>
-                            <div class="stat" id="targetDetails">Create a character to enter combat.</div>
+                            <div class="enemy-card-header">
+                                <div class="enemy-portrait" id="targetPortrait" data-realm="neutral" aria-hidden="true">
+                                    <span id="targetPortraitMark">?</span>
+                                </div>
+                                <div class="enemy-identity">
+                                    <h3 id="targetName">Waiting for a character</h3>
+                                    <div class="stat" id="targetDetails">Create a character to enter combat.</div>
+                                </div>
+                            </div>
                             <div class="stat">HP: <span id="targetHp">--</span></div>
                             <div class="health-track"><div class="health-fill enemy-health" id="targetHpBar"></div></div>
                         </div>
@@ -1567,6 +1727,11 @@ document.addEventListener("visibilitychange",function(){
 const enemyNames=["Pilzpower","Boogie","Yates","Prack","Sylence"];
 const enemyClasses=["Berserker","Hero","Mercenary","Healer","Chanter"];
 const realms=["Hibernia","Midgard","Albion"];
+const realmVisuals={
+    Hibernia:{emblem:"🍀"},
+    Midgard:{emblem:"🐺"},
+    Albion:{emblem:"🦁"}
+};
 const characterClasses={
     Hibernia:["Druid","Chanter","Animist","Bard","Warden","Hero","Blademaster","Vampiir","Mentalist","Eldritch"],
     Midgard:["Berserker","Bonedancer","Healer","Hunter","Runemaster","Savage","Shaman","Skald","Shadowblade","Spiritmaster","Thane","Valkyrie","Warlock"],
@@ -1677,6 +1842,14 @@ const zones=[
     {name:"Frontier Keeps",minLevel:31,maxLevel:Infinity}
 ];
 const equipmentSlots=["Weapon","Helm","Chest","Ring","Cloak","Boots"];
+const equipmentIcons={
+    Weapon:"⚔️",
+    Helm:"🪖",
+    Chest:"🛡️",
+    Ring:"💍",
+    Cloak:"🧥",
+    Boots:"🥾"
+};
 const resourceKeys=["ore","herbs","wood","gems","potions"];
 const resourceLabels={
     ore:"Ore",
@@ -1798,6 +1971,10 @@ function emptyEquipment(){
         Cloak:null,
         Boots:null
     };
+}
+
+function equipmentIcon(slot){
+    return equipmentIcons[slot] || "◇";
 }
 
 function createCharacterId(){
@@ -2947,7 +3124,7 @@ function renderRvrMap(match){
             const flag=document.createElement("span");
             flag.className="rvr-flag";
             flag.setAttribute("aria-hidden","true");
-            flag.textContent=realm.charAt(0);
+            flag.textContent=realmVisuals[realm].emblem;
             const name=document.createElement("strong");
             name.textContent=realm;
             const score=document.createElement("span");
@@ -3158,6 +3335,15 @@ function updateUI(){
     player.realm +
     " " +
     player.cls;
+    const realmBanner=document.getElementById("realmBanner");
+    const realmVisual=realmVisuals[player.realm];
+    realmBanner.hidden=!player.name || !realmVisual;
+    realmBanner.className="realm-banner"+(realmVisual
+        ? " realm-banner-"+player.realm.toLowerCase()
+        : "");
+    realmBanner.textContent=player.name && realmVisual
+        ? realmVisual.emblem+" "+player.realm
+        : "";
 
     document.getElementById("level").innerText =
     player.level;
@@ -3200,6 +3386,18 @@ function updateUI(){
         ? (player.target.frontierBoss ? "Champion · " : "")
             +"Level "+player.target.level+" "+player.target.realm+" "+player.target.cls+" — "+player.target.zone
         : "Create a character to enter combat.";
+    const targetPortrait=document.getElementById("targetPortrait");
+    targetPortrait.dataset.realm=player.target && realms.indexOf(player.target.realm)!==-1
+        ? player.target.realm.toLowerCase()
+        : "neutral";
+    targetPortrait.classList.toggle("enemy-portrait-boss",Boolean(
+        player.target && player.target.frontierBoss
+    ));
+    document.getElementById("targetPortraitMark").textContent=player.target
+        ? player.target.frontierBoss
+            ? player.target.name.slice(0,2).toUpperCase()
+            : player.target.cls.slice(0,2).toUpperCase()
+        : "?";
     document.getElementById("targetHp").innerText=player.target
         ? player.target.hp+"/"+player.target.maxHp
         : "--";
@@ -3259,13 +3457,13 @@ function updateUI(){
 
         const slotName=document.createElement("div");
         slotName.className="gear-slot-name";
-        slotName.textContent=slot;
+        slotName.textContent=equipmentIcon(slot)+" "+slot;
         slotElement.appendChild(slotName);
 
         const itemName=document.createElement("div");
         if(item){
             itemName.className="rarity-"+item.rarity.toLowerCase();
-            itemName.textContent=item.name;
+            itemName.textContent=equipmentIcon(item.slot)+" "+item.name;
         }else{
             itemName.className="stat";
             itemName.textContent="Empty";
@@ -3295,7 +3493,7 @@ function updateUI(){
 
             const itemName=document.createElement("div");
             itemName.className="rarity-"+item.rarity.toLowerCase();
-            itemName.textContent=item.name+" — "+item.slot;
+            itemName.textContent=equipmentIcon(item.slot)+" "+item.name+" — "+item.slot;
             itemElement.appendChild(itemName);
 
             const itemStats=document.createElement("div");
