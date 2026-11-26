@@ -27,18 +27,14 @@
 
 body{
     box-sizing:border-box;
-    background-color:#070b09;
+    background-color:#080807;
     background-image:
-        radial-gradient(circle at 84% 17%,rgba(245,231,184,.64) 0 22px,rgba(244,227,170,.18) 23px 34px,transparent 36px),
-        linear-gradient(180deg,rgba(3,8,7,.28),rgba(3,7,6,.8)),
-        radial-gradient(ellipse at 50% 7%,rgba(206,187,120,.2),transparent 22%),
-        radial-gradient(ellipse at 49% 40%,rgba(50,119,76,.3),transparent 54%),
-        radial-gradient(ellipse at 12% 78%,rgba(77,102,50,.28),transparent 40%),
-        radial-gradient(ellipse at 88% 73%,rgba(35,91,66,.3),transparent 44%),
-        linear-gradient(180deg,#263b31 0%,#14231d 45%,#060a08 100%);
-    background-attachment:fixed;
-    background-size:cover;
-    background-position:center;
+        linear-gradient(180deg,rgba(4,4,4,.34),rgba(3,3,3,.78)),
+        url("assets/ui/dark-texture.jpg");
+    background-attachment:fixed,fixed;
+    background-size:cover,256px 256px;
+    background-position:center,top left;
+    background-repeat:no-repeat,repeat;
     color:var(--ivory);
     font-family:"Segoe UI",Tahoma,Arial,sans-serif;
     max-width:1400px;
@@ -89,7 +85,7 @@ body::after{
 
 .panel{
     position:relative;
-    background:linear-gradient(145deg,rgba(23,33,30,.88),rgba(9,14,13,.92));
+    background:linear-gradient(145deg,rgba(24,20,15,.94),rgba(8,8,7,.96));
     padding:12px;
     margin-bottom:12px;
     border:1px solid rgba(182,154,94,.58);
@@ -173,13 +169,32 @@ input,select{
     gap:16px;
     position:relative;
     z-index:1;
-    padding:2px 2px 8px;
-    border-bottom:1px solid rgba(182,154,94,.36);
+    padding:12px 16px;
+    border:1px solid rgba(182,154,94,.58);
+    border-radius:7px;
+    background:
+        linear-gradient(90deg,rgba(8,7,6,.94),rgba(8,7,6,.48) 56%,rgba(8,7,6,.78)),
+        url("assets/ui/frontier-header.jpg") center/cover no-repeat;
+    box-shadow:inset 0 0 0 1px rgba(229,203,131,.08),0 8px 24px rgba(0,0,0,.42);
 }
 
 .game-header h1{
+    display:flex;
+    align-items:center;
+    gap:12px;
     margin:0;
     position:relative;
+}
+
+.game-logo{
+    display:block;
+    width:min(180px,40vw);
+    max-height:58px;
+    object-fit:contain;
+}
+
+.game-title-text{
+    white-space:nowrap;
 }
 
 .header-character-selector{
@@ -431,17 +446,17 @@ button:disabled{
 }
 
 .game-tabs button[aria-current="page"]{
-    color:#e7f2e7;
-    background:linear-gradient(145deg,#376b54,#203c32);
-    border-color:rgba(105,199,174,.74);
-    box-shadow:inset 0 0 0 1px rgba(208,238,202,.13),0 0 14px rgba(105,199,174,.14),0 2px 6px rgba(0,0,0,.4);
+    color:#fff1ca;
+    background:linear-gradient(145deg,#624c2c,#302315);
+    border-color:rgba(229,203,131,.74);
+    box-shadow:inset 0 0 0 1px rgba(255,235,173,.13),0 0 14px rgba(229,203,131,.14),0 2px 6px rgba(0,0,0,.4);
 }
 
 h1{
     color:#f0d890;
     font-family:Georgia,"Times New Roman",serif;
     letter-spacing:1.5px;
-    text-shadow:0 2px 4px #000,0 0 12px rgba(188,151,73,.27),0 0 22px rgba(105,199,174,.1);
+    text-shadow:0 2px 4px #000,0 0 12px rgba(188,151,73,.34);
 }
 
 .game-header h1::after{
@@ -451,8 +466,8 @@ h1{
     right:12px;
     bottom:-5px;
     height:1px;
-    background:linear-gradient(90deg,var(--jade),var(--gold),transparent);
-    box-shadow:0 0 8px rgba(105,199,174,.35);
+    background:linear-gradient(90deg,var(--gold),rgba(182,154,94,.72),transparent);
+    box-shadow:0 0 8px rgba(229,203,131,.28);
 }
 
 .log{
@@ -570,6 +585,26 @@ h1{
     border-radius:3px;
 }
 
+.enemy-portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    image-rendering:pixelated;
+}
+
+.enemy-portrait-has-image::before,.enemy-portrait-has-image::after{
+    display:none;
+}
+
+.enemy-portrait-has-image span{
+    position:absolute;
+    right:4px;
+    bottom:4px;
+    margin:0;
+}
+
 .enemy-portrait[data-realm="hibernia"]{--portrait-accent:#72c28f;}
 .enemy-portrait[data-realm="midgard"]{--portrait-accent:#70a9de;}
 .enemy-portrait[data-realm="albion"]{--portrait-accent:#d9897c;}
@@ -623,6 +658,33 @@ h1{
     color:#e8b96e;
     font-weight:bold;
     text-shadow:0 0 10px rgba(232,185,110,.2);
+}
+
+.combatant{
+    position:relative;
+}
+
+.floating-damage{
+    position:absolute;
+    z-index:3;
+    top:28px;
+    right:12px;
+    pointer-events:none;
+    color:#ffe07a;
+    font-size:1.2rem;
+    font-weight:900;
+    text-shadow:0 2px 3px #090b08,0 0 12px rgba(255,201,82,.8);
+    animation:combat-damage-float .95s ease-out forwards;
+}
+
+.floating-damage-incoming{
+    color:#ff9187;
+    text-shadow:0 2px 3px #090b08,0 0 12px rgba(239,89,75,.72);
+}
+
+@keyframes combat-damage-float{
+    from{opacity:1;transform:translateY(0) scale(.85)}
+    to{opacity:0;transform:translateY(-42px) scale(1.15)}
 }
 
 .ability-panel{
@@ -763,9 +825,35 @@ h1{
 }
 
 .gear-slot-name{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
     color:var(--gold);
     font-weight:bold;
     margin-bottom:3px;
+}
+
+.equipment-item-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.inventory-item-name{
+    justify-content:flex-start;
+}
+
+.equipment-item-icon{
+    flex:0 0 28px;
+    width:28px;
+    height:28px;
+    object-fit:contain;
+    image-rendering:pixelated;
+    border-radius:3px;
+    box-shadow:0 1px 5px rgba(0,0,0,.45);
 }
 
 .slot-helm{grid-column:2;grid-row:1;}
@@ -1069,12 +1157,50 @@ h1{
     gap:8px;
 }
 
+.zone-journey-chapter{
+    padding:9px 11px;
+    background:rgba(5,9,8,.35);
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:5px;
+}
+
+.zone-journey-chapter summary,.zone-achievement-chapter summary,.raid-boss-archive summary{
+    color:var(--gold);
+    cursor:pointer;
+    font-weight:700;
+}
+
+.zone-journey-entries{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:7px;
+    padding-top:9px;
+}
+
 .zone-entry,.keep-entry,.realm-count{
     background:linear-gradient(145deg,#1a2722,#0b1210);
     padding:10px;
     border:1px solid rgba(182,154,94,.34);
     border-radius:5px;
     transition:border-color .2s ease,box-shadow .2s ease;
+}
+
+.zone-entry{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+}
+
+.zone-entry span{
+    min-width:0;
+    overflow-wrap:anywhere;
+}
+
+.zone-entry button{
+    flex:0 0 auto;
+    padding:6px 8px;
+    font-size:.8rem;
 }
 
 .zone-entry:hover,.keep-entry:hover,.realm-count:hover{
@@ -1089,6 +1215,80 @@ h1{
 
 .zone-locked{
     color:var(--text-muted);
+}
+
+.zone-quest-card{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(140px,.45fr);
+    align-items:center;
+    gap:10px 18px;
+    margin:12px 0;
+    padding:12px;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(182,154,94,.42);
+    border-radius:6px;
+}
+
+.zone-quest-card h3,.zone-quest-card p{
+    margin:0 0 5px;
+}
+
+.zone-quest-progress-track{
+    height:10px;
+    overflow:hidden;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:99px;
+}
+
+.zone-quest-progress-fill{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#34765d,#78c89d);
+    transition:width .25s ease;
+}
+
+.zone-quest-complete .zone-quest-progress-fill{
+    background:linear-gradient(90deg,#a17b36,#f3d37e);
+}
+
+.zone-achievement-chapters{
+    display:grid;
+    gap:8px;
+    margin-top:12px;
+}
+
+.zone-achievement-entries{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:8px;
+    padding-top:10px;
+}
+
+.zone-achievement{
+    display:grid;
+    gap:6px;
+    padding:10px;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(182,154,94,.34);
+    border-radius:5px;
+}
+
+.zone-achievement strong,.zone-achievement span{
+    overflow-wrap:anywhere;
+}
+
+.zone-achievement-complete{
+    border-color:rgba(229,203,131,.8);
+    box-shadow:inset 0 0 14px rgba(229,203,131,.08);
+}
+
+.zone-achievement-meta{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    color:var(--text-muted);
+    font-size:.84rem;
 }
 
 .realm-counts{
@@ -1208,6 +1408,10 @@ h1{
         flex-direction:column;
     }
 
+    .zone-quest-card,.realm-herald-grid{
+        grid-template-columns:1fr;
+    }
+
     .ability-panel{
         align-items:stretch;
         flex-direction:column;
@@ -1310,6 +1514,235 @@ h1{
 
 .achievement-unlocked .achievement-progress-fill{
     background:linear-gradient(90deg,#a17b36,#f3d37e);
+}
+
+.achievement-ultimate{
+    border-color:#c998e6;
+    box-shadow:inset 0 0 20px rgba(201,152,230,.12),0 0 16px rgba(201,152,230,.1);
+}
+
+.achievement-ultimate h3{
+    color:#ddb8f5;
+}
+
+.herald-panel{
+    margin-top:16px;
+}
+
+.herald-heading,.elite-raid-heading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.herald-heading h2,.elite-raid-heading h2{
+    margin:0 0 5px;
+}
+
+.herald-stamp{
+    padding:6px 10px;
+    color:#c6eee1;
+    font-size:.8rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    background:rgba(19,80,74,.55);
+    border:1px solid rgba(105,199,174,.48);
+    border-radius:4px;
+}
+
+.herald-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:8px;
+    margin:12px 0;
+}
+
+.herald-stat{
+    padding:10px;
+    text-align:center;
+    background:rgba(5,9,8,.45);
+    border:1px solid rgba(105,199,174,.3);
+    border-radius:4px;
+}
+
+.herald-stat strong,.herald-stat span{
+    display:block;
+}
+
+.herald-stat strong{
+    color:#9fe0d1;
+    font-size:1.2rem;
+}
+
+.realm-herald-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+}
+
+.realm-herald-card{
+    min-width:0;
+    overflow:hidden;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(105,199,174,.42);
+    border-radius:5px;
+}
+
+.realm-herald-card[data-realm="Hibernia"]{--herald-accent:#66c48b;--herald-bg:rgba(29,111,59,.34)}
+.realm-herald-card[data-realm="Midgard"]{--herald-accent:#7baeea;--herald-bg:rgba(41,81,151,.36)}
+.realm-herald-card[data-realm="Albion"]{--herald-accent:#dfa276;--herald-bg:rgba(143,55,47,.36)}
+
+.realm-herald-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:11px;
+    color:#f2eee2;
+    background:var(--herald-bg,rgba(19,80,74,.45));
+    border-bottom:2px solid var(--herald-accent,#68c7ae);
+}
+
+.realm-herald-title strong{
+    flex:1;
+}
+
+.realm-herald-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+.realm-herald-table th,.realm-herald-table td{
+    padding:7px 8px;
+    overflow-wrap:anywhere;
+    text-align:left;
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.realm-herald-table th{
+    color:#a9c5bc;
+    font-size:.78rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+}
+
+.realm-herald-table th:first-child,.realm-herald-table td:first-child{
+    width:36px;
+    text-align:center;
+}
+
+.realm-herald-table th:last-child,.realm-herald-table td:last-child{
+    width:38%;
+}
+
+.realm-herald-table tbody tr:nth-child(even){
+    background:rgba(255,255,255,.035);
+}
+
+.raid-boss-archive{
+    margin-top:14px;
+    padding:10px;
+    background:rgba(5,9,8,.35);
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:5px;
+}
+
+.raid-boss-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:6px;
+    max-height:360px;
+    overflow:auto;
+    margin-top:10px;
+}
+
+.raid-boss-entry{
+    padding:8px;
+    background:rgba(255,255,255,.035);
+    border-left:2px solid rgba(105,199,174,.48);
+}
+
+.raid-boss-entry strong,.raid-boss-entry span{
+    display:block;
+    overflow-wrap:anywhere;
+}
+
+.raid-boss-entry span{
+    margin-top:3px;
+    color:var(--text-muted);
+    font-size:.84rem;
+}
+
+.elite-raid-team,.elite-boss-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:10px;
+}
+
+.elite-raid-team{
+    margin:12px 0;
+}
+
+.raid-character-card,.elite-boss-card{
+    min-width:0;
+    padding:12px;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:6px;
+}
+
+.raid-character-card h4,.elite-boss-card h3{
+    margin:0 0 7px;
+}
+
+.raid-character-card label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:700;
+}
+
+.raid-character-card input{
+    width:18px;
+    height:18px;
+    accent-color:#c998e6;
+}
+
+.raid-character-card.raid-character-ready{
+    border-color:rgba(201,152,230,.75);
+}
+
+.raid-gear-ready{
+    color:#ddb8f5;
+}
+
+.elite-boss-card.raid-boss-defeated{
+    border-color:rgba(229,203,131,.78);
+}
+
+.elite-boss-card h3{
+    color:#ddb8f5;
+}
+
+.elite-boss-card .health-track{
+    margin:10px 0;
+}
+
+.elite-boss-health{
+    background:linear-gradient(#c998e6,#633780);
+}
+
+.raid-ultimate-card{
+    margin-top:12px;
+    border-color:rgba(201,152,230,.72);
+    box-shadow:inset 0 0 18px rgba(201,152,230,.1);
+}
+
+.raid-ultimate-card strong{
+    color:#ddb8f5;
 }
 
 .title-controls{
@@ -1471,6 +1904,30 @@ h1{
 
 .battlefield-panel{
     grid-column:1/-1;
+}
+
+.realm-map-figure{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin:10px 0 0;
+}
+
+.realm-map-figure img{
+    display:block;
+    width:min(100%,420px);
+    height:auto;
+    border:1px solid rgba(182,154,94,.58);
+    border-radius:6px;
+    background:#101610;
+    box-shadow:0 8px 20px rgba(0,0,0,.42);
+}
+
+.realm-map-figure figcaption{
+    color:var(--text-muted);
+    font-size:.85em;
+    text-align:center;
 }
 
 .battlefield-map{
@@ -1661,6 +2118,141 @@ h1{
 @media(prefers-reduced-motion:reduce){
     .battlefield-route,.battle-army{animation:none}
 }
+
+.smart-alert-tray{
+    position:fixed;
+    z-index:20;
+    top:16px;
+    right:16px;
+    display:grid;
+    gap:8px;
+    width:min(360px,calc(100vw - 32px));
+}
+
+.smart-alert{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    background:linear-gradient(145deg,rgba(28,39,34,.98),rgba(8,13,12,.98));
+    border:1px solid rgba(229,203,131,.58);
+    border-radius:6px;
+    box-shadow:0 12px 36px rgba(0,0,0,.62);
+}
+
+.smart-alert button{
+    flex:1;
+    padding:0;
+    color:var(--ivory);
+    text-align:left;
+    background:transparent;
+    border:0;
+}
+
+.smart-alert-dismiss{
+    flex:0 0 auto!important;
+    width:28px;
+    height:28px;
+    text-align:center!important;
+    border:1px solid rgba(182,154,94,.35)!important;
+}
+
+.streaming-settings{
+    display:grid;
+    gap:12px;
+    max-width:620px;
+}
+
+.observer-intro{
+    margin-bottom:16px;
+}
+
+.observer-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+}
+
+.observer-card{
+    min-width:0;
+    padding:14px;
+    background:linear-gradient(145deg,rgba(23,33,30,.94),rgba(9,14,13,.96));
+    border:1px solid rgba(182,154,94,.3);
+    border-radius:6px;
+}
+
+.observer-card h3{margin-top:0}
+.observer-card-wide{grid-column:1/-1}
+
+.observer-realm-scores{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+}
+
+.observer-realm-score{
+    padding:10px;
+    text-align:center;
+    background:rgba(5,9,8,.55);
+    border:1px solid rgba(182,154,94,.2);
+    border-radius:5px;
+}
+
+.observer-frontier-map{
+    min-height:300px;
+}
+
+.observer-frontier-map .battlefield-camp,
+.observer-frontier-map .battlefield-keep,
+.observer-frontier-map .battle-army{
+    pointer-events:none;
+}
+
+.observer-status-list,.observer-event-list{
+    display:grid;
+    gap:8px;
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+.observer-event{
+    display:grid;
+    gap:3px;
+    padding:8px 10px;
+    background:rgba(5,9,8,.42);
+    border-left:2px solid var(--bronze-light);
+}
+
+.observer-event time{
+    color:var(--text-muted);
+    font-size:.8rem;
+}
+
+.observer-boss-track{
+    height:9px;
+    margin-top:10px;
+    overflow:hidden;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:99px;
+}
+
+.observer-boss-fill{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#792f38,#dc6b65);
+    transition:width .25s ease;
+}
+
+@media(max-width:640px){
+    .smart-alert-tray{top:8px;right:8px;width:calc(100vw - 16px)}
+    .observer-grid{grid-template-columns:1fr}
+    .observer-card-wide{grid-column:auto}
+    .observer-realm-scores{grid-template-columns:1fr}
+    .observer-frontier-map{min-height:360px}
+}
 </style>
 </head>
 
@@ -1668,7 +2260,7 @@ h1{
 
 <div class="game-layout">
     <header class="game-header">
-        <h1>Idle Eden</h1>
+        <h1><img class="game-logo" src="assets/ui/frontiers-logo.jpg" alt="Dark Age of Camelot: Frontiers"><span class="game-title-text">Idle Eden</span></h1>
         <div class="character-selector header-character-selector">
             <label class="visually-hidden" for="characterSelect">Saved characters</label>
             <select id="characterSelect" aria-label="Saved characters">
@@ -1685,7 +2277,8 @@ h1{
         </div>
         <div class="stat-chips">
             <span class="stat-chip">Level <strong id="level">1</strong></span>
-            <span class="stat-chip">XP <strong id="xp">0</strong></span>
+            <span class="stat-chip"><span id="xpLabel">XP</span> <strong id="xp">0</strong></span>
+            <span class="stat-chip">Mastery <strong id="mastery">0</strong></span>
             <span class="stat-chip">Gold <strong id="gold">0</strong></span>
             <span class="stat-chip">Realm Rank RR<strong id="rr">1</strong></span>
             <span class="stat-chip">Realm Points <strong id="rp">0</strong></span>
@@ -1699,15 +2292,18 @@ h1{
     <nav class="game-tabs" aria-label="Game sections">
         <button type="button" id="tab-combat" aria-controls="panel-combat" aria-current="page" onclick="showGamePanel('combat')">Combat</button>
         <button type="button" id="tab-rvr" aria-controls="panel-rvr" onclick="showGamePanel('rvr')">RvR</button>
+        <button type="button" id="tab-observer" aria-controls="panel-observer" onclick="showGamePanel('observer')">War Room</button>
         <button type="button" id="tab-crafting" aria-controls="panel-crafting" onclick="showGamePanel('crafting')">Crafting</button>
         <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
         <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
         <button type="button" id="tab-guilds" aria-controls="panel-guilds" onclick="showGamePanel('guilds')">Guilds</button>
         <button type="button" id="tab-statistics" aria-controls="panel-statistics" onclick="showGamePanel('statistics')">Statistics</button>
         <button type="button" id="tab-achievements" aria-controls="panel-achievements" onclick="showGamePanel('achievements')">Achievements</button>
+        <button type="button" id="tab-raids" aria-controls="panel-raids" onclick="showGamePanel('raids')">Elite Raids</button>
         <button type="button" id="tab-news" aria-controls="panel-news" onclick="showGamePanel('news')" aria-label="News, 1 unread announcement">
             News <span class="news-badge" id="newsBadge" aria-hidden="true">1</span>
         </button>
+        <button type="button" id="tab-settings" aria-controls="panel-settings" onclick="showGamePanel('settings')">Settings</button>
     </nav>
 
     <main class="game-content">
@@ -1717,6 +2313,7 @@ h1{
                     <div class="combatants">
                         <div class="combatant">
                             <h3 id="combatPlayerName">No character</h3>
+                            <div class="floating-damage-layer" id="playerDamageLayer" aria-hidden="true"></div>
                             <div class="stat">HP: <span id="playerHp">--</span></div>
                             <div class="health-track"><div class="health-fill" id="playerHpBar"></div></div>
                         </div>
@@ -1724,6 +2321,7 @@ h1{
                         <div class="combatant">
                             <div class="enemy-card-header">
                                 <div class="enemy-portrait" id="targetPortrait" data-realm="neutral" aria-hidden="true">
+                                    <img id="targetPortraitImage" class="enemy-portrait-image" alt="" hidden>
                                     <span id="targetPortraitMark">?</span>
                                 </div>
                                 <div class="enemy-identity">
@@ -1731,6 +2329,7 @@ h1{
                                     <div class="stat" id="targetDetails">Create a character to enter combat.</div>
                                 </div>
                             </div>
+                            <div class="floating-damage-layer" id="targetDamageLayer" aria-hidden="true"></div>
                             <div class="stat">HP: <span id="targetHp">--</span></div>
                             <div class="health-track"><div class="health-fill enemy-health" id="targetHpBar"></div></div>
                         </div>
@@ -1858,8 +2457,8 @@ h1{
                         <div class="crafting-recipes">
                             <article class="recipe-card">
                                 <h3>Healing Potion</h3>
-                                <p class="stat">Herbalism · 3 Herbs + 1 Wood</p>
-                                <button type="button" id="craftPotionButton" onclick="craftPotion()">Brew Potion</button>
+                                <p class="stat">Herbalism · 3 Herbs + 1 Wood + 20 Gold. Auto-used at 40% HP in combat.</p>
+                                <button type="button" id="craftPotionButton" onclick="craftPotion()">Brew Potion · 20 Gold</button>
                             </article>
                         </div>
                     </section>
@@ -1987,9 +2586,32 @@ h1{
                 </div>
             </section>
 
+            <section class="panel realm-map-preview" aria-labelledby="albionMapHeading">
+                <h2 id="albionMapHeading">Albion Region Map</h2>
+                <p class="stat">A map texture from the supplied DAoC client assets, converted for browser display.</p>
+                <figure class="realm-map-figure">
+                    <img src="assets/gameplay/maps/albion-regions.png" alt="Map of Albion showing named regions and routes" width="256" height="256" loading="lazy">
+                    <figcaption>Albion regions and routes</figcaption>
+                </figure>
+            </section>
+
             <section class="panel">
                 <h2>Frontier Zones</h2>
+                <p class="stat">The frontier spans <span id="zoneCount">446</span> zones. Character levels cover the first 100 zones, then Mastery unlocks the remaining zones. Each Mastery rank adds 2 Power; the XP required rises by 10,000 per rank. Level cap: <strong id="levelCapDisplay">1000</strong>.</p>
                 <div class="stat">Current zone: <span id="currentZone">Connla</span></div>
+                <div class="zone-quest-card" id="zoneQuestCard">
+                    <div>
+                        <h3 id="zoneQuestTitle">Frontier Quest</h3>
+                        <p class="stat" id="zoneQuestDescription">Defeat 10 enemies in your current zone.</p>
+                        <p class="stat" id="zoneQuestStatus" role="status" aria-live="polite">Create a character to begin.</p>
+                    </div>
+                    <div>
+                        <div class="zone-quest-progress-track" role="progressbar" id="zoneQuestProgressBar" aria-label="Current zone quest progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+                            <div class="zone-quest-progress-fill" id="zoneQuestProgress"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3>Frontier Codex</h3>
                 <div class="zone-list" id="zoneList"></div>
             </section>
 
@@ -2056,6 +2678,51 @@ h1{
                 <span class="stat" id="titleStatus" role="status" aria-live="polite"></span>
             </div>
             <div class="achievement-grid" id="achievementList"></div>
+            <section class="panel" aria-labelledby="zoneAchievementsHeading">
+                <h2 id="zoneAchievementsHeading">Frontier Journey Achievements</h2>
+                <p class="stat">Complete each zone quest by defeating 10 enemies there. Every zone has its own persistent achievement.</p>
+                <div class="zone-achievement-chapters" id="zoneAchievementList"></div>
+            </section>
+            <section class="panel herald-panel" aria-labelledby="heraldHeading">
+                <div class="herald-heading">
+                    <div>
+                        <h2 id="heraldHeading">Realm Herald</h2>
+                        <p class="stat">Historic realm rankings and raid records from the supplied Eden archive.</p>
+                    </div>
+                    <span class="herald-stamp">Archive snapshot</span>
+                </div>
+                <div class="herald-summary" id="heraldSummary"></div>
+                <h3>Top Realm Players</h3>
+                <div class="realm-herald-grid" id="realmHeraldRankings"></div>
+                <details class="raid-boss-archive">
+                    <summary id="raidBossArchiveSummary">Browse archived raid bosses</summary>
+                    <div class="raid-boss-list" id="raidBossList"></div>
+                </details>
+            </section>
+        </section>
+
+        <section class="panel tab-panel" id="panel-raids" aria-labelledby="tab-raids" hidden>
+            <div class="elite-raid-heading">
+                <div>
+                    <h2>Endgame Elite Raids</h2>
+                    <p class="stat">Build an eight-character team from your saved roster. Every member must reach level <span id="eliteRaidLevelCap">1000</span> and wear Epic (purple) gear in all six slots.</p>
+                </div>
+                <strong id="eliteRaidCompletion">0 / 5 elite bosses defeated</strong>
+            </div>
+            <section class="panel">
+                <h3>Raid Team <span id="raidTeamCount">(0 / 8)</span></h3>
+                <p class="stat">Only Epic rarity counts as purple gear. Legendary and Artifact items do not satisfy this raid requirement.</p>
+                <p class="stat" id="raidTeamStatus" role="status" aria-live="polite">Save eight characters to assemble a raid team.</p>
+                <div class="elite-raid-team" id="raidTeamRoster"></div>
+            </section>
+            <h3>Elite Bosses</h3>
+            <div class="elite-boss-grid" id="eliteBossList"></div>
+            <section class="panel raid-ultimate-card" id="raidUltimateCard">
+                <h3>Ultimate Achievement: Realm's Greatest</h3>
+                <p class="stat">Defeat all five elite bosses with your level-capped, fully Epic-geared raid team to earn the game's highest title.</p>
+                <strong id="raidUltimateStatus">0 / 5 elite bosses defeated</strong>
+            </section>
+            <p class="stat" id="eliteRaidLog" role="status" aria-live="polite">Prepare your eight-character team to challenge the elite bosses.</p>
         </section>
 
         <section class="panel tab-panel" id="panel-guilds" aria-labelledby="tab-guilds" hidden>
@@ -2111,8 +2778,9 @@ h1{
                         <li>A local frontier battlefield map with realm camps, marching armies, keep ownership, and a live battle report.</li>
                         <li>Every five PvE kills triggers a keep battle. Captures by your realm reward 75 RP and 25 Gold, adjusted by relic bonuses.</li>
                         <li>First Blood: defeat 1 enemy; Veteran: defeat 1,000.</li>
-                        <li>Champion Hunter: defeat Pilzpower 25 times; Relic Master: find 50 Artifacts.</li>
-                        <li>Realm Hero: earn 100,000 RP; RR10 Hero: reach Realm Rank 10.</li>
+                        <li>Champion Hunter: defeat 25 Frontier raid bosses; Relic Master: find 50 Artifacts.</li>
+                        <li>Realm Hero: earn 100,000 RP; RR10 Hero and RR100 Hero mark realm-rank milestones.</li>
+                        <li>Reach level 1,000, then earn Mastery ranks to unlock the remaining Frontier zones.</li>
                         <li>Unlock and equip titles as achievement milestones are reached.</li>
                         <li>Three relics can change hands after arena victories. Relic bonuses are saved per character and apply to that character's realm.</li>
                     </ul>
@@ -2123,6 +2791,84 @@ h1{
                     </ul>
                 </div>
             </details>
+        </section>
+
+        <section class="panel tab-panel" id="panel-observer" aria-labelledby="tab-observer" hidden>
+            <h2>Live War Room</h2>
+            <p class="stat observer-intro">A separate, read-only view of the frontier. The animated map and activity update with your game; guild chat message contents are never shown here.</p>
+            <div class="observer-grid">
+                <section class="observer-card observer-card-wide" aria-labelledby="observerMapHeading">
+                    <h3 id="observerMapHeading">Living Battlefield</h3>
+                    <div class="battlefield-map observer-frontier-map" role="group" aria-label="Observer map showing realm camps, marching armies, and keep ownership">
+                        <svg class="battlefield-routes" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+                            <path class="battlefield-route" d="M80 390 C170 330 210 235 300 170"/>
+                            <path class="battlefield-route" d="M500 55 C500 155 500 215 500 315"/>
+                            <path class="battlefield-route" d="M920 390 C830 330 790 235 700 170"/>
+                            <path class="battlefield-route" d="M330 185 C400 245 440 280 500 315"/>
+                            <path class="battlefield-route" d="M670 185 C600 245 560 280 500 315"/>
+                        </svg>
+                        <div class="battlefield-camp battlefield-camp-hibernia">🍀 Hibernia Camp</div>
+                        <div class="battlefield-camp battlefield-camp-midgard">🐺 Midgard Camp</div>
+                        <div class="battlefield-camp battlefield-camp-albion">🦁 Albion Camp</div>
+                        <div class="battlefield-keep battlefield-keep-crauchon" id="observerKeepDunCrauchon" data-owner="Hibernia">
+                            <strong>🏰 Dun Crauchon</strong><small>Hibernia controls</small>
+                        </div>
+                        <div class="battlefield-keep battlefield-keep-bolg" id="observerKeepDunBolg" data-owner="Midgard">
+                            <strong>🏰 Dun Bolg</strong><small>Midgard controls</small>
+                        </div>
+                        <div class="battlefield-keep battlefield-keep-scathaig" id="observerKeepDunScathaig" data-owner="Albion">
+                            <strong>🏰 Dun Scathaig</strong><small>Albion controls</small>
+                        </div>
+                        <div class="battle-army battle-army-hibernia">⚔️ Hibernian Army</div>
+                        <div class="battle-army battle-army-midgard">⚔️ Midgard Army</div>
+                        <div class="battle-army battle-army-albion">⚔️ Albion Army</div>
+                    </div>
+                </section>
+                <section class="observer-card" aria-labelledby="observerRealmHeading">
+                    <h3 id="observerRealmHeading">Realm Scores</h3>
+                    <div class="observer-realm-scores" id="observerRealmScores"></div>
+                    <p class="stat" id="observerDominantRealm">No realm currently dominates.</p>
+                </section>
+                <section class="observer-card" aria-labelledby="observerKeepHeading">
+                    <h3 id="observerKeepHeading">Keep Activity</h3>
+                    <p id="observerKeepStatus">Create a character to join the realm war.</p>
+                    <p class="stat" id="observerLastKeepEvent">The frontier awaits its first battle.</p>
+                </section>
+                <section class="observer-card" aria-labelledby="observerBossHeading">
+                    <h3 id="observerBossHeading">Bosses &amp; Champions</h3>
+                    <p id="observerBossStatus">No active boss encounter.</p>
+                    <div class="observer-boss-track" role="progressbar" aria-label="Active boss health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="observer-boss-fill" id="observerBossHp"></div>
+                    </div>
+                </section>
+                <section class="observer-card" aria-labelledby="observerArenaHeading">
+                    <h3 id="observerArenaHeading">Arena</h3>
+                    <p id="observerArenaStatus">No arena match is active.</p>
+                </section>
+                <section class="observer-card" aria-labelledby="observerGuildHeading">
+                    <h3 id="observerGuildHeading">Guild Activity</h3>
+                    <p id="observerGuildStatus">Join a guild to show its activity here.</p>
+                </section>
+                <section class="observer-card observer-card-wide" aria-labelledby="observerEventsHeading">
+                    <h3 id="observerEventsHeading">Recent Events</h3>
+                    <ol class="observer-event-list" id="observerEventFeed" aria-live="polite"></ol>
+                </section>
+            </div>
+        </section>
+
+        <section class="panel tab-panel" id="panel-settings" aria-labelledby="tab-settings" hidden>
+            <h2>Streaming Settings</h2>
+            <div class="streaming-settings">
+                <p class="stat">Choose how Idle Eden surfaces exciting game events. Alerts stay out of the way unless you explicitly enable Auto-Focus. The War Room is always available as its own tab.</p>
+                <label for="streamingModeSelect">Streaming Mode</label>
+                <select id="streamingModeSelect" onchange="setStreamingMode(this.value)">
+                    <option value="off">Off</option>
+                    <option value="notifications">Notifications Only (Default)</option>
+                    <option value="auto-focus">Auto-Focus</option>
+                    <option value="observer">Observer Mode</option>
+                </select>
+                <p class="stat" id="streamingModeStatus" role="status" aria-live="polite">Notifications Only: alerts never change the active screen.</p>
+            </div>
         </section>
 
         <section class="panel bestiary-panel" id="bestiaryPanel" hidden aria-labelledby="bestiaryTitle">
@@ -2139,11 +2885,207 @@ h1{
             <div class="bestiary-champions" id="bestiaryChampions"></div>
         </section>
     </main>
+    <aside class="smart-alert-tray" id="smartAlertTray" aria-label="Smart alerts" aria-live="polite" hidden></aside>
 </div>
 
+<script src="assets/gameplay/zones.js"></script>
+<script src="assets/gameplay/raid-data.js"></script>
 <script>
 
 const latestNewsId="2026-11-26-frontier-battlefield";
+const streamingModeStorageKey="idleEdenStreamingMode";
+const validStreamingModes=["off","notifications","auto-focus","observer"];
+const savedStreamingMode=localStorage.getItem(streamingModeStorageKey);
+let streamingMode=validStreamingModes.indexOf(savedStreamingMode)!==-1
+    ? savedStreamingMode
+    : "notifications";
+let streamEvents=[];
+const knownAchievementCompletions=Object.create(null);
+
+function streamingModeDescription(mode){
+    const descriptions={
+        off:"Off: no popup alerts or automatic panel changes. The War Room remains available.",
+        notifications:"Notifications Only: alerts never change the active screen.",
+        "auto-focus":"Auto-Focus: important events open their related game panel.",
+        observer:"Observer Mode: popup alerts are suppressed; follow activity in the separate War Room."
+    };
+    return descriptions[mode] || descriptions.notifications;
+}
+
+function initializeStreamingSettings(){
+    document.getElementById("streamingModeSelect").value=streamingMode;
+    document.getElementById("streamingModeStatus").textContent=
+        streamingModeDescription(streamingMode);
+}
+
+function setStreamingMode(mode){
+    if(validStreamingModes.indexOf(mode)===-1){
+        throw new Error("Unknown streaming mode: "+mode);
+    }
+    streamingMode=mode;
+    localStorage.setItem(streamingModeStorageKey,mode);
+    document.getElementById("streamingModeSelect").value=mode;
+    document.getElementById("streamingModeStatus").textContent=
+        streamingModeDescription(mode);
+    renderObserverDashboard();
+}
+
+function showSmartAlert(event){
+    const tray=document.getElementById("smartAlertTray");
+    const alert=document.createElement("div");
+    alert.className="smart-alert";
+    const openButton=document.createElement("button");
+    openButton.type="button";
+    openButton.textContent=event.message+" · View";
+    openButton.addEventListener("click",function(){
+        showGamePanel(event.panel);
+        alert.remove();
+        tray.hidden=tray.children.length===0;
+    });
+    const dismissButton=document.createElement("button");
+    dismissButton.type="button";
+    dismissButton.className="smart-alert-dismiss";
+    dismissButton.textContent="×";
+    dismissButton.setAttribute("aria-label","Dismiss alert");
+    dismissButton.addEventListener("click",function(){
+        alert.remove();
+        tray.hidden=tray.children.length===0;
+    });
+    alert.append(openButton,dismissButton);
+    tray.prepend(alert);
+    while(tray.children.length>3){
+        tray.lastElementChild.remove();
+    }
+    tray.hidden=false;
+    window.setTimeout(function(){
+        alert.remove();
+        tray.hidden=tray.children.length===0;
+    },10000);
+}
+
+function publishStreamEvent(type,message,panel){
+    const event={
+        id:Date.now()+Math.random(),
+        type:type,
+        message:message,
+        panel:panel,
+        createdAt:Date.now()
+    };
+    streamEvents.unshift(event);
+    streamEvents=streamEvents.slice(0,40);
+    renderObserverDashboard();
+
+    if(streamingMode==="off" || streamingMode==="observer"){
+        return;
+    }
+    showSmartAlert(event);
+    if(streamingMode==="auto-focus"){
+        showGamePanel(panel);
+    }
+}
+
+function renderObserverDashboard(){
+    const keepCountsByRealm=keepCounts();
+    const leadingRealm=dominantRealm();
+    const realmScores=document.getElementById("observerRealmScores");
+    realmScores.textContent="";
+    realms.forEach(function(realm){
+        const score=document.createElement("div");
+        score.className="observer-realm-score rvr-realm-"+realm.toLowerCase();
+        score.textContent=realm+": "+keepCountsByRealm[realm]+"/"+keepNames.length+" keeps";
+        realmScores.appendChild(score);
+    });
+    document.getElementById("observerDominantRealm").textContent=leadingRealm
+        ? "Leading realm: "+leadingRealm+" · +10% Realm Points"
+        : "No realm currently dominates.";
+
+    [
+        {name:"Dun Crauchon",id:"observerKeepDunCrauchon"},
+        {name:"Dun Bolg",id:"observerKeepDunBolg"},
+        {name:"Dun Scathaig",id:"observerKeepDunScathaig"}
+    ].forEach(function(keep){
+        const node=document.getElementById(keep.id);
+        const owner=player.keeps[keep.name];
+        node.dataset.owner=owner;
+        node.setAttribute("aria-label",keep.name+" controlled by "+owner);
+        node.querySelector("small").textContent=owner+" controls";
+    });
+
+    const lastKeepEvent=player.battlefield.lastEvent;
+    document.getElementById("observerKeepStatus").textContent=player.name
+        ? "Battles fought: "+player.battlefield.battles+". Next battle in "
+            +(5-((player.kills || 0)%5))+" PvE kills."
+        : "Create a character to join the realm war.";
+    document.getElementById("observerLastKeepEvent").textContent=lastKeepEvent
+        ? lastKeepEvent.winner+" captured "+lastKeepEvent.keep+" from "
+            +lastKeepEvent.defenderRealm+". Commander: "+lastKeepEvent.commander+"."
+        : "The frontier awaits its first battle.";
+
+    const target=player.target;
+    const activeBoss=target && (target.frontierBoss || target.champion);
+    const bossStatus=document.getElementById("observerBossStatus");
+    const bossBar=document.getElementById("observerBossHp");
+    const bossTrack=bossBar.parentElement;
+    bossStatus.textContent=activeBoss
+        ? (target.frontierBoss ? "Elite raid boss: " : "Realm champion: ")
+            +target.name+" · "+target.hp.toLocaleString()+"/"
+            +target.maxHp.toLocaleString()+" HP"
+        : "No active boss encounter.";
+    bossBar.style.width=activeBoss
+        ? Math.max(0,Math.min(100,target.hp/target.maxHp*100))+"%"
+        : "0%";
+    bossTrack.setAttribute("aria-valuenow",activeBoss
+        ? String(Math.round(target.hp/target.maxHp*100))
+        : "0");
+
+    const arena=player.rvrArena;
+    const arenaMatch=arena.match;
+    document.getElementById("observerArenaStatus").textContent=arenaMatch
+        ? "8v8v8 Arena · "+arenaMatch.playerRealm+" · "
+            +realms.map(function(realm){
+                return realm+" "+arenaMatch.scores[realm];
+            }).join(" · ")
+        : arena.lastResult
+            ? "Last match: "+arena.lastResult.winner+" won · "
+                +arena.lastResult.playerKills+" PvP kills."
+            : "No arena match is active.";
+
+    const activeGuild=activeGuildId && availableGuilds[activeGuildId];
+    const activeGuildName=activeGuild
+        ? activeGuild.name
+        : activeGuildId
+            ? document.getElementById("guildChatTitle").textContent
+            : "";
+    const messageCount=document.querySelectorAll("#guildMessages .guild-message").length;
+    document.getElementById("observerGuildStatus").textContent=activeGuildId
+        ? activeGuildName+" · Guild chat active · "+messageCount
+            +" recent messages. Message text is hidden."
+        : "Join a guild to show its activity here.";
+
+    const eventFeed=document.getElementById("observerEventFeed");
+    eventFeed.textContent="";
+    if(streamEvents.length===0){
+        const emptyEvent=document.createElement("li");
+        emptyEvent.className="stat";
+        emptyEvent.textContent="No stream events yet. Bosses, keep battles, achievements, artifacts, and arena results will appear here.";
+        eventFeed.appendChild(emptyEvent);
+        return;
+    }
+    streamEvents.slice(0,8).forEach(function(event){
+        const entry=document.createElement("li");
+        entry.className="observer-event";
+        const time=document.createElement("time");
+        time.dateTime=new Date(event.createdAt).toISOString();
+        time.textContent=new Date(event.createdAt).toLocaleTimeString([],{
+            hour:"numeric",
+            minute:"2-digit"
+        });
+        const message=document.createElement("span");
+        message.textContent=event.message;
+        entry.append(time,message);
+        eventFeed.appendChild(entry);
+    });
+}
 
 function updateNewsBadge(){
     const unread=localStorage.getItem("idleEdenLastReadNews")!==latestNewsId;
@@ -2162,7 +3104,7 @@ function markNewsAsRead(){
 
 function showGamePanel(panelName){
 
-    ["combat","rvr","crafting","character","world","guilds","statistics","achievements","news"].forEach(function(name){
+    ["combat","rvr","observer","crafting","character","world","guilds","statistics","achievements","raids","news","settings"].forEach(function(name){
         const isActive=name===panelName;
         const button=document.getElementById("tab-"+name);
         const panel=document.getElementById("panel-"+name);
@@ -2187,6 +3129,9 @@ function createDefaultPlayer(){
         realm:"",
         cls:"",
         level:1,
+        mastery:0,
+        masteryXp:0,
+        activeZoneId:null,
         xp:0,
         gold:0,
         rp:0,
@@ -2194,6 +3139,7 @@ function createDefaultPlayer(){
         hp:100,
         kills:0,
         pvpKills:0,
+        zoneKills:{},
         statistics:{
             bossKills:0,
             highestDamage:0,
@@ -2302,6 +3248,36 @@ const realmRelics=[
     {id:"midgard",name:"Midgard Relic",homeRealm:"Midgard",bonusType:"rp",bonusLabel:"+5% RP"},
     {id:"albion",name:"Albion Relic",homeRealm:"Albion",bonusType:"gold",bonusLabel:"+5% Gold"}
 ];
+const zoneQuestKillGoal=10;
+const zoneChapterSize=50;
+const healingPotionGoldCost=20;
+const healingPotionHealRate=.4;
+const raidArchiveData=window.EDEN_RAID_ARCHIVE;
+if(!raidArchiveData || !Array.isArray(raidArchiveData.bosses)
+    || !raidArchiveData.realmRankings){
+    throw new Error("The raid archive data failed to load.");
+}
+const raidBossNames=[
+    ["golestandt", "Golestandt", 10],
+    ["gjalpinulva", "Gjalpinulva", 14],
+    ["cuuldurach", "Cuuldurach the Glimmer King", 18],
+    ["legion", "Legion", 22],
+    ["apocalypse", "Apocalypse", 26]
+];
+const eliteRaidBosses=raidBossNames.map(function(entry){
+    const record=raidArchiveData.bosses.find(function(boss){
+        return boss.name===entry[1];
+    });
+    if(!record){
+        throw new Error("Elite raid boss is missing from the archive: "+entry[1]);
+    }
+    return {
+        id:entry[0],
+        name:record.name,
+        location:record.location,
+        difficulty:entry[2]
+    };
+});
 const characterClasses={
     Hibernia:["Druid","Chanter","Animist","Bard","Warden","Hero","Blademaster","Vampiir","Mentalist","Eldritch"],
     Midgard:["Berserker","Bonedancer","Healer","Hunter","Runemaster","Savage","Shaman","Skald","Shadowblade","Spiritmaster","Thane","Valkyrie","Warlock"],
@@ -2401,24 +3377,32 @@ const rvrMatchMaxDurationMs=300000;
 const rvrMatchTickMs=15000;
 const rvrRpPerPvpKill=25;
 const rvrWinBonusRp=100;
-const frontierBossMaxHp=2500;
+const frontierBossBaseHp=5000;
 const frontierBossGoldReward=250;
 const frontierBossRpReward=250;
 const keepNames=["Dun Crauchon","Dun Bolg","Dun Scathaig"];
-const zones=[
-    {name:"Connla",minLevel:1,maxLevel:10},
-    {name:"Cruachan Gorge",minLevel:11,maxLevel:20},
-    {name:"Emain Macha",minLevel:21,maxLevel:30},
-    {name:"Frontier Keeps",minLevel:31,maxLevel:Infinity}
-];
+if(!Array.isArray(window.EDEN_ZONE_DATA) || window.EDEN_ZONE_DATA.length!==446){
+    throw new Error("The 446-zone progression data failed to load.");
+}
+const levelZoneCount=Math.min(100,window.EDEN_ZONE_DATA.length);
+const levelCap=levelZoneCount*10;
+const zones=window.EDEN_ZONE_DATA.map(function(zone,index){
+    return Object.assign({},zone,{
+        minLevel:index<levelZoneCount ? index*10+1 : null,
+        maxLevel:index<levelZoneCount ? (index+1)*10 : null,
+        masteryLevel:index<levelZoneCount ? 0 : index-levelZoneCount+1
+    });
+});
+const masteryXpPerRank=10000;
+const maxRealmRank=100;
 const equipmentSlots=["Weapon","Helm","Chest","Ring","Cloak","Boots"];
-const equipmentIcons={
-    Weapon:"⚔️",
-    Helm:"🪖",
-    Chest:"🛡️",
-    Ring:"💍",
-    Cloak:"🧥",
-    Boots:"🥾"
+const equipmentIconPaths={
+    Weapon:"assets/gameplay/icons/weapon.png",
+    Helm:"assets/gameplay/icons/helm.png",
+    Chest:"assets/gameplay/icons/chest.png",
+    Ring:"assets/gameplay/icons/ring.png",
+    Cloak:"assets/gameplay/icons/cloak.png",
+    Boots:"assets/gameplay/icons/boots.png"
 };
 const resourceKeys=["ore","herbs","wood","gems","potions"];
 const resourceLabels={
@@ -2474,6 +3458,14 @@ const itemBaseStats={
 };
 let lastDamageText="Create a character to enter combat.";
 let bestiaryRenderKey="";
+let achievementsRenderKey="";
+let zoneAchievementsRenderKey="";
+let zoneListRenderKey="";
+let heraldArchiveRendered=false;
+let eliteRaidRenderKey="";
+let raidTeamIds=[];
+let eliteRaidProgress={};
+let eliteRaidRun=null;
 
 function updateClassOptions(){
 
@@ -2495,16 +3487,295 @@ function updateClassOptions(){
         : options[0];
 }
 
+function normalizeCharacterProgression(character){
+    const savedLevel=Number.isSafeInteger(character.level) ? character.level : 1;
+    const savedMastery=Number.isSafeInteger(character.mastery)
+        ? Math.max(0,character.mastery)
+        : 0;
+    const hasMasteryProgress=savedMastery>0
+        || (Number.isFinite(character.masteryXp) && character.masteryXp>0);
+    const legacyMastery=savedLevel>levelCap
+        ? Math.ceil((savedLevel-levelCap)/10)
+        : 0;
+    character.level=Math.max(1,Math.min(levelCap,savedLevel));
+    character.mastery=Math.max(legacyMastery,Math.min(Number.MAX_SAFE_INTEGER-1,savedMastery));
+    const legacyXp=Number.isFinite(character.xp)
+        ? Math.max(0,Math.min(savedLevel*100-1,Math.floor(character.xp)))
+        : 0;
+    const hasStoredMasteryXp=Number.isFinite(character.masteryXp)
+        && character.masteryXp>0;
+    const masteryXp=hasStoredMasteryXp
+        ? Math.floor(character.masteryXp)
+        : savedLevel>levelCap && !hasMasteryProgress && savedLevel>0
+            ? Math.floor(legacyXp/(savedLevel*100)*masteryRequirement(character))
+            : 0;
+    character.masteryXp=Math.max(0,Math.min(masteryRequirement(character)-1,masteryXp));
+    character.xp=character.level<levelCap && Number.isFinite(character.xp)
+        ? Math.max(0,Math.min(character.level*100-1,Math.floor(character.xp)))
+        : 0;
+    const activeZone=zones.find(function(zone){
+        return zone.id===character.activeZoneId;
+    });
+    if(!activeZone || !isZoneUnlocked(activeZone,character)){
+        character.activeZoneId=null;
+    }
+    return character;
+}
+
 function getZoneForLevel(level){
-    return zones.find(function(zone){
+    return zones.slice(0,levelZoneCount).find(function(zone){
         return level>=zone.minLevel && level<=zone.maxLevel;
-    }) || zones[0];
+    }) || zones[levelZoneCount-1];
+}
+
+function isZoneUnlocked(zone,character){
+    const data=character || player;
+    if(!zone || !data) return false;
+    return zone.masteryLevel>0
+        ? data.level>=levelCap && data.mastery>=zone.masteryLevel
+        : data.level>=zone.minLevel;
+}
+
+function getProgressionZoneForPlayer(character){
+    const data=character || player;
+    if(data.level<levelCap){
+        return getZoneForLevel(data.level);
+    }
+    return zones[Math.min(levelZoneCount-1+data.mastery,zones.length-1)];
+}
+
+function getCurrentZoneForPlayer(){
+    const activeZone=Number.isSafeInteger(player.activeZoneId)
+        ? zones.find(function(zone){ return zone.id===player.activeZoneId; })
+        : null;
+    return activeZone && isZoneUnlocked(activeZone)
+        ? activeZone
+        : getProgressionZoneForPlayer();
 }
 
 function zoneLevelLabel(zone){
-    return zone.maxLevel===Infinity
-        ? zone.minLevel+"+"
+    return zone.masteryLevel>0
+        ? "Mastery "+zone.masteryLevel
         : zone.minLevel+"–"+zone.maxLevel;
+}
+
+function targetProgressionLabel(target){
+    const zone=target && zones.find(function(candidate){
+        return candidate.id===target.zoneId;
+    });
+    if(zone && zone.masteryLevel>0){
+        return "Mastery "+zone.masteryLevel
+            +(target.level>levelCap ? " · Boss Level "+target.level : "");
+    }
+    return target ? "Level "+target.level : "";
+}
+
+function zoneChapterProgressLabel(chapterZones){
+    const levelZones=chapterZones.filter(function(zone){
+        return zone.masteryLevel===0;
+    });
+    const masteryZones=chapterZones.filter(function(zone){
+        return zone.masteryLevel>0;
+    });
+    const labels=[];
+    if(levelZones.length>0){
+        labels.push("Levels "+levelZones[0].minLevel+"–"
+            +levelZones[levelZones.length-1].maxLevel);
+    }
+    if(masteryZones.length>0){
+        labels.push("Mastery "+masteryZones[0].masteryLevel+"–"
+            +masteryZones[masteryZones.length-1].masteryLevel);
+    }
+    return labels.join(" · ");
+}
+
+function masteryRequirement(character){
+    const data=character || player;
+    const nextRank=(Number.isSafeInteger(data.mastery) ? data.mastery : 0)+1;
+    return Math.min(Number.MAX_SAFE_INTEGER,nextRank*masteryXpPerRank);
+}
+
+function getRealmRank(character){
+    const data=character || player;
+    const points=Number.isFinite(data.rp) ? Math.max(0,data.rp) : 0;
+    return Math.min(maxRealmRank,Math.floor(points/1000)+1);
+}
+
+function frontierBossMaxHpForLevel(level){
+    return frontierBossBaseHp+Math.max(0,level-1)*15;
+}
+
+function getTargetPortraitPath(target){
+    if(!target) return "";
+    if(target.frontierBoss){
+        return "assets/gameplay/portraits/monster.png";
+    }
+    if(target.kind==="monster" || target.isMonster){
+        return "assets/gameplay/portraits/monster.png";
+    }
+    if(isHealingSupportClass(target.realm,target.cls)){
+        return "assets/gameplay/portraits/support.png";
+    }
+    if(["Hunter","Ranger","Scout"].indexOf(target.cls)!==-1){
+        return "assets/gameplay/portraits/ranged.png";
+    }
+    if(["Animist","Bainshee","Bonedancer","Cabalist","Chanter","Eldritch","Enchanter",
+        "Mentalist","Runemaster","Sorcerer","Spiritmaster","Theurgist","Warlock","Wizard"]
+        .indexOf(target.cls)!==-1){
+        return "assets/gameplay/portraits/caster.png";
+    }
+    return "assets/gameplay/portraits/fighter.png";
+}
+
+function showFloatingDamage(layerId,damage,isIncoming){
+    const layer=document.getElementById(layerId);
+    const number=document.createElement("span");
+    number.className="floating-damage"+(isIncoming ? " floating-damage-incoming" : "");
+    number.setAttribute("aria-hidden","true");
+    number.textContent="-"+Math.floor(damage);
+    number.style.right=(12+(layer.childElementCount%3)*24)+"px";
+    layer.appendChild(number);
+    window.setTimeout(function(){
+        number.remove();
+    },1000);
+}
+
+function consumeHealingPotion(resources,currentHp,maxHp){
+    if(!resources || resources.potions<1 || currentHp<=0
+        || currentHp>maxHp*healingPotionHealRate){
+        return null;
+    }
+    resources.potions--;
+    const healed=Math.min(maxHp-currentHp,Math.ceil(maxHp*healingPotionHealRate));
+    return {
+        hp:currentHp+healed,
+        healed:healed,
+        remaining:resources.potions
+    };
+}
+
+function tryUsePlayerHealingPotion(){
+    const result=consumeHealingPotion(player.resources,player.hp,playerMaxHp());
+    if(!result) return false;
+    player.hp=result.hp;
+    addLog("Auto-used a crafted Healing Potion: restored "+result.healed
+        +" HP ("+result.remaining+" remaining).");
+    return true;
+}
+
+function renderZoneJourney(currentZone){
+    const progress=Math.min(zoneQuestKillGoal,player.zoneKills[currentZone.id] || 0);
+    const complete=progress>=zoneQuestKillGoal;
+    const questCard=document.getElementById("zoneQuestCard");
+    questCard.classList.toggle("zone-quest-complete",complete);
+    document.getElementById("zoneQuestTitle").textContent=currentZone.name+" Field Quest";
+    document.getElementById("zoneQuestDescription").textContent=complete
+        ? "The local threat has been cleared. This zone achievement is complete."
+        : "Defeat "+(zoneQuestKillGoal-progress)+" more "
+            +(zoneQuestKillGoal-progress===1 ? "enemy" : "enemies")
+            +" in "+currentZone.name+".";
+    document.getElementById("zoneQuestStatus").textContent=player.name
+        ? (complete ? "Quest complete — zone achievement unlocked."
+            : "Progress: "+progress+" / "+zoneQuestKillGoal+" enemies.")
+        : "Create or load a character to begin.";
+    const progressBar=document.getElementById("zoneQuestProgressBar");
+    progressBar.setAttribute("aria-valuenow",String(progress));
+    document.getElementById("zoneQuestProgress").style.width=
+        (progress/zoneQuestKillGoal*100)+"%";
+
+    const zoneKills=player.zoneKills || {};
+    const renderKey=JSON.stringify([
+        player.level,
+        player.mastery,
+        player.characterId,
+        currentZone.id,
+        zones.map(function(zone){ return zoneKills[zone.id] || 0; })
+    ]);
+    if(renderKey===zoneListRenderKey){
+        return;
+    }
+    const list=document.getElementById("zoneList");
+    const openChapters=new Set(Array.from(list.querySelectorAll("details[open]")).map(function(chapter){
+        return chapter.dataset.chapter;
+    }));
+    zoneListRenderKey=renderKey;
+    list.textContent="";
+
+    for(let start=0;start<zones.length;start+=zoneChapterSize){
+        const chapterZones=zones.slice(start,start+zoneChapterSize);
+        const chapterIndex=Math.floor(start/zoneChapterSize);
+        const unlockedCount=chapterZones.filter(function(zone){
+            return isZoneUnlocked(zone);
+        }).length;
+        const completedCount=chapterZones.filter(function(zone){
+            return zoneKills[zone.id]>=zoneQuestKillGoal;
+        }).length;
+        const chapter=document.createElement("details");
+        chapter.className="zone-journey-chapter";
+        chapter.dataset.chapter=String(chapterIndex);
+        chapter.open=openChapters.has(String(chapterIndex))
+            || chapterZones.indexOf(currentZone)!==-1;
+        const summary=document.createElement("summary");
+        summary.textContent="Frontier Route "+(chapterIndex+1)+" · Zones "
+            +String(chapterZones[0].id).padStart(3,"0")+"–"
+            +String(chapterZones[chapterZones.length-1].id).padStart(3,"0")
+            +" · "+zoneChapterProgressLabel(chapterZones)
+            +" · "+unlockedCount+" unlocked · "+completedCount+" quests complete";
+        chapter.appendChild(summary);
+        const entries=document.createElement("div");
+        entries.className="zone-journey-entries";
+        chapterZones.forEach(function(zone){
+            const isCurrent=zone.id===currentZone.id;
+            const isUnlocked=isZoneUnlocked(zone);
+            const questComplete=zoneKills[zone.id]>=zoneQuestKillGoal;
+            const entry=document.createElement("div");
+            entry.className="zone-entry"+(isCurrent ? " zone-current" : "")
+                +(!isUnlocked ? " zone-locked" : "");
+            const details=document.createElement("span");
+            details.textContent="#"+String(zone.id).padStart(3,"0")+" · "+zone.name
+                +" — "+zoneLevelLabel(zone)
+                +(isCurrent ? " · Current" : !isUnlocked ? " · Locked" : " · Unlocked")
+                +" · Quest "+Math.min(zoneQuestKillGoal,zoneKills[zone.id] || 0)
+                +"/"+zoneQuestKillGoal+(questComplete ? " · Complete" : "");
+            entry.appendChild(details);
+            if(isUnlocked){
+                const travelButton=document.createElement("button");
+                travelButton.type="button";
+                travelButton.textContent=isCurrent ? "Here" : "Hunt Here";
+                travelButton.disabled=isCurrent || !player.name;
+                travelButton.setAttribute("aria-label","Travel to "+zone.name);
+                travelButton.addEventListener("click",function(){
+                    travelToZone(zone.id);
+                });
+                entry.appendChild(travelButton);
+            }
+            entries.appendChild(entry);
+        });
+        chapter.appendChild(entries);
+        list.appendChild(chapter);
+    }
+}
+
+function travelToZone(zoneId){
+    if(!player.name){
+        addLog("Create or load a character before traveling.");
+        return;
+    }
+    const zone=zones.find(function(candidate){
+        return candidate.id===zoneId;
+    });
+    if(!isZoneUnlocked(zone)){
+        addLog("That frontier zone is still locked.");
+        return;
+    }
+    if(zone.id===getCurrentZoneForPlayer().id){
+        return;
+    }
+    player.activeZoneId=zone.id===getProgressionZoneForPlayer().id ? null : zone.id;
+    createTarget();
+    addLog("Traveled to "+zone.name+". Enemies scale to your character level.");
+    updateUI();
+    saveGame();
 }
 
 function keepCounts(){
@@ -2537,15 +3808,35 @@ function getAchievementProgress(character){
     const statistics=data.statistics || {};
     const lifetimeKills=Number.isFinite(data.kills) ? Math.max(0,Math.floor(data.kills)) : 0;
     const realmPoints=Number.isFinite(data.rp) ? Math.max(0,Math.floor(data.rp)) : 0;
-
-    return [
+    const realmRank=getRealmRank(data);
+    const completedEliteRaids=eliteRaidBosses.filter(function(boss){
+        return eliteRaidProgress[boss.id]===true;
+    }).length;
+    const achievements=[
         {id:"first-blood",name:"First Blood",description:"Defeat your first enemy.",progress:lifetimeKills,goal:1,titleId:"slayer"},
         {id:"veteran",name:"Veteran",description:"Defeat 1,000 enemies.",progress:lifetimeKills,goal:1000,titleId:"veteran"},
-        {id:"champion-hunter",name:"Champion Hunter",description:"Defeat Pilzpower 25 times.",progress:Number.isFinite(statistics.bossKills) ? statistics.bossKills : 0,goal:25,titleId:"champion"},
+        {id:"champion-hunter",name:"Champion Hunter",description:"Defeat 25 Frontier raid bosses.",progress:Number.isFinite(statistics.bossKills) ? statistics.bossKills : 0,goal:25,titleId:"champion"},
         {id:"relic-master",name:"Relic Master",description:"Find 50 Artifacts.",progress:Number.isFinite(statistics.artifactsFound) ? statistics.artifactsFound : 0,goal:50,titleId:"relic-hunter"},
         {id:"realm-hero",name:"Realm Hero",description:"Earn 100,000 Realm Points.",progress:realmPoints,goal:100000,titleId:"realm-hero"},
-        {id:"rr10",name:"RR10 Hero",description:"Reach Realm Rank 10.",progress:realmPoints,goal:9000,titleId:"rr10"}
+        {id:"rr10",name:"RR10 Hero",description:"Reach Realm Rank 10.",progress:realmPoints,goal:9000,titleId:"rr10"},
+        {id:"rr100",name:"RR100 Hero",description:"Reach the maximum Realm Rank.",progress:realmRank,goal:maxRealmRank,titleId:"rr100"},
+        {id:"master-of-frontiers",name:"Master of the Frontiers",description:"Reach Mastery 346 and unlock every Frontier zone.",progress:Number.isSafeInteger(data.mastery) ? data.mastery : 0,goal:zones.length-levelZoneCount,titleId:"master-of-frontiers"},
+        {id:"elite-raids",name:"Realm's Greatest",description:"Defeat all five endgame elite bosses with your eight-character Epic-geared team.",progress:completedEliteRaids,goal:eliteRaidBosses.length,titleId:"elite-raider",ultimate:true}
     ];
+    const zoneKills=data.zoneKills && typeof data.zoneKills==="object" ? data.zoneKills : {};
+    const zoneAchievements=zones.map(function(zone){
+        return {
+            id:"zone-"+zone.id,
+            name:zone.name+" Pathfinder",
+            description:"Defeat "+zoneQuestKillGoal+" enemies in "+zone.name+".",
+            progress:Number.isSafeInteger(zoneKills[zone.id]) ? zoneKills[zone.id] : 0,
+            goal:zoneQuestKillGoal,
+            titleId:null,
+            zone:zone
+        };
+    });
+
+    return achievements.concat(zoneAchievements);
 }
 
 function getUnlockedTitles(character){
@@ -2562,7 +3853,10 @@ function getUnlockedTitles(character){
         {id:"champion",label:"the Champion",achievementId:"champion-hunter"},
         {id:"relic-hunter",label:"the Relic Hunter",achievementId:"relic-master"},
         {id:"realm-hero",label:"the Realm Hero",achievementId:"realm-hero"},
-        {id:"rr10",label:"RR10 Hero of "+(data.realm || "your realm"),achievementId:"rr10"}
+        {id:"rr10",label:"RR10 Hero of "+(data.realm || "your realm"),achievementId:"rr10"},
+        {id:"rr100",label:"RR100 Hero of "+(data.realm || "your realm"),achievementId:"rr100"},
+        {id:"master-of-frontiers",label:"the Master of the Frontiers",achievementId:"master-of-frontiers"},
+        {id:"elite-raider",label:"the Realm's Greatest",achievementId:"elite-raids"}
     ];
 
     return titles.filter(function(title){
@@ -2623,8 +3917,13 @@ function emptyEquipment(){
     };
 }
 
-function equipmentIcon(slot){
-    return equipmentIcons[slot] || "◇";
+function createEquipmentIcon(slot){
+    const icon=document.createElement("img");
+    icon.className="equipment-item-icon";
+    icon.src=equipmentIconPaths[slot];
+    icon.alt="";
+    icon.setAttribute("aria-hidden","true");
+    return icon;
 }
 
 function createCharacterId(){
@@ -2771,7 +4070,18 @@ function normalizePlayer(savedPlayer){
 
     const hasSavedStatistics=Boolean(savedPlayer && typeof savedPlayer==="object"
         && Object.prototype.hasOwnProperty.call(savedPlayer,"statistics"));
-    player=Object.assign(createDefaultPlayer(),savedPlayer || {});
+    player=normalizeCharacterProgression(
+        Object.assign(createDefaultPlayer(),savedPlayer || {})
+    );
+    const savedZoneKills=player.zoneKills && typeof player.zoneKills==="object"
+        && !Array.isArray(player.zoneKills) ? player.zoneKills : {};
+    player.zoneKills={};
+    zones.forEach(function(zone){
+        player.zoneKills[zone.id]=Math.max(0,Math.min(
+            zoneQuestKillGoal,
+            Number.isSafeInteger(savedZoneKills[zone.id]) ? savedZoneKills[zone.id] : 0
+        ));
+    });
     const savedResources=player.resources && typeof player.resources==="object" && !Array.isArray(player.resources)
         ? player.resources
         : {};
@@ -2860,15 +4170,24 @@ function normalizePlayer(savedPlayer){
             && remainder>=0 && remainder<1 ? remainder : 0;
     });
     if(player.target && typeof player.target==="object"){
-        if(!player.target.zone){
-            player.target.zone=getZoneForLevel(player.target.level).name;
-        }
+        player.target.level=Number.isSafeInteger(player.target.level)
+            ? Math.max(1,Math.min(levelCap+5,player.target.level))
+            : player.level;
+        const targetZone=zones.find(function(zone){
+            return zone.id===Number(player.target.zoneId) || zone.name===player.target.zone;
+        }) || getCurrentZoneForPlayer();
+        player.target.zoneId=targetZone.id;
+        player.target.zone=targetZone.name;
         player.target.frontierBoss=player.target.frontierBoss===true;
         if(player.target.frontierBoss){
-            player.target.maxHp=frontierBossMaxHp;
-            player.target.hp=Number.isFinite(player.target.hp)
-                ? Math.max(0,Math.min(frontierBossMaxHp,Math.floor(player.target.hp)))
-                : frontierBossMaxHp;
+            const previousMaxHp=Number.isFinite(player.target.maxHp) && player.target.maxHp>0
+                ? player.target.maxHp
+                : 2500;
+            const previousHp=Number.isFinite(player.target.hp)
+                ? Math.max(0,Math.min(previousMaxHp,player.target.hp))
+                : previousMaxHp;
+            player.target.maxHp=frontierBossMaxHpForLevel(player.target.level);
+            player.target.hp=Math.floor(previousHp/previousMaxHp*player.target.maxHp);
             player.target.champion=true;
         }
     }
@@ -3019,7 +4338,7 @@ function equipmentBonuses(){
 }
 
 function playerPower(){
-    return 8+player.level*2+equipmentBonuses().power;
+    return 8+player.level*2+player.mastery*2+equipmentBonuses().power;
 }
 
 function isHealingSupportClass(realm,cls){
@@ -3187,11 +4506,12 @@ function gatherResource(skillName,resourceName){
     saveGame();
 }
 
-function craftResource(recipeName,skillName,ingredients,outputName){
+function craftResource(recipeName,skillName,ingredients,outputName,goldCost){
     if(!player.name){
         setCraftingStatus("Create or select a character before crafting.");
         return;
     }
+    goldCost=Number.isSafeInteger(goldCost) && goldCost>0 ? goldCost : 0;
     if(player.resources[outputName]>=resourceStackCap){
         setCraftingStatus(resourceLabels[outputName]+" stack is full (1,000/1,000); ingredients were not used.");
         return;
@@ -3207,19 +4527,25 @@ function craftResource(recipeName,skillName,ingredients,outputName){
         setCraftingStatus("Not enough ingredients: "+missingText.join(", ")+".");
         return;
     }
+    if(player.gold<goldCost){
+        setCraftingStatus("Not enough Gold: "+(goldCost-player.gold)+" more Gold required.");
+        return;
+    }
 
     Object.keys(ingredients).forEach(function(resourceName){
         player.resources[resourceName]-=ingredients[resourceName];
     });
+    player.gold-=goldCost;
     player.resources[outputName]++;
     awardCraftingXp(skillName,15);
-    setCraftingStatus("Crafted 1 "+resourceSingularLabels[outputName]+" ("+recipeName+").");
+    setCraftingStatus("Crafted 1 "+resourceSingularLabels[outputName]+" ("+recipeName+")"
+        +(goldCost ? " for "+goldCost+" Gold." : "."));
     updateUI();
     saveGame();
 }
 
 function craftPotion(){
-    craftResource("Healing Potion","herbalism",{herbs:3,wood:1},"potions");
+    craftResource("Healing Potion","herbalism",{herbs:3,wood:1},"potions",healingPotionGoldCost);
 }
 
 function craftGem(){
@@ -3319,6 +4645,7 @@ function grantItem(item){
 
     if(item.rarity==="Artifact"){
         addLog("ARTIFACT FOUND: Spear of Kings!");
+        publishStreamEvent("artifact","Artifact found: "+item.name,"character");
     }else{
         addLog(item.rarity+" loot found: "+item.name+".");
     }
@@ -3335,12 +4662,19 @@ function createTarget(){
     const enemyRealms=realms.filter(function(realm){
         return realm!==player.realm;
     });
-    const zone=getZoneForLevel(player.level);
+    const zone=getCurrentZoneForPlayer();
     const huntOrder=player.huntOrder;
     const champion=huntOrder
         ? Boolean(huntOrder.champion)
         : Math.random()<0.12;
-    const level=Math.max(zone.minLevel,Math.min(zone.maxLevel,player.level+Math.floor(Math.random()*3)-1));
+    const level=champion
+        ? Math.min(levelCap+5,player.level+5)
+        : zone.id===getZoneForLevel(player.level).id
+            ? Math.max(zone.minLevel,Math.min(
+                zone.maxLevel,
+                player.level+Math.floor(Math.random()*3)-1
+            ))
+            : player.level;
     const maxHp=60+level*15+zones.indexOf(zone)*15;
     const realm=huntOrder && enemyRealms.indexOf(huntOrder.realm)!==-1
         ? huntOrder.realm
@@ -3354,11 +4688,12 @@ function createTarget(){
             ? (huntOrder.champion || realm+" "+cls)
             : champion
                 ? enemyNames[Math.floor(Math.random()*enemyNames.length)]
-                : realm+" Scout",
+                : realm+" "+cls,
         realm:realm,
         cls:cls,
         level:level,
-        zone:getZoneForLevel(level).name,
+        zone:zone.name,
+        zoneId:zone.id,
         hp:maxHp,
         maxHp:maxHp,
         lastHealAt:Date.now(),
@@ -3367,6 +4702,11 @@ function createTarget(){
 
     if(champion){
         addLog("Realm Champion Encounter! "+player.target.name+" appears!");
+        publishStreamEvent(
+            "champion",
+            "Realm Champion Encounter: "+player.target.name+" appears!",
+            "combat"
+        );
     }else{
         addLog("Target acquired: "+player.target.name+", "+player.target.realm+" "+player.target.cls+" in "+player.target.zone+".");
     }
@@ -3377,20 +4717,31 @@ function createFrontierBoss(){
         return realm!==player.realm;
     });
     const realm=enemyRealms[Math.floor(Math.random()*enemyRealms.length)];
-    const zone=getZoneForLevel(player.level);
+    const zone=getCurrentZoneForPlayer();
+    const raidBoss=raidArchiveData.bosses[Math.floor(Math.random()*raidArchiveData.bosses.length)];
+    const level=Math.min(levelCap+5,player.level+5);
+    const maxHp=frontierBossMaxHpForLevel(level);
     player.target={
-        name:"Pilzpower",
+        name:raidBoss.name,
         realm:realm,
         cls:"Champion",
-        level:player.level,
+        level:level,
         zone:zone.name,
-        hp:frontierBossMaxHp,
-        maxHp:frontierBossMaxHp,
+        zoneId:zone.id,
+        raidLocation:raidBoss.location,
+        hp:maxHp,
+        maxHp:maxHp,
         lastHealAt:Date.now(),
         champion:true,
         frontierBoss:true
     };
-    addLog("Frontier Boss Appears! Pilzpower challenges you with "+frontierBossMaxHp+" HP.");
+    addLog("Elite raid boss "+raidBoss.name+" appears from "+raidBoss.location
+        +"! It challenges you with "+maxHp.toLocaleString()+" HP.");
+    publishStreamEvent(
+        "boss",
+        "Elite raid boss appears: "+raidBoss.name+" at "+raidBoss.location+".",
+        "combat"
+    );
 }
 
 function setHuntOrder(realm,cls,championName){
@@ -3465,6 +4816,11 @@ function advanceRealmWar(){
         addLog("Realm War: "+commander+" led "+newOwner+" to capture "+keep
             +" from "+previousOwner+".");
     }
+    publishStreamEvent(
+        "keep",
+        "Keep battle: "+newOwner+" captured "+keep+" from "+previousOwner+".",
+        "world"
+    );
 }
 
 function createCharacter(){
@@ -3530,7 +4886,9 @@ function loadSelectedCharacter(){
 }
 
 function levelRequirement(){
-    return player.level * 100;
+    return player.level>=levelCap
+        ? masteryRequirement()
+        : player.level*100;
 }
 
 function renderBestiary(){
@@ -3584,10 +4942,10 @@ function renderBestiary(){
         huntStatus.textContent="Hunt locked: "+(player.huntOrder.champion
             ? player.huntOrder.champion+" ("+player.huntOrder.realm+" "+player.huntOrder.cls+")"
             : player.huntOrder.realm+" "+player.huntOrder.cls)
-            +" in "+getZoneForLevel(player.level).name+".";
+            +" in "+getCurrentZoneForPlayer().name+".";
     }else{
         huntStatus.className="stat";
-        huntStatus.textContent="Roaming freely in "+getZoneForLevel(player.level).name+".";
+        huntStatus.textContent="Roaming freely in "+getCurrentZoneForPlayer().name+".";
     }
 
     const foesElement=document.getElementById("bestiaryRealms");
@@ -3622,7 +4980,10 @@ function renderBestiary(){
 
             const details=document.createElement("div");
             details.className="stat";
-            details.textContent="Level "+player.level+" · "+getZoneForLevel(player.level).name;
+            details.textContent=(player.level>=levelCap
+                ? "Level "+player.level+" · Mastery "+player.mastery
+                : "Level "+player.level)
+                +" · "+getCurrentZoneForPlayer().name;
             card.appendChild(details);
 
             const button=document.createElement("button");
@@ -3735,6 +5096,11 @@ function startRvrMatch(now){
         rpEarned:0
     };
     addLog("RvR arena match started. You were placed with "+formation.playerRealm+".");
+    publishStreamEvent(
+        "arena",
+        "8v8v8 Arena match started for "+formation.playerRealm+".",
+        "rvr"
+    );
 }
 
 function queueForRvr(){
@@ -3813,6 +5179,20 @@ function simulateRvrRound(match,roundAt){
             }
         });
     });
+
+    const playerFighter=getArenaPlayerFighter(match);
+    if(playerFighter){
+        const potion=consumeHealingPotion(
+            player.resources,
+            playerFighter.hp,
+            rvrFighterMaxHp
+        );
+        if(potion){
+            playerFighter.hp=potion.hp;
+            addLog("Auto-used a crafted Healing Potion in the arena: restored "
+                +potion.healed+" HP ("+potion.remaining+" remaining).");
+        }
+    }
 }
 
 function finishRvrMatch(now){
@@ -3853,6 +5233,7 @@ function finishRvrMatch(now){
         addLog(winner+" captured "+relic.name+" from "+relicCapture.fromRealm+".");
     }
     arena.match=null;
+    publishStreamEvent("arena","8v8v8 Arena match ended: "+winner+" won.","rvr");
 }
 
 function renderRvrMap(match){
@@ -4046,6 +5427,35 @@ function renderAchievements(){
     const unlocked=achievements.filter(function(achievement){
         return achievement.progress>=achievement.goal;
     });
+    if(player.characterId){
+        const completedIds=unlocked.map(function(achievement){
+            return achievement.id;
+        });
+        const previouslyCompleted=knownAchievementCompletions[player.characterId];
+        if(previouslyCompleted){
+            unlocked.forEach(function(achievement){
+                if(previouslyCompleted.indexOf(achievement.id)===-1){
+                    publishStreamEvent(
+                        "achievement",
+                        "Achievement unlocked: "+achievement.name,
+                        "achievements"
+                    );
+                }
+            });
+        }
+        knownAchievementCompletions[player.characterId]=completedIds;
+    }
+    renderZoneAchievements();
+    const renderKey=JSON.stringify([
+        player.characterId,
+        player.name,
+        player.titleId,
+        achievements.map(function(achievement){ return achievement.progress; })
+    ]);
+    if(renderKey===achievementsRenderKey){
+        return;
+    }
+    achievementsRenderKey=renderKey;
     const titleSelect=document.getElementById("equippedTitleSelect");
     const titles=getUnlockedTitles(player);
     titleSelect.textContent="";
@@ -4072,7 +5482,8 @@ function renderAchievements(){
     achievements.forEach(function(achievement){
         const complete=achievement.progress>=achievement.goal;
         const card=document.createElement("article");
-        card.className="achievement-card"+(complete ? " achievement-unlocked" : "");
+        card.className="achievement-card"+(complete ? " achievement-unlocked" : "")
+            +(achievement.ultimate ? " achievement-ultimate" : "");
 
         const heading=document.createElement("h3");
         heading.textContent=achievement.name;
@@ -4085,10 +5496,13 @@ function renderAchievements(){
 
         const progressText=document.createElement("p");
         progressText.className="stat";
+        const unlockedTitle=achievement.titleId && titles.find(function(title){
+            return title.id===achievement.titleId;
+        });
         progressText.textContent=complete
-            ? "Complete — Title unlocked: "+titles.find(function(title){
-                return title.id===achievement.titleId;
-            }).label
+            ? unlockedTitle
+                ? "Complete — Title unlocked: "+unlockedTitle.label
+                : "Complete — Frontier achievement earned."
             : Math.min(achievement.progress,achievement.goal).toLocaleString()
                 +" / "+achievement.goal.toLocaleString();
         card.appendChild(progressText);
@@ -4106,6 +5520,644 @@ function renderAchievements(){
         track.appendChild(fill);
         card.appendChild(track);
         list.appendChild(card);
+    });
+}
+
+function renderZoneAchievements(){
+    const list=document.getElementById("zoneAchievementList");
+    const zoneKills=player.zoneKills || {};
+    const renderKey=JSON.stringify([
+        player.characterId,
+        player.level,
+        player.mastery,
+        zones.map(function(zone){ return zoneKills[zone.id] || 0; })
+    ]);
+    if(renderKey===zoneAchievementsRenderKey){
+        return;
+    }
+    const openChapters=new Set(Array.from(list.querySelectorAll("details[open]")).map(function(chapter){
+        return chapter.dataset.chapter;
+    }));
+    zoneAchievementsRenderKey=renderKey;
+    list.textContent="";
+
+    for(let start=0;start<zones.length;start+=zoneChapterSize){
+        const chapterZones=zones.slice(start,start+zoneChapterSize);
+        const completed=chapterZones.filter(function(zone){
+            return zoneKills[zone.id]>=zoneQuestKillGoal;
+        }).length;
+        const chapterIndex=Math.floor(start/zoneChapterSize);
+        const chapter=document.createElement("details");
+        chapter.className="zone-achievement-chapter";
+        chapter.dataset.chapter=String(chapterIndex);
+        chapter.open=openChapters.has(String(chapterIndex))
+            || chapterZones.indexOf(getCurrentZoneForPlayer())!==-1;
+
+        const summary=document.createElement("summary");
+        summary.textContent="Frontier Chapter "+(chapterIndex+1)+" · Zones "
+            +String(chapterZones[0].id).padStart(3,"0")+"–"
+            +String(chapterZones[chapterZones.length-1].id).padStart(3,"0")
+            +" · "+zoneChapterProgressLabel(chapterZones)
+            +" · "+completed+"/"+chapterZones.length+" quests complete";
+        chapter.appendChild(summary);
+
+        const entries=document.createElement("div");
+        entries.className="zone-achievement-entries";
+        chapterZones.forEach(function(zone){
+            const progress=Math.min(zoneQuestKillGoal,zoneKills[zone.id] || 0);
+            const complete=progress>=zoneQuestKillGoal;
+            const item=document.createElement("article");
+            item.className="zone-achievement"+(complete ? " zone-achievement-complete" : "");
+            const title=document.createElement("strong");
+            title.textContent="#"+String(zone.id).padStart(3,"0")+" · "+zone.name;
+            item.appendChild(title);
+            const meta=document.createElement("div");
+            meta.className="zone-achievement-meta";
+            const levelRange=document.createElement("span");
+            levelRange.textContent=zoneLevelLabel(zone);
+            const questProgress=document.createElement("span");
+            questProgress.textContent=complete ? "Complete" : progress+"/"+zoneQuestKillGoal;
+            meta.appendChild(levelRange);
+            meta.appendChild(questProgress);
+            item.appendChild(meta);
+            const track=document.createElement("div");
+            track.className="achievement-progress-track";
+            track.setAttribute("role","progressbar");
+            track.setAttribute("aria-label",zone.name+" quest progress");
+            track.setAttribute("aria-valuemin","0");
+            track.setAttribute("aria-valuemax",String(zoneQuestKillGoal));
+            track.setAttribute("aria-valuenow",String(progress));
+            const fill=document.createElement("div");
+            fill.className="achievement-progress-fill";
+            fill.style.width=(progress/zoneQuestKillGoal*100)+"%";
+            track.appendChild(fill);
+            item.appendChild(track);
+            entries.appendChild(item);
+        });
+        chapter.appendChild(entries);
+        list.appendChild(chapter);
+    }
+}
+
+function renderHeraldArchive(){
+    if(heraldArchiveRendered){
+        return;
+    }
+    heraldArchiveRendered=true;
+    const summary=document.getElementById("heraldSummary");
+    [
+        {value:raidArchiveData.bosses.length,label:"Archived raid bosses"},
+        {value:Object.keys(raidArchiveData.realmRankings).length,label:"Realm rankings"},
+        {value:Object.keys(raidArchiveData.realmRankings).reduce(function(total,realm){
+            return total+raidArchiveData.realmRankings[realm].length;
+        },0),label:"Featured players"}
+    ].forEach(function(stat){
+        const card=document.createElement("div");
+        card.className="herald-stat";
+        const value=document.createElement("strong");
+        value.textContent=stat.value.toLocaleString();
+        const label=document.createElement("span");
+        label.textContent=stat.label;
+        card.appendChild(value);
+        card.appendChild(label);
+        summary.appendChild(card);
+    });
+
+    const rankings=document.getElementById("realmHeraldRankings");
+    ["Albion","Hibernia","Midgard"].forEach(function(realm){
+        const card=document.createElement("article");
+        card.className="realm-herald-card";
+        card.dataset.realm=realm;
+        const title=document.createElement("div");
+        title.className="realm-herald-title";
+        const emblem=document.createElement("span");
+        emblem.setAttribute("aria-hidden","true");
+        emblem.textContent=realmVisuals[realm].emblem;
+        const realmName=document.createElement("strong");
+        realmName.textContent="Top "+realm+" Players";
+        title.appendChild(emblem);
+        title.appendChild(realmName);
+        card.appendChild(title);
+
+        const table=document.createElement("table");
+        table.className="realm-herald-table";
+        const header=document.createElement("thead");
+        const headerRow=document.createElement("tr");
+        ["#","Name","Class"].forEach(function(label){
+            const cell=document.createElement("th");
+            cell.scope="col";
+            cell.textContent=label;
+            headerRow.appendChild(cell);
+        });
+        header.appendChild(headerRow);
+        table.appendChild(header);
+        const body=document.createElement("tbody");
+        raidArchiveData.realmRankings[realm].forEach(function(entry,index){
+            const row=document.createElement("tr");
+            [String(index+1),entry.name,entry.class].forEach(function(value){
+                const cell=document.createElement("td");
+                cell.textContent=value;
+                row.appendChild(cell);
+            });
+            body.appendChild(row);
+        });
+        table.appendChild(body);
+        card.appendChild(table);
+        rankings.appendChild(card);
+    });
+
+    const bossList=document.getElementById("raidBossList");
+    document.getElementById("raidBossArchiveSummary").textContent=
+        "Browse "+raidArchiveData.bosses.length+" archived raid bosses";
+    raidArchiveData.bosses.forEach(function(boss){
+        const entry=document.createElement("div");
+        entry.className="raid-boss-entry";
+        const name=document.createElement("strong");
+        name.textContent=boss.name;
+        const location=document.createElement("span");
+        location.textContent=boss.location;
+        entry.appendChild(name);
+        entry.appendChild(location);
+        bossList.appendChild(entry);
+    });
+}
+
+function getRaidCharacterById(characterId){
+    if(player.name && characterId===activeCharacterId){
+        return player;
+    }
+    return characterRoster.find(function(character){
+        return character.characterId===characterId;
+    }) || null;
+}
+
+function getRaidCharacterEquipmentCount(character){
+    const equipment=character && character.equipment || {};
+    return equipmentSlots.filter(function(slot){
+        return equipment[slot] && equipment[slot].rarity==="Epic";
+    }).length;
+}
+
+function getRaidCharacterPower(character){
+    const equipment=character && character.equipment || {};
+    const bonus=equipmentSlots.reduce(function(total,slot){
+        const item=equipment[slot];
+        return total+(item && Number.isFinite(item.power) ? item.power : 0);
+    },0);
+    return 8+Math.max(1,Number(character.level) || 1)*2
+        +Math.max(0,Number(character.mastery) || 0)*2+bonus;
+}
+
+function getRaidCharacterMaxHp(character){
+    const equipment=character && character.equipment || {};
+    const bonus=equipmentSlots.reduce(function(total,slot){
+        const item=equipment[slot];
+        return total+(item && Number.isFinite(item.hp) ? item.hp : 0);
+    },0);
+    return 100+(Math.max(1,Number(character.level) || 1)-1)*10+bonus;
+}
+
+function getRaidTeamReadiness(){
+    const characters=raidTeamIds.map(getRaidCharacterById).filter(Boolean);
+    const reasons=[];
+    if(raidTeamIds.length!==8){
+        reasons.push("Select exactly eight saved characters.");
+    }
+    characters.forEach(function(character){
+        if(character.level<levelCap){
+            reasons.push(character.name+" needs level "+levelCap+".");
+        }
+        const epicSlots=getRaidCharacterEquipmentCount(character);
+        if(epicSlots!==equipmentSlots.length){
+            reasons.push(character.name+" needs Epic gear in all six slots ("+epicSlots+"/6).");
+        }
+    });
+    return {
+        ready:raidTeamIds.length===8 && characters.length===8 && reasons.length===0,
+        characters:characters,
+        reasons:reasons
+    };
+}
+
+function normalizeEliteRaidAccountState(savedData){
+    const data=savedData && typeof savedData==="object" ? savedData : {};
+    const availableIds=new Set(characterRoster.map(function(character){
+        return character.characterId;
+    }));
+    raidTeamIds=[];
+    if(Array.isArray(data.raidTeamIds)){
+        data.raidTeamIds.forEach(function(characterId){
+            if(typeof characterId==="string" && availableIds.has(characterId)
+                && raidTeamIds.indexOf(characterId)===-1 && raidTeamIds.length<8){
+                raidTeamIds.push(characterId);
+            }
+        });
+    }
+    eliteRaidProgress={};
+    eliteRaidBosses.forEach(function(boss){
+        eliteRaidProgress[boss.id]=Boolean(data.eliteRaidProgress
+            && data.eliteRaidProgress[boss.id]===true);
+    });
+    eliteRaidRun=null;
+    const savedRun=data.eliteRaidRun;
+    const boss=savedRun && eliteRaidBosses.find(function(candidate){
+        return candidate.id===savedRun.bossId;
+    });
+    if(!boss || eliteRaidProgress[boss.id] || !getRaidTeamReadiness().ready
+        || !Number.isSafeInteger(savedRun.maxHp) || savedRun.maxHp<1
+        || !Number.isSafeInteger(savedRun.hp) || savedRun.hp<0
+        || savedRun.hp>savedRun.maxHp){
+        return;
+    }
+    const memberHp={};
+    for(let i=0;i<raidTeamIds.length;i++){
+        const characterId=raidTeamIds[i];
+        const character=getRaidCharacterById(characterId);
+        const hp=savedRun.memberHp && savedRun.memberHp[characterId];
+        if(!character || !Number.isFinite(hp) || hp<0
+            || hp>getRaidCharacterMaxHp(character)){
+            return;
+        }
+        memberHp[characterId]=Math.floor(hp);
+    }
+    eliteRaidRun={
+        bossId:boss.id,
+        hp:savedRun.hp,
+        maxHp:savedRun.maxHp,
+        round:validArenaCount(savedRun.round),
+        memberHp:memberHp,
+        totalPower:raidTeamIds.reduce(function(total,characterId){
+            return total+getRaidCharacterPower(getRaidCharacterById(characterId));
+        },0),
+        addsSpawned:savedRun.addsSpawned===true,
+        addsHp:Number.isSafeInteger(savedRun.addsHp) ? Math.max(0,savedRun.addsHp) : 0,
+        addsMaxHp:Number.isSafeInteger(savedRun.addsMaxHp) ? Math.max(0,savedRun.addsMaxHp) : 0
+    };
+}
+
+function setRaidTeamMember(characterId,isSelected){
+    if(eliteRaidRun){
+        eliteRaidRenderKey="";
+        renderEliteRaids();
+        document.getElementById("raidTeamStatus").textContent=
+            "Finish or abandon the active raid before changing your team.";
+        return;
+    }
+    const selectedIndex=raidTeamIds.indexOf(characterId);
+    if(isSelected && selectedIndex===-1){
+        if(raidTeamIds.length>=8){
+            eliteRaidRenderKey="";
+            renderEliteRaids();
+            document.getElementById("raidTeamStatus").textContent=
+                "Your raid team already has eight members. Remove one before adding another.";
+            return;
+        }
+        raidTeamIds.push(characterId);
+    }else if(!isSelected && selectedIndex!==-1){
+        raidTeamIds.splice(selectedIndex,1);
+    }
+    eliteRaidRenderKey="";
+    saveGame();
+    updateUI();
+}
+
+function abandonEliteRaid(){
+    if(!eliteRaidRun) return;
+    eliteRaidRun=null;
+    document.getElementById("eliteRaidLog").textContent=
+        "Raid abandoned. Your boss progress is saved only after a victory.";
+    eliteRaidRenderKey="";
+    updateUI();
+    saveGame();
+}
+
+function challengeEliteBoss(bossId){
+    const boss=eliteRaidBosses.find(function(candidate){
+        return candidate.id===bossId;
+    });
+    if(!boss || eliteRaidProgress[bossId]) return;
+    const team=getRaidTeamReadiness();
+    if(!team.ready){
+        document.getElementById("eliteRaidLog").textContent=
+            team.reasons.join(" ") || "Your raid team is not ready.";
+        return;
+    }
+    if(eliteRaidRun && eliteRaidRun.bossId!==bossId){
+        document.getElementById("eliteRaidLog").textContent=
+            "Finish or abandon the active raid before challenging another boss.";
+        return;
+    }
+    if(!eliteRaidRun){
+        const totalPower=team.characters.reduce(function(total,character){
+            return total+getRaidCharacterPower(character);
+        },0);
+        eliteRaidRun={
+            bossId:boss.id,
+            hp:Math.ceil(totalPower*boss.difficulty),
+            maxHp:Math.ceil(totalPower*boss.difficulty),
+            round:0,
+            totalPower:totalPower,
+            memberHp:{},
+            addsSpawned:false,
+            addsHp:0,
+            addsMaxHp:0
+        };
+        team.characters.forEach(function(character){
+            eliteRaidRun.memberHp[character.characterId]=getRaidCharacterMaxHp(character);
+        });
+    }
+
+    const report=[];
+    for(let batchRound=0;batchRound<3 && eliteRaidRun;batchRound++){
+        const alive=raidTeamIds.map(function(characterId){
+            return {
+                id:characterId,
+                character:getRaidCharacterById(characterId),
+                hp:eliteRaidRun.memberHp[characterId]
+            };
+        }).filter(function(member){
+            return member.character && member.hp>0;
+        });
+        if(alive.length===0){
+            eliteRaidRun=null;
+            report.push("Your raid team was defeated.");
+            break;
+        }
+
+        alive.forEach(function(member){
+            if(!eliteRaidRun) return;
+            const damage=Math.max(1,Math.floor(
+                getRaidCharacterPower(member.character)
+                    *classDamageMultiplier(member.character.realm,member.character.cls)
+                    *(.9+Math.random()*.2)
+            ));
+            if(eliteRaidRun.addsHp>0){
+                eliteRaidRun.addsHp=Math.max(0,eliteRaidRun.addsHp-damage);
+            }else{
+                eliteRaidRun.hp=Math.max(0,eliteRaidRun.hp-damage);
+            }
+        });
+        if(!eliteRaidRun) break;
+        if(!eliteRaidRun.addsSpawned && eliteRaidRun.hp>0
+            && eliteRaidRun.hp<=eliteRaidRun.maxHp*.5){
+            eliteRaidRun.addsSpawned=true;
+            eliteRaidRun.addsMaxHp=Math.ceil(eliteRaidRun.totalPower*3);
+            eliteRaidRun.addsHp=eliteRaidRun.addsMaxHp;
+            report.push(boss.name+" calls for help: elite adds enter the battle.");
+        }
+        if(eliteRaidRun.hp===0){
+            eliteRaidProgress[boss.id]=true;
+            eliteRaidRun=null;
+            report.push("Victory! "+boss.name+" has been defeated.");
+            break;
+        }
+
+        const attackCount=boss.difficulty>=20 ? 4 : 3;
+        for(let attack=0;attack<attackCount;attack++){
+            const targets=raidTeamIds.map(function(characterId){
+                return {
+                    id:characterId,
+                    character:getRaidCharacterById(characterId),
+                    hp:eliteRaidRun.memberHp[characterId]
+                };
+            }).filter(function(member){
+                return member.character && member.hp>0;
+            });
+            if(targets.length===0) break;
+            const target=targets[Math.floor(Math.random()*targets.length)];
+            const maxHp=getRaidCharacterMaxHp(target.character);
+            const damage=Math.max(1,Math.floor(maxHp*(.06+boss.difficulty*.0015)));
+            let currentHp=Math.max(0,eliteRaidRun.memberHp[target.id]-damage);
+            const potion=consumeHealingPotion(
+                target.character.resources,
+                currentHp,
+                maxHp
+            );
+            if(potion){
+                currentHp=potion.hp;
+                report.push(target.character.name+" auto-used a crafted potion.");
+            }
+            eliteRaidRun.memberHp[target.id]=currentHp;
+        }
+        if(eliteRaidRun.addsHp>0){
+            const targets=raidTeamIds.map(function(characterId){
+                return {
+                    id:characterId,
+                    character:getRaidCharacterById(characterId),
+                    hp:eliteRaidRun.memberHp[characterId]
+                };
+            }).filter(function(member){
+                return member.character && member.hp>0;
+            });
+            if(targets.length>0){
+                const target=targets[Math.floor(Math.random()*targets.length)];
+                const maxHp=getRaidCharacterMaxHp(target.character);
+                const damage=Math.max(1,Math.floor(maxHp*.035));
+                let currentHp=Math.max(0,eliteRaidRun.memberHp[target.id]-damage);
+                const potion=consumeHealingPotion(
+                    target.character.resources,
+                    currentHp,
+                    maxHp
+                );
+                if(potion){
+                    currentHp=potion.hp;
+                    report.push(target.character.name+" auto-used a crafted potion.");
+                }
+                eliteRaidRun.memberHp[target.id]=currentHp;
+            }
+        }
+        eliteRaidRun.round++;
+        if(!raidTeamIds.some(function(characterId){
+            return eliteRaidRun.memberHp[characterId]>0;
+        })){
+            eliteRaidRun=null;
+            report.push("Your raid team was defeated. Craft more potions and try again.");
+            break;
+        }
+    }
+
+    if(eliteRaidProgress[boss.id]){
+        const completed=eliteRaidBosses.filter(function(entry){
+            return eliteRaidProgress[entry.id];
+        }).length;
+        report.push(completed===eliteRaidBosses.length
+            ? "All five elite bosses are defeated. Realm's Greatest is unlocked!"
+            : completed+" of "+eliteRaidBosses.length+" elite bosses defeated.");
+    }else if(eliteRaidRun){
+        report.push(boss.name+" · Round "+eliteRaidRun.round+" · Boss HP "
+            +eliteRaidRun.hp.toLocaleString()+"/"+eliteRaidRun.maxHp.toLocaleString()
+            +(eliteRaidRun.addsHp>0
+                ? " · Adds "+eliteRaidRun.addsHp.toLocaleString()+"/"
+                    +eliteRaidRun.addsMaxHp.toLocaleString()
+                : ""));
+    }
+    document.getElementById("eliteRaidLog").textContent=report.join(" ");
+    eliteRaidRenderKey="";
+    updateUI();
+    saveGame();
+}
+
+function renderEliteRaids(){
+    const rosterSummary=characterRoster.map(function(entry){
+        const character=getRaidCharacterById(entry.characterId) || entry;
+        return [
+            character.characterId,
+            character.level,
+            getRaidCharacterEquipmentCount(character),
+            character.resources && character.resources.potions || 0
+        ];
+    });
+    const renderKey=JSON.stringify([
+        activeCharacterId,
+        raidTeamIds,
+        eliteRaidProgress,
+        eliteRaidRun,
+        rosterSummary
+    ]);
+    if(renderKey===eliteRaidRenderKey){
+        return;
+    }
+    eliteRaidRenderKey=renderKey;
+
+    const completion=eliteRaidBosses.filter(function(boss){
+        return eliteRaidProgress[boss.id]===true;
+    }).length;
+    document.getElementById("eliteRaidCompletion").textContent=
+        completion+" / "+eliteRaidBosses.length+" elite bosses defeated";
+    document.getElementById("raidUltimateStatus").textContent=completion
+        +" / "+eliteRaidBosses.length+" elite bosses defeated";
+    document.getElementById("raidUltimateCard").classList.toggle(
+        "achievement-unlocked",
+        completion===eliteRaidBosses.length
+    );
+    document.getElementById("raidTeamCount").textContent=
+        "("+raidTeamIds.length+" / 8)";
+
+    const teamStatus=getRaidTeamReadiness();
+    const status=document.getElementById("raidTeamStatus");
+    if(teamStatus.ready){
+        status.textContent="Raid team ready: eight level-"+levelCap
+            +" characters with six Epic slots each.";
+    }else if(teamStatus.reasons.length>0){
+        status.textContent=teamStatus.reasons.slice(0,4).join(" ")
+            +(teamStatus.reasons.length>4
+                ? " And "+(teamStatus.reasons.length-4)+" more requirements remain."
+                : "");
+    }else{
+        status.textContent="Select eight characters from your saved roster.";
+    }
+
+    const roster=document.getElementById("raidTeamRoster");
+    roster.textContent="";
+    if(characterRoster.length===0){
+        const empty=document.createElement("p");
+        empty.className="stat";
+        empty.textContent="No saved characters yet. Create and save eight characters to begin.";
+        roster.appendChild(empty);
+    }else{
+        characterRoster.forEach(function(entry,index){
+            const character=getRaidCharacterById(entry.characterId) || entry;
+            const epicSlots=getRaidCharacterEquipmentCount(character);
+            const ready=character.level>=levelCap && epicSlots===equipmentSlots.length;
+            const card=document.createElement("article");
+            card.className="raid-character-card"+(ready ? " raid-character-ready" : "");
+            const label=document.createElement("label");
+            label.htmlFor="raidMember"+index;
+            const checkbox=document.createElement("input");
+            checkbox.id="raidMember"+index;
+            checkbox.type="checkbox";
+            checkbox.checked=raidTeamIds.indexOf(character.characterId)!==-1;
+            checkbox.disabled=Boolean(eliteRaidRun);
+            checkbox.setAttribute("aria-label","Add "+character.name+" to the elite raid team");
+            checkbox.addEventListener("change",function(){
+                setRaidTeamMember(character.characterId,checkbox.checked);
+            });
+            const name=document.createElement("span");
+            name.textContent=character.name+" — "+character.realm+" "+character.cls;
+            label.appendChild(checkbox);
+            label.appendChild(name);
+            card.appendChild(label);
+            const level=document.createElement("p");
+            level.className="stat";
+            level.textContent="Level "+character.level+" / "+levelCap;
+            card.appendChild(level);
+            const gear=document.createElement("p");
+            gear.className="stat"+(epicSlots===equipmentSlots.length ? " raid-gear-ready" : "");
+            gear.textContent="Epic gear: "+epicSlots+" / "+equipmentSlots.length+" slots";
+            card.appendChild(gear);
+            const potions=document.createElement("p");
+            potions.className="stat";
+            potions.textContent="Crafted potions: "
+                +(character.resources && character.resources.potions || 0);
+            card.appendChild(potions);
+            roster.appendChild(card);
+        });
+    }
+
+    const bossList=document.getElementById("eliteBossList");
+    bossList.textContent="";
+    eliteRaidBosses.forEach(function(boss){
+        const defeated=eliteRaidProgress[boss.id]===true;
+        const active=eliteRaidRun && eliteRaidRun.bossId===boss.id;
+        const card=document.createElement("article");
+        card.className="elite-boss-card"+(defeated ? " raid-boss-defeated" : "");
+        const title=document.createElement("h3");
+        title.textContent=boss.name;
+        card.appendChild(title);
+        const location=document.createElement("p");
+        location.className="stat";
+        location.textContent=boss.location+" · Boss level "+(levelCap+5);
+        card.appendChild(location);
+        if(active){
+            const healthText=document.createElement("p");
+            healthText.className="stat";
+            healthText.textContent="Round "+eliteRaidRun.round
+                +(eliteRaidRun.addsHp>0 ? " · Adds are active" : "");
+            card.appendChild(healthText);
+            const healthTrack=document.createElement("div");
+            healthTrack.className="health-track";
+            healthTrack.setAttribute("role","progressbar");
+            healthTrack.setAttribute("aria-label",boss.name+" health");
+            healthTrack.setAttribute("aria-valuemin","0");
+            healthTrack.setAttribute("aria-valuemax",String(eliteRaidRun.maxHp));
+            healthTrack.setAttribute("aria-valuenow",String(eliteRaidRun.hp));
+            const healthFill=document.createElement("div");
+            healthFill.className="health-fill elite-boss-health";
+            healthFill.style.width=(eliteRaidRun.hp/eliteRaidRun.maxHp*100)+"%";
+            healthTrack.appendChild(healthFill);
+            card.appendChild(healthTrack);
+        }else{
+            const difficulty=document.createElement("p");
+            difficulty.className="stat";
+            difficulty.textContent="Eight-person raid · Difficulty "+boss.difficulty;
+            card.appendChild(difficulty);
+        }
+        const button=document.createElement("button");
+        button.type="button";
+        button.textContent=defeated
+            ? "Defeated"
+            : active
+                ? "Fight 3 Rounds"
+                : eliteRaidRun
+                    ? "Raid in Progress"
+                    : teamStatus.ready
+                        ? "Begin Raid"
+                        : "Team Required";
+        button.disabled=defeated || !teamStatus.ready
+            || Boolean(eliteRaidRun && !active);
+        button.addEventListener("click",function(){
+            challengeEliteBoss(boss.id);
+        });
+        card.appendChild(button);
+        if(active){
+            const abandon=document.createElement("button");
+            abandon.type="button";
+            abandon.textContent="Abandon Raid";
+            abandon.addEventListener("click",abandonEliteRaid);
+            card.appendChild(abandon);
+        }
+        card.appendChild(document.createTextNode(defeated ? " · Victory recorded" : ""));
+        bossList.appendChild(card);
     });
 }
 
@@ -4259,8 +6311,14 @@ function updateUI(){
     document.getElementById("level").innerText =
     player.level;
 
+    document.getElementById("xpLabel").innerText=player.level>=levelCap
+        ? "Mastery XP"
+        : "XP";
     document.getElementById("xp").innerText =
-    player.xp + "/" + levelRequirement();
+    (player.level>=levelCap ? player.masteryXp : player.xp)
+        +"/"+levelRequirement();
+    document.getElementById("mastery").innerText=
+        player.mastery.toLocaleString();
 
     document.getElementById("gold").innerText =
     player.gold;
@@ -4281,7 +6339,7 @@ function updateUI(){
     document.getElementById("paperdollHp").innerText=player.name ? player.hp+"/"+maxHp : "--";
     updateActiveCharacterOption();
     document.getElementById("rr").innerText =
-    Math.floor(player.rp / 1000) + 1;
+    getRealmRank();
 
     document.getElementById("kills").innerText=player.kills || 0;
     document.getElementById("pvpKills").innerText=player.pvpKills || 0;
@@ -4291,13 +6349,22 @@ function updateUI(){
         ? Math.max(0,Math.min(100,(player.hp/maxHp)*100))+"%"
         : "0%";
     document.getElementById("targetName").innerText=player.target
-        ? (player.target.frontierBoss ? "Frontier Boss: " : "")+player.target.name
+        ? (player.target.frontierBoss ? "Elite Raid Boss: " : "")+player.target.name
         : "Waiting for a character";
     document.getElementById("targetDetails").innerText=player.target
         ? (player.target.frontierBoss ? "Champion · " : "")
-            +"Level "+player.target.level+" "+player.target.realm+" "+player.target.cls+" — "+player.target.zone
+            +targetProgressionLabel(player.target)+" "+player.target.realm+" "
+            +player.target.cls+" — "+player.target.zone
+            +(player.target.raidLocation ? " · Raid site: "+player.target.raidLocation : "")
         : "Create a character to enter combat.";
     const targetPortrait=document.getElementById("targetPortrait");
+    const portraitImage=document.getElementById("targetPortraitImage");
+    const portraitPath=getTargetPortraitPath(player.target);
+    portraitImage.hidden=!portraitPath;
+    if(portraitPath && portraitImage.getAttribute("src")!==portraitPath){
+        portraitImage.src=portraitPath;
+    }
+    targetPortrait.classList.toggle("enemy-portrait-has-image",Boolean(portraitPath));
     targetPortrait.dataset.realm=player.target && realms.indexOf(player.target.realm)!==-1
         ? player.target.realm.toLowerCase()
         : "neutral";
@@ -4319,25 +6386,22 @@ function updateUI(){
     renderAbilityControls("combat");
     renderStatistics();
     renderAchievements();
+    renderHeraldArchive();
+    renderEliteRaids();
     renderRelics();
     renderBattlefield();
     renderBestiary();
     renderCrafting();
     renderRvrArena();
+    renderObserverDashboard();
 
-    const currentZone=getZoneForLevel(player.level);
-    document.getElementById("currentZone").innerText=currentZone.name+" (Level "+zoneLevelLabel(currentZone)+")";
-
-    const zoneList=document.getElementById("zoneList");
-    zoneList.textContent="";
-    zones.forEach(function(zone){
-        const entry=document.createElement("div");
-        const current=zone===currentZone;
-        const unlocked=player.level>=zone.minLevel;
-        entry.className="zone-entry"+(current ? " zone-current" : "")+(!unlocked ? " zone-locked" : "");
-        entry.textContent=zone.name+" — Levels "+zoneLevelLabel(zone)+(current ? " (Current)" : !unlocked ? " (Locked)" : " (Unlocked)");
-        zoneList.appendChild(entry);
-    });
+    const currentZone=getCurrentZoneForPlayer();
+    document.getElementById("currentZone").innerText=currentZone.name+" ("
+        +zoneLevelLabel(currentZone)+")";
+    document.getElementById("zoneCount").textContent=zones.length.toLocaleString();
+    document.getElementById("levelCapDisplay").textContent=levelCap.toLocaleString();
+    document.getElementById("eliteRaidLevelCap").textContent=levelCap.toLocaleString();
+    renderZoneJourney(currentZone);
 
     const counts=keepCounts();
     const leadingRealm=dominantRealm();
@@ -4371,13 +6435,15 @@ function updateUI(){
 
         const slotName=document.createElement("div");
         slotName.className="gear-slot-name";
-        slotName.textContent=equipmentIcon(slot)+" "+slot;
+        slotName.appendChild(createEquipmentIcon(slot));
+        slotName.appendChild(document.createTextNode(slot));
         slotElement.appendChild(slotName);
 
         const itemName=document.createElement("div");
         if(item){
-            itemName.className="rarity-"+item.rarity.toLowerCase();
-            itemName.textContent=equipmentIcon(item.slot)+" "+item.name;
+            itemName.className="rarity-"+item.rarity.toLowerCase()+" equipment-item-label";
+            itemName.appendChild(createEquipmentIcon(item.slot));
+            itemName.appendChild(document.createTextNode(item.name));
         }else{
             itemName.className="stat";
             itemName.textContent="Empty";
@@ -4406,8 +6472,9 @@ function updateUI(){
             itemElement.className="inventory-item";
 
             const itemName=document.createElement("div");
-            itemName.className="rarity-"+item.rarity.toLowerCase();
-            itemName.textContent=equipmentIcon(item.slot)+" "+item.name+" — "+item.slot;
+            itemName.className="rarity-"+item.rarity.toLowerCase()+" equipment-item-label inventory-item-name";
+            itemName.appendChild(createEquipmentIcon(item.slot));
+            itemName.appendChild(document.createTextNode(item.name+" — "+item.slot));
             itemElement.appendChild(itemName);
 
             const itemStats=document.createElement("div");
@@ -4439,19 +6506,39 @@ function xpTick(){
     trackPlaytime();
     if(!player.name) return;
 
-    player.xp+=applyRelicBonus(5,"xp");
+    const earnedXp=applyRelicBonus(5,"xp");
     awardGold(2);
 
-    if(player.xp >= levelRequirement()){
+    if(player.level<levelCap){
+        player.xp+=earnedXp;
+        if(player.xp>=levelRequirement()){
+            const previousLevelZone=getZoneForLevel(player.level);
+            player.xp=0;
+            player.level++;
+            if(player.activeZoneId===previousLevelZone.id){
+                player.activeZoneId=null;
+            }
+            addLog(player.name+" reached level "+player.level);
+        }
 
+        if(player.level>=levelCap){
+            player.level=levelCap;
+            player.xp=0;
+        }
+    }else{
         player.xp=0;
-        player.level++;
-
-        addLog(
-          player.name +
-          " reached level " +
-          player.level
-        );
+        player.masteryXp+=earnedXp;
+        const requiredXp=masteryRequirement();
+        if(player.mastery<Number.MAX_SAFE_INTEGER-1
+            && player.masteryXp>=requiredXp){
+            player.masteryXp-=requiredXp;
+            player.mastery++;
+            const unlockedZone=zones.find(function(zone){
+                return zone.masteryLevel===player.mastery;
+            });
+            addLog("Mastery reached "+player.mastery+"."
+                +(unlockedZone ? " New Frontier zone unlocked: "+unlockedZone.name+"." : ""));
+        }
     }
 
     updateUI();
@@ -4479,6 +6566,7 @@ function rvrBattle(){
     ));
     recordDamageDealt(damage);
     target.hp=Math.max(0,target.hp-damage);
+    showFloatingDamage("targetDamageLayer",damage,false);
     lastDamageText="You hit "+target.name+" for "+damage+" damage!";
 
     if(target.hp<=0){
@@ -4491,6 +6579,8 @@ function rvrBattle(){
                 *classAbilityDefenseMultiplier(now)
         ));
         player.hp=Math.max(0,player.hp-enemyDamage);
+        showFloatingDamage("playerDamageLayer",enemyDamage,true);
+        tryUsePlayerHealingPotion();
         lastDamageText+=" "+target.name+" hits you for "+enemyDamage+".";
 
         if(player.hp<=0){
@@ -4522,8 +6612,23 @@ function processPlayerClassHealing(){
     saveGame();
 }
 
+function recordZoneKill(target){
+    const zone=zones.find(function(candidate){
+        return candidate.id===target.zoneId;
+    }) || getZoneForLevel(player.level);
+    const previous=Number.isSafeInteger(player.zoneKills[zone.id])
+        ? player.zoneKills[zone.id]
+        : 0;
+    const progress=Math.min(zoneQuestKillGoal,previous+1);
+    player.zoneKills[zone.id]=progress;
+    if(previous<zoneQuestKillGoal && progress===zoneQuestKillGoal){
+        addLog("Frontier quest complete: "+zone.name+" is secured. Zone achievement unlocked!");
+    }
+}
+
 function resolvePveKill(target){
     player.kills=(player.kills || 0)+1;
+    recordZoneKill(target);
     if(player.kills%5===0){
         advanceRealmWar();
     }
@@ -4539,7 +6644,7 @@ function resolvePveKill(target){
     if(isFrontierBoss){
         player.statistics.bossKills++;
         const goldAwarded=awardGold(frontierBossGoldReward);
-        addLog("Defeated Frontier Champion Pilzpower! +"+goldAwarded
+        addLog("Defeated Elite Raid Boss "+target.name+"! +"+goldAwarded
             +" Gold and +"+rpAwarded+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
         grantItem(generateItem("Epic"));
     }else{
@@ -4649,6 +6754,7 @@ function useClassAbility(){
         }else{
             const target=player.target;
             target.hp=Math.max(0,target.hp-damage);
+            showFloatingDamage("targetDamageLayer",damage,false);
             lastDamageText=ability.name+" hit "+target.name+" for "+damage+" damage!";
             addLog(lastDamageText);
             if(target.hp===0){
@@ -4693,7 +6799,10 @@ function saveGame(){
       "idleEdenSave",
       JSON.stringify({
           characters:characterRoster,
-          activeCharacterId:activeCharacterId
+          activeCharacterId:activeCharacterId,
+          raidTeamIds:raidTeamIds,
+          eliteRaidProgress:eliteRaidProgress,
+          eliteRaidRun:eliteRaidRun
       })
     );
 }
@@ -4704,6 +6813,9 @@ function loadGame(){
     player=createDefaultPlayer();
     characterRoster=[];
     activeCharacterId="";
+    raidTeamIds=[];
+    eliteRaidProgress={};
+    eliteRaidRun=null;
 
     if(save){
 
@@ -4711,6 +6823,10 @@ function loadGame(){
         if(Array.isArray(savedData.characters)){
             characterRoster=savedData.characters.filter(function(character){
                 return character && typeof character==="object";
+            }).map(function(character){
+                return normalizeCharacterProgression(
+                    Object.assign(createDefaultPlayer(),character)
+                );
             });
             characterRoster.forEach(function(character){
                 if(!character.characterId){
@@ -4742,6 +6858,7 @@ function loadGame(){
             createTarget();
         }
 
+        normalizeEliteRaidAccountState(savedData);
         renderCharacterSelect(activeCharacterId);
         updateUI();
         if(player.name){
@@ -4918,6 +7035,7 @@ function renderGuildDirectory(snapshot){
     if(!activeGuildId){
         setGuildStatus("Guild list is live. Join a guild to open its chat.");
     }
+    renderObserverDashboard();
 }
 
 function renderGuildMessages(snapshot){
@@ -4929,6 +7047,7 @@ function renderGuildMessages(snapshot){
         emptyMessage.className="stat";
         emptyMessage.textContent="No messages yet. Say hello!";
         list.appendChild(emptyMessage);
+        renderObserverDashboard();
         return;
     }
 
@@ -4954,6 +7073,7 @@ function renderGuildMessages(snapshot){
         list.appendChild(item);
     });
     list.scrollTop=list.scrollHeight;
+    renderObserverDashboard();
 }
 
 async function openGuild(guildId,guildData){
@@ -5003,6 +7123,7 @@ async function openGuild(guildId,guildData){
             }
         );
         setGuildStatus("Joined "+guild.name+". Chat updates live.");
+        publishStreamEvent("guild","Guild activity: joined "+guild.name+".","guilds");
         return true;
     }catch(error){
         setGuildStatus("Could not join guild: "+error.message,true);
@@ -5132,6 +7253,9 @@ async function saveToCloud(){
         await firebaseModules.set(saveReference,{
             characters:characterRoster,
             activeCharacterId:activeCharacterId,
+            raidTeamIds:raidTeamIds,
+            eliteRaidProgress:eliteRaidProgress,
+            eliteRaidRun:eliteRaidRun,
             savedAt:Date.now()
         });
         setCloudStatus("Saved "+characterRoster.length+" character(s) to your cloud account.");
@@ -5193,7 +7317,7 @@ async function restoreFromCloud(){
             if(!restored.characterId){
                 restored.characterId=createCharacterId();
             }
-            return restored;
+            return normalizeCharacterProgression(restored);
         });
         activeCharacterId=characterRoster.some(function(character){
             return character.characterId===savedData.activeCharacterId;
@@ -5203,6 +7327,7 @@ async function restoreFromCloud(){
         });
 
         normalizePlayer(cloneCharacter(activeCharacter));
+        normalizeEliteRaidAccountState(savedData);
         lastDamageText="Create a character to enter combat.";
         document.getElementById("log").textContent="";
         if(player.name && !player.target){
@@ -5328,6 +7453,7 @@ setInterval(processRvrArena,1000);
 setInterval(processPlayerClassHealing,1000);
 setInterval(saveGame,5000);
 
+initializeStreamingSettings();
 updateClassOptions();
 loadGame();
 initializeFirebase();
