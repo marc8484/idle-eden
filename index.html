@@ -1266,6 +1266,63 @@ h1{
     overflow-wrap:anywhere;
     text-shadow:0 0 12px rgba(229,203,131,.14);
 }
+
+.achievement-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:10px;
+}
+
+.achievement-card{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-width:0;
+    padding:12px;
+    background:linear-gradient(145deg,rgba(28,39,34,.96),rgba(8,13,12,.96));
+    border:1px solid rgba(182,154,94,.36);
+    border-radius:6px;
+}
+
+.achievement-card h3,.achievement-card p{
+    margin:0;
+}
+
+.achievement-card.achievement-unlocked{
+    border-color:rgba(229,203,131,.8);
+    box-shadow:inset 0 0 16px rgba(229,203,131,.08);
+}
+
+.achievement-progress-track{
+    height:8px;
+    overflow:hidden;
+    background:#050807;
+    border:1px solid rgba(182,154,94,.28);
+    border-radius:99px;
+}
+
+.achievement-progress-fill{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#34765d,#78c89d);
+    transition:width .25s ease;
+}
+
+.achievement-unlocked .achievement-progress-fill{
+    background:linear-gradient(90deg,#a17b36,#f3d37e);
+}
+
+.title-controls{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:12px 0;
+}
+
+.title-controls select{
+    min-width:min(100%,260px);
+}
 </style>
 </head>
 
@@ -1308,6 +1365,7 @@ h1{
         <button type="button" id="tab-character" aria-controls="panel-character" onclick="showGamePanel('character')">Character</button>
         <button type="button" id="tab-world" aria-controls="panel-world" onclick="showGamePanel('world')">World</button>
         <button type="button" id="tab-statistics" aria-controls="panel-statistics" onclick="showGamePanel('statistics')">Statistics</button>
+        <button type="button" id="tab-achievements" aria-controls="panel-achievements" onclick="showGamePanel('achievements')">Achievements</button>
     </nav>
 
     <main class="game-content">
@@ -1557,6 +1615,10 @@ h1{
                 <div class="realm-counts" id="realmCounts"></div>
                 <div class="keep-list" id="keepList"></div>
                 <div class="stat" id="realmBonus"></div>
+                <h3>Realm Relics</h3>
+                <p class="stat">Win an RvR arena match to capture one relic held by a rival realm. Bonuses apply to the realm holding each relic.</p>
+                <p class="stat" id="relicSummary"></p>
+                <div class="statistics-grid" id="relicList"></div>
             </section>
         </section>
 
@@ -1599,6 +1661,19 @@ h1{
             </div>
         </section>
 
+        <section class="panel tab-panel" id="panel-achievements" aria-labelledby="tab-achievements" hidden>
+            <h2>Achievements &amp; Titles</h2>
+            <p class="stat" id="achievementsSummary">Create or load a character to begin earning achievements.</p>
+            <div class="title-controls">
+                <label for="equippedTitleSelect">Equipped title</label>
+                <select id="equippedTitleSelect" onchange="setEquippedTitle(this.value)" aria-label="Equipped title">
+                    <option value="">No title</option>
+                </select>
+                <span class="stat" id="titleStatus" role="status" aria-live="polite"></span>
+            </div>
+            <div class="achievement-grid" id="achievementList"></div>
+        </section>
+
         <section class="panel bestiary-panel" id="bestiaryPanel" hidden aria-labelledby="bestiaryTitle">
             <h2 id="bestiaryTitle">Bestiary &amp; Hunt Board</h2>
             <p class="stat">Choose an opposing realm and foe to keep your auto-battles focused. Your hunt order is saved with this character.</p>
@@ -1619,7 +1694,7 @@ h1{
 
 function showGamePanel(panelName){
 
-    ["combat","rvr","crafting","character","world","statistics"].forEach(function(name){
+    ["combat","rvr","crafting","character","world","statistics","achievements"].forEach(function(name){
         const isActive=name===panelName;
         const button=document.getElementById("tab-"+name);
         const panel=document.getElementById("panel-"+name);
@@ -1655,6 +1730,17 @@ function createDefaultPlayer(){
             goldEarned:0,
             rpEarned:0,
             playtimeMs:0
+        },
+        titleId:"",
+        relicOwners:{
+            hibernia:"Hibernia",
+            midgard:"Midgard",
+            albion:"Albion"
+        },
+        relicBonusRemainders:{
+            xp:0,
+            rp:0,
+            gold:0
         },
         lastClassHealAt:0,
         abilityState:{
@@ -1732,6 +1818,11 @@ const realmVisuals={
     Midgard:{emblem:"🐺"},
     Albion:{emblem:"🦁"}
 };
+const realmRelics=[
+    {id:"hibernia",name:"Hibernia Relic",homeRealm:"Hibernia",bonusType:"xp",bonusLabel:"+5% XP"},
+    {id:"midgard",name:"Midgard Relic",homeRealm:"Midgard",bonusType:"rp",bonusLabel:"+5% RP"},
+    {id:"albion",name:"Albion Relic",homeRealm:"Albion",bonusType:"gold",bonusLabel:"+5% Gold"}
+];
 const characterClasses={
     Hibernia:["Druid","Chanter","Animist","Bard","Warden","Hero","Blademaster","Vampiir","Mentalist","Eldritch"],
     Midgard:["Berserker","Bonedancer","Healer","Hunter","Runemaster","Savage","Shaman","Skald","Shadowblade","Spiritmaster","Thane","Valkyrie","Warlock"],
@@ -1962,6 +2053,86 @@ function dominantRealm(){
     return leaders.length===1 ? leaders[0] : null;
 }
 
+function getAchievementProgress(character){
+    const data=character || player;
+    const statistics=data.statistics || {};
+    const lifetimeKills=Number.isFinite(data.kills) ? Math.max(0,Math.floor(data.kills)) : 0;
+    const realmPoints=Number.isFinite(data.rp) ? Math.max(0,Math.floor(data.rp)) : 0;
+
+    return [
+        {id:"first-blood",name:"First Blood",description:"Defeat your first enemy.",progress:lifetimeKills,goal:1,titleId:"slayer"},
+        {id:"veteran",name:"Veteran",description:"Defeat 1,000 enemies.",progress:lifetimeKills,goal:1000,titleId:"veteran"},
+        {id:"champion-hunter",name:"Champion Hunter",description:"Defeat Pilzpower 25 times.",progress:Number.isFinite(statistics.bossKills) ? statistics.bossKills : 0,goal:25,titleId:"champion"},
+        {id:"relic-master",name:"Relic Master",description:"Find 50 Artifacts.",progress:Number.isFinite(statistics.artifactsFound) ? statistics.artifactsFound : 0,goal:50,titleId:"relic-hunter"},
+        {id:"realm-hero",name:"Realm Hero",description:"Earn 100,000 Realm Points.",progress:realmPoints,goal:100000,titleId:"realm-hero"},
+        {id:"rr10",name:"RR10 Hero",description:"Reach Realm Rank 10.",progress:realmPoints,goal:9000,titleId:"rr10"}
+    ];
+}
+
+function getUnlockedTitles(character){
+    const data=character || player;
+    const achievements=getAchievementProgress(data);
+    const completed=new Set(achievements.filter(function(achievement){
+        return achievement.progress>=achievement.goal;
+    }).map(function(achievement){
+        return achievement.id;
+    }));
+    const titles=[
+        {id:"slayer",label:"the Slayer",achievementId:"first-blood"},
+        {id:"veteran",label:"the Veteran",achievementId:"veteran"},
+        {id:"champion",label:"the Champion",achievementId:"champion-hunter"},
+        {id:"relic-hunter",label:"the Relic Hunter",achievementId:"relic-master"},
+        {id:"realm-hero",label:"the Realm Hero",achievementId:"realm-hero"},
+        {id:"rr10",label:"RR10 Hero of "+(data.realm || "your realm"),achievementId:"rr10"}
+    ];
+
+    return titles.filter(function(title){
+        return completed.has(title.achievementId);
+    });
+}
+
+function getCharacterDisplayName(character){
+    const data=character || player;
+    if(!data.name) return "";
+    const title=getUnlockedTitles(data).find(function(candidate){
+        return candidate.id===data.titleId;
+    });
+    return data.name+(title ? " "+title.label : "");
+}
+
+function relicBonusRate(rewardType,realm){
+    if(!player.relicOwners || !realm) return 0;
+    return realmRelics.filter(function(relic){
+        return relic.bonusType===rewardType && player.relicOwners[relic.id]===realm;
+    }).length*.05;
+}
+
+function applyRelicBonus(amount,rewardType){
+    const rate=relicBonusRate(rewardType,player.realm);
+    if(rate<=0){
+        player.relicBonusRemainders[rewardType]=0;
+        return amount;
+    }
+
+    const accrued=player.relicBonusRemainders[rewardType]+amount*rate;
+    const bonus=Math.floor(accrued+1e-9);
+    player.relicBonusRemainders[rewardType]=Math.max(0,accrued-bonus);
+    return amount+bonus;
+}
+
+function captureRelicForRealm(winner){
+    const available=realmRelics.filter(function(relic){
+        return player.relicOwners[relic.id]!==winner;
+    });
+    if(available.length===0) return null;
+
+    const relic=available[Math.floor(Math.random()*available.length)];
+    const previousOwner=player.relicOwners[relic.id];
+    player.relicOwners[relic.id]=winner;
+    player.relicBonusRemainders={xp:0,rp:0,gold:0};
+    return {relicId:relic.id,fromRealm:previousOwner,toRealm:winner};
+}
+
 function emptyEquipment(){
     return {
         Weapon:null,
@@ -2100,7 +2271,20 @@ function normalizeArenaResult(savedResult){
         playerKills:validArenaCount(savedResult.playerKills),
         rpEarned:validArenaCount(savedResult.rpEarned),
         durationMs:durationMs,
-        finishedAt:finishedAt
+        finishedAt:finishedAt,
+        relicCapture:savedResult.relicCapture
+            && typeof savedResult.relicCapture==="object"
+            && realmRelics.some(function(relic){
+                return relic.id===savedResult.relicCapture.relicId;
+            })
+            && realms.indexOf(savedResult.relicCapture.fromRealm)!==-1
+            && savedResult.relicCapture.toRealm===savedResult.winner
+            ? {
+                relicId:savedResult.relicCapture.relicId,
+                fromRealm:savedResult.relicCapture.fromRealm,
+                toRealm:savedResult.relicCapture.toRealm
+            }
+            : null
     };
 }
 
@@ -2149,6 +2333,25 @@ function normalizePlayer(savedPlayer){
                 "Dun Scathaig":"Albion"
             }[keep];
         }
+    });
+    const savedRelicOwners=player.relicOwners && typeof player.relicOwners==="object"
+        && !Array.isArray(player.relicOwners) ? player.relicOwners : {};
+    player.relicOwners={};
+    realmRelics.forEach(function(relic){
+        player.relicOwners[relic.id]=realms.indexOf(savedRelicOwners[relic.id])!==-1
+            ? savedRelicOwners[relic.id]
+            : relic.homeRealm;
+    });
+    const savedRemainders=player.relicBonusRemainders
+        && typeof player.relicBonusRemainders==="object"
+        && !Array.isArray(player.relicBonusRemainders)
+        ? player.relicBonusRemainders
+        : {};
+    player.relicBonusRemainders={};
+    ["xp","rp","gold"].forEach(function(rewardType){
+        const remainder=savedRemainders[rewardType];
+        player.relicBonusRemainders[rewardType]=Number.isFinite(remainder)
+            && remainder>=0 && remainder<1 ? remainder : 0;
     });
     if(player.target && typeof player.target==="object"){
         if(!player.target.zone){
@@ -2204,6 +2407,12 @@ function normalizePlayer(savedPlayer){
             Number.isFinite(player.rp) ? Math.max(0,Math.floor(player.rp)) : 0),
         playtimeMs:normalizeLifetimeCount(savedStatistics.playtimeMs,0)
     };
+    player.titleId=typeof player.titleId==="string" ? player.titleId : "";
+    if(player.titleId && !getUnlockedTitles(player).some(function(title){
+        return title.id===player.titleId;
+    })){
+        player.titleId="";
+    }
     player.lastClassHealAt=validArenaTimestamp(player.lastClassHealAt);
     const savedAbilityState=player.abilityState && typeof player.abilityState==="object"
         && !Array.isArray(player.abilityState) ? player.abilityState : {};
@@ -2243,7 +2452,8 @@ function normalizePlayer(savedPlayer){
 }
 
 function characterOptionLabel(character,index,isActive){
-    return (index+1)+". "+character.name+" — "+character.realm+" "+character.cls
+    return (index+1)+". "+(getCharacterDisplayName(character) || character.name)
+        +" — "+character.realm+" "+character.cls
         +" (Level "+character.level+")"+(isActive ? " (Active)" : "");
 }
 
@@ -2317,18 +2527,22 @@ function classDamageMultiplier(realm,cls){
 
 function awardGold(amount){
     if(!Number.isSafeInteger(amount) || amount<=0){
-        return;
+        return 0;
     }
+    amount=applyRelicBonus(amount,"gold");
     player.gold+=amount;
     player.statistics.goldEarned+=amount;
+    return amount;
 }
 
 function awardRealmPoints(amount){
     if(!Number.isSafeInteger(amount) || amount<=0){
-        return;
+        return 0;
     }
+    amount=applyRelicBonus(amount,"rp");
     player.rp+=amount;
     player.statistics.rpEarned+=amount;
+    return amount;
 }
 
 function recordDamageDealt(damage){
@@ -2966,7 +3180,7 @@ function createRvrTeams(){
         if(realm===playerRealm){
             const playerPosition=Math.floor(Math.random()*teams[realm].length);
             teams[realm][playerPosition]={
-                name:player.name,
+                name:getCharacterDisplayName(),
                 cls:player.cls,
                 isPlayer:true,
                 hp:rvrFighterMaxHp
@@ -3093,19 +3307,26 @@ function finishRvrMatch(now){
     });
     const winner=winners[Math.floor(Math.random()*winners.length)];
     if(winner===match.playerRealm){
-        awardRealmPoints(rvrWinBonusRp);
-        match.rpEarned+=rvrWinBonusRp;
+        match.rpEarned+=awardRealmPoints(rvrWinBonusRp);
     }
+    const relicCapture=captureRelicForRealm(winner);
     arena.lastResult={
         winner:winner,
         scores:match.scores,
         playerKills:match.playerKills,
         rpEarned:match.rpEarned,
         durationMs:match.durationMs,
-        finishedAt:now
+        finishedAt:now,
+        relicCapture:relicCapture
     };
     addLog("RvR arena ended: "+winner+" won. You earned "+match.playerKills
         +" PvP kill(s) and "+match.rpEarned+" Realm Points.");
+    if(relicCapture){
+        const relic=realmRelics.find(function(entry){
+            return entry.id===relicCapture.relicId;
+        });
+        addLog(winner+" captured "+relic.name+" from "+relicCapture.fromRealm+".");
+    }
     arena.match=null;
 }
 
@@ -3264,7 +3485,12 @@ function renderRvrArena(){
     if(result){
         resultElement.textContent="Last match: "+result.winner+" won. You earned "
             +result.playerKills+" PvP kill"+(result.playerKills===1 ? "" : "s")
-            +" and "+result.rpEarned+" Realm Points.";
+            +" and "+result.rpEarned+" Realm Points."
+            +(result.relicCapture
+                ? " "+result.winner+" captured "+realmRelics.find(function(relic){
+                    return relic.id===result.relicCapture.relicId;
+                }).name+" from "+result.relicCapture.fromRealm+"."
+                : "");
     }
 }
 
@@ -3288,6 +3514,128 @@ function renderStatistics(){
     document.getElementById("statisticsMessage").textContent=player.name
         ? "Lifetime totals for "+player.name+". Playtime counts while this page is visible."
         : "Create or load a character to begin tracking lifetime statistics.";
+}
+
+function renderAchievements(){
+    const achievements=getAchievementProgress(player);
+    const unlocked=achievements.filter(function(achievement){
+        return achievement.progress>=achievement.goal;
+    });
+    const titleSelect=document.getElementById("equippedTitleSelect");
+    const titles=getUnlockedTitles(player);
+    titleSelect.textContent="";
+
+    const noTitle=document.createElement("option");
+    noTitle.value="";
+    noTitle.textContent="No title";
+    titleSelect.appendChild(noTitle);
+    titles.forEach(function(title){
+        const option=document.createElement("option");
+        option.value=title.id;
+        option.textContent=title.label;
+        titleSelect.appendChild(option);
+    });
+    titleSelect.value=player.titleId || "";
+    titleSelect.disabled=!player.name || titles.length===0;
+
+    document.getElementById("achievementsSummary").textContent=player.name
+        ? unlocked.length+" / "+achievements.length+" achievements unlocked for "+player.name+"."
+        : "Create or load a character to begin earning achievements.";
+
+    const list=document.getElementById("achievementList");
+    list.textContent="";
+    achievements.forEach(function(achievement){
+        const complete=achievement.progress>=achievement.goal;
+        const card=document.createElement("article");
+        card.className="achievement-card"+(complete ? " achievement-unlocked" : "");
+
+        const heading=document.createElement("h3");
+        heading.textContent=achievement.name;
+        card.appendChild(heading);
+
+        const description=document.createElement("p");
+        description.className="stat";
+        description.textContent=achievement.description;
+        card.appendChild(description);
+
+        const progressText=document.createElement("p");
+        progressText.className="stat";
+        progressText.textContent=complete
+            ? "Complete — Title unlocked: "+titles.find(function(title){
+                return title.id===achievement.titleId;
+            }).label
+            : Math.min(achievement.progress,achievement.goal).toLocaleString()
+                +" / "+achievement.goal.toLocaleString();
+        card.appendChild(progressText);
+
+        const track=document.createElement("div");
+        track.className="achievement-progress-track";
+        track.setAttribute("role","progressbar");
+        track.setAttribute("aria-label",achievement.name+" progress");
+        track.setAttribute("aria-valuemin","0");
+        track.setAttribute("aria-valuemax",String(achievement.goal));
+        track.setAttribute("aria-valuenow",String(Math.min(achievement.progress,achievement.goal)));
+        const fill=document.createElement("div");
+        fill.className="achievement-progress-fill";
+        fill.style.width=Math.min(100,achievement.progress/achievement.goal*100)+"%";
+        track.appendChild(fill);
+        card.appendChild(track);
+        list.appendChild(card);
+    });
+}
+
+function renderRelics(){
+    const heldByPlayerRealm=realmRelics.filter(function(relic){
+        return player.relicOwners[relic.id]===player.realm;
+    });
+    document.getElementById("relicSummary").textContent=player.name
+        ? player.realm+" holds "+heldByPlayerRealm.length+" / "+realmRelics.length
+            +" relic"+(heldByPlayerRealm.length===1 ? "" : "s")
+            +(heldByPlayerRealm.length
+                ? ": "+heldByPlayerRealm.map(function(relic){ return relic.bonusLabel; }).join(", ")
+                : ". Win an RvR arena match to claim one.")
+        : "Create or load a character to view your realm's relic bonuses.";
+
+    const list=document.getElementById("relicList");
+    list.textContent="";
+    realmRelics.forEach(function(relic){
+        const owner=player.relicOwners[relic.id];
+        const card=document.createElement("article");
+        card.className="statistics-card";
+        const name=document.createElement("strong");
+        name.textContent=relic.name;
+        card.appendChild(name);
+        const bonus=document.createElement("span");
+        bonus.textContent=relic.bonusLabel;
+        card.appendChild(bonus);
+        const ownership=document.createElement("span");
+        ownership.textContent="Held by "+owner+(player.name && owner===player.realm
+            ? " · Your realm bonus"
+            : "");
+        card.appendChild(ownership);
+        list.appendChild(card);
+    });
+}
+
+function setEquippedTitle(titleId){
+    if(!player.name){
+        document.getElementById("titleStatus").textContent="Create or load a character first.";
+        return;
+    }
+    if(titleId && !getUnlockedTitles(player).some(function(title){
+        return title.id===titleId;
+    })){
+        document.getElementById("titleStatus").textContent="That title has not been unlocked.";
+        renderAchievements();
+        return;
+    }
+
+    player.titleId=titleId;
+    document.getElementById("titleStatus").textContent=titleId
+        ? "Title equipped."
+        : "Title removed.";
+    saveGame();
+    updateUI();
 }
 
 function processRvrArena(){
@@ -3327,14 +3675,12 @@ function processRvrArena(){
 function updateUI(){
 
     const maxHp=playerMaxHp();
+    const displayName=getCharacterDisplayName();
     if(player.hp>maxHp) player.hp=maxHp;
 
-    document.getElementById("charInfo").innerText =
-    player.name +
-    " - " +
-    player.realm +
-    " " +
-    player.cls;
+    document.getElementById("charInfo").innerText=player.name
+        ? displayName+" — "+player.realm+" "+player.cls
+        : "No character";
     const realmBanner=document.getElementById("realmBanner");
     const realmVisual=realmVisuals[player.realm];
     realmBanner.hidden=!player.name || !realmVisual;
@@ -3361,7 +3707,7 @@ function updateUI(){
     player.loot;
 
     document.getElementById("power").innerText=playerPower();
-    document.getElementById("paperdollName").innerText=player.name || "No character";
+    document.getElementById("paperdollName").innerText=displayName || "No character";
     document.getElementById("paperdollMeta").innerText=player.name
         ? player.realm+" "+player.cls
         : "Create a character to begin.";
@@ -3374,7 +3720,7 @@ function updateUI(){
 
     document.getElementById("kills").innerText=player.kills || 0;
     document.getElementById("pvpKills").innerText=player.pvpKills || 0;
-    document.getElementById("combatPlayerName").innerText=player.name || "No character";
+    document.getElementById("combatPlayerName").innerText=displayName || "No character";
     document.getElementById("playerHp").innerText=player.name ? player.hp+"/"+maxHp : "--";
     document.getElementById("playerHpBar").style.width=player.name
         ? Math.max(0,Math.min(100,(player.hp/maxHp)*100))+"%"
@@ -3407,6 +3753,8 @@ function updateUI(){
     document.getElementById("damageReadout").innerText=lastDamageText;
     renderAbilityControls("combat");
     renderStatistics();
+    renderAchievements();
+    renderRelics();
     renderBestiary();
     renderCrafting();
     renderRvrArena();
@@ -3525,7 +3873,7 @@ function xpTick(){
     trackPlaytime();
     if(!player.name) return;
 
-    player.xp += 5;
+    player.xp+=applyRelicBonus(5,"xp");
     awardGold(2);
 
     if(player.xp >= levelRequirement()){
@@ -3620,16 +3968,16 @@ function resolvePveKill(target){
         : Math.floor(Math.random()*50)+25;
     const hasRealmBonus=dominantRealm()===player.realm;
     const rpGain=Math.floor(baseRpGain*(hasRealmBonus ? 1.1 : 1));
-    awardRealmPoints(rpGain);
+    const rpAwarded=awardRealmPoints(rpGain);
 
     if(isFrontierBoss){
         player.statistics.bossKills++;
-        awardGold(frontierBossGoldReward);
-        addLog("Defeated Frontier Champion Pilzpower! +"+frontierBossGoldReward
-            +" Gold and +"+rpGain+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
+        const goldAwarded=awardGold(frontierBossGoldReward);
+        addLog("Defeated Frontier Champion Pilzpower! +"+goldAwarded
+            +" Gold and +"+rpAwarded+" Realm Points"+(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
         grantItem(generateItem("Epic"));
     }else{
-        addLog("Defeated "+target.name+"! +"+rpGain+" Realm Points"
+        addLog("Defeated "+target.name+"! +"+rpAwarded+" Realm Points"
             +(hasRealmBonus ? " (including the 10% realm bonus)." : "."));
         if(Math.random()>0.7){
             grantItem(generateItem());
@@ -3665,10 +4013,10 @@ function findArenaAbilityTarget(match){
 function awardArenaPlayerKill(match,realm){
     match.scores[realm]++;
     player.pvpKills++;
-    awardRealmPoints(rvrRpPerPvpKill);
+    const rpEarned=awardRealmPoints(rvrRpPerPvpKill);
     match.playerKills++;
-    match.rpEarned+=rvrRpPerPvpKill;
-    addLog("You scored an arena PvP kill! +"+rvrRpPerPvpKill+" Realm Points.");
+    match.rpEarned+=rpEarned;
+    addLog("You scored an arena PvP kill! +"+rpEarned+" Realm Points.");
 }
 
 function useClassAbility(){
